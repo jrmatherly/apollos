@@ -24,5 +24,18 @@ README.md
 .serena/
 .drift/
 
+# Claude-Flow runtime (don't commit)
+.claude-flow/data/
+.claude-flow/logs/
+.claude-flow/sessions/
+.claude-flow/daemon.pid
+.claude-flow/daemon.log
+.claude-flow/daemon-state.json
+.claude-flow/.trend-cache.json
+.claude/memory.db
+.claude/settings.local.json
+.swarm/
+.mcp.json
+
 # Override
 !src/interface/web
