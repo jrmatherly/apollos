@@ -107,7 +107,7 @@ api_content.py (put_content) → processor/content/*_to_entries.py (parse)
 
 ### Frontend (Web)
 
-Next.js app at `src/interface/web/`. Pages: chat, settings, agents, search, automations, share. Components in `app/components/`. UI primitives use shadcn/ui.
+Next.js app at `src/interface/web/`. Pages: chat, settings, agents, search, automations, share. Components in `app/components/`. UI primitives use shadcn/ui. Frontend domain config is centralized in `src/interface/web/app/common/config.ts` — import `APP_URL`, `DOCS_URL`, `ASSETS_URL`, `SUPPORT_EMAIL` from there, never hardcode.
 
 ## Testing
 
@@ -144,6 +144,9 @@ Server port: 42110. Database: pgvector/pgvector:pg15. Search: SearXNG. Sandbox: 
 - **Android package ID**: Must be a valid Java identifier — no hyphens. Current: `dev.apollos.app`
 - **Domain convention**: All URLs use `*.apollosai.dev`. Domain is configurable via env vars (see below). Hardcoded references have `NOTE` comments with forking instructions.
 - **Android Java directory**: Files under `src/interface/android/.../java/` must mirror the `package` declaration path (`dev/apollos/app/`).
+- **Documentation MDX files**: Uses Docusaurus with MDX. Tags like `<TabItem>` and `<Tabs>` must use proper JSX closing (`</TabItem>`), never self-closing (`<TabItem />`). Batch operations on docs must include both `*.md` and `*.mdx` files.
+- **Multiple Dockerfiles**: `.devcontainer/Dockerfile`, `Dockerfile`, `prod.Dockerfile`, `computer.Dockerfile`, `src/telemetry/Dockerfile`. Lint with `docker run --rm -i hadolint/hadolint < <file>`.
+- **ESLint `next/babel` errors**: IDE-only issue when workspace root is the monorepo instead of `src/interface/web/`. Not a code bug.
 
 ## Environment Variables (Domain & Email)
 

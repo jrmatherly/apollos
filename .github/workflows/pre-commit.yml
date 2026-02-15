@@ -28,8 +28,6 @@ jobs:
   test:
     name: Setup Application and Lint
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
     steps:
       - uses: actions/checkout@v3
         with:

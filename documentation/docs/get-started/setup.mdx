@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# TODO: Verify apollosai.dev URLs once DNS is configured
+{/* NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. */}
 
 # Self-Host
 
@@ -115,12 +115,14 @@ Your setup is complete once you see `🌖 Apollos is ready to engage` in the ser
   </TabItem>
   <TabItem value="pip" label="Pip">
 
-<h3>1. Install Apollos Server</h3>- Make sure
-[python](https://realpython.com/installing-python/) and
-[pip](https://pip.pypa.io/en/stable/installation/) are installed on your machine
+<h3>1. Install Apollos Server</h3>
+
+- Make sure
+  [python](https://realpython.com/installing-python/) and
+  [pip](https://pip.pypa.io/en/stable/installation/) are installed on your machine
 - Check [llama-cpp-python
-setup](https://github.com/abetlen/llama-cpp-python?tab=readme-ov-file#supported-backends)
-if you hit any llama-cpp issues with the installation
+  setup](https://github.com/abetlen/llama-cpp-python?tab=readme-ov-file#supported-backends)
+  if you hit any llama-cpp issues with the installation
 
 Run the following command in your terminal to install the Apollos server.
 
@@ -207,8 +209,8 @@ terminal!
 To start Apollos automatically in the background use [Task scheduler](https://www.windowscentral.com/how-create-automated-task-using-task-scheduler-windows-10) on Windows or [Cron](https://en.wikipedia.org/wiki/Cron) on Mac, Linux (e.g. with `@reboot apollos`)
 :::
 
-<TabItem />
-<Tabs />
+  </TabItem>
+</Tabs>
 
 ## Use Apollos
 
@@ -243,8 +245,8 @@ Using Safari on Mac? You might not be able to login to the admin panel. Try usin
 Setup which chat model you'd want to use. Apollos supports local and online chat
 models.
 
-<Tabs groupId="chatmodel" queryString />
-<TabItem value="openai" label="OpenAI" />
+<Tabs groupId="chatmodel" queryString>
+<TabItem value="openai" label="OpenAI">
 
 :::info[Ollama Integration]
 Using Ollama? See the [Ollama Integration](/advanced/ollama) section for more custom setup instructions.
@@ -257,8 +259,8 @@ Using Ollama? See the [Ollama Integration](/advanced/ollama) section for more cu
      ![example configuration for ai model api](/img/example_openai_processor_config.png)
 2. Create a new [chat model](http://localhost:42110/server/admin/database/chatmodel/add) - Set the `chat-model` field to an [OpenAI chat model](https://platform.openai.com/docs/models). Example: `gpt-4o`. - Make sure to set the `model-type` field to `OpenAI`. - If your model supports vision, set the `vision enabled` field to `true`. This is currently only supported for OpenAI models with vision capabilities. - The `tokenizer` and `max-prompt-size` fields are optional. Set them only if you're sure of the tokenizer or token limit for the model you're using. Contact us if you're unsure what to do here.<br />
    ![example configuration for chat model options](/img/example_chatmodel_option.png)
-   <TabItem />
-   <TabItem value="anthropic" label="Anthropic" />
+      </TabItem>
+<TabItem value="anthropic" label="Anthropic">
 3. Create a new [AI Model API](http://localhost:42110/server/admin/database/aimodelapi/add) in the server admin settings.
    - Add your [Anthropic API key](https://console.anthropic.com/account/keys)
    - Give the configuration a friendly name like `Anthropic`. Do not configure the API base url.
@@ -266,8 +268,8 @@ Using Ollama? See the [Ollama Integration](/advanced/ollama) section for more cu
    - Set the `chat-model` field to an [Anthropic chat model](https://docs.anthropic.com/en/docs/about-claude/models#model-names). Example: `claude-3-5-sonnet-20240620`.
    - Set the `model-type` field to `Anthropic`.
    - Set the `ai model api` field to the Anthropic AI Model API you created in step 1.
-     <TabItem />
-     <TabItem value="gemini" label="Gemini" />
+     </TabItem>
+     <TabItem value="gemini" label="Gemini">
 5. Create a new [AI Model API](http://localhost:42110/server/admin/database/aimodelapi/add) in the server admin settings.
    - Add your [Gemini API key](https://aistudio.google.com/app/apikey)
    - Give the configuration a friendly name like `Gemini`. Do not configure the API base url.
@@ -276,8 +278,8 @@ Using Ollama? See the [Ollama Integration](/advanced/ollama) section for more cu
    - Set the `model-type` field to `Google`.
    - Set the `ai model api` field to the Gemini AI Model API you created in step 1.
 
-<TabItem />
-<TabItem value="offline" label="Offline" />
+</TabItem>
+<TabItem value="offline" label="Offline">
 Offline chat stays completely private and can work without internet using any
 open-weights model.
 
@@ -295,8 +297,8 @@ open-weights model.
    - If that doesn't work, you'll need to manually add available [chat model](http://localhost:42110/server/admin/database/chatmodel/add) in the admin panel.
 4. Set the newly added chat model as your preferred model in your [User chat settings](http://localhost:42110/settings)
 5. [Start chatting](http://localhost:42110) with your local AI!
-   <TabItem />
-   <Tabs />
+      </TabItem>
+</Tabs>
 
 :::tip[Multiple Chat Models]
 Set your preferred default chat model in the `Default`, `Advanced` fields of your [ServerChatSettings](http://localhost:42110/server/admin/database/serverchatsettings/).

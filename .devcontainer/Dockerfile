@@ -2,11 +2,12 @@ ARG PYTHON_VERSION=3.12
 FROM mcr.microsoft.com/devcontainers/python:${PYTHON_VERSION}
 
 # Install UV and Bun
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN curl -fsSL https://bun.sh/install | bash && mv /root/.bun/bin/bun /usr/local/bin/bun
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
-RUN uv python pin $PYTHON_VERSION
+RUN uv python pin "${PYTHON_VERSION}"
 # create python virtual environment
-RUN uv venv /opt/venv --python $PYTHON_VERSION --seed
+RUN uv venv /opt/venv --python "${PYTHON_VERSION}" --seed
 # Add venv to PATH for subsequent RUN commands and for the container environment
 ENV PATH="/opt/venv/bin:$PATH"
 # Tell pip, uv to use this virtual environment
@@ -43,7 +44,9 @@ RUN sed -i "s/dynamic = \\[\"version\"\\]/version = \"$VERSION\"/" pyproject.tom
 COPY src/interface/web/package.json src/interface/web/bun.lock /opt/apollos_web/
 
 # Install web app dependencies
-RUN cd /opt/apollos_web && bun install && chown -R vscode:vscode .
+WORKDIR /opt/apollos_web
+RUN bun install && chown -R vscode:vscode .
+WORKDIR /workspaces/apollos
 
 # The .venv and node_modules are now populated in the image.
 # The rest of the source code will be mounted by VS Code from your local checkout,

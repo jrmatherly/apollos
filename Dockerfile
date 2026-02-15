@@ -6,7 +6,7 @@ LABEL org.opencontainers.image.source="https://github.com/jrmatherly/apollos"
 LABEL org.opencontainers.image.description="Your second brain, containerized for personal, local deployment."
 
 # Install System Dependencies
-RUN apt update -y && apt -y install \
+RUN apt-get update -y && apt-get -y install --no-install-recommends \
     python3-pip \
     swig \
     curl \
@@ -19,7 +19,7 @@ RUN apt update -y && apt -y install \
     musl-dev && \
     ln -s /usr/lib/x86_64-linux-musl/libc.so /lib/libc.musl-x86_64.so.1 && \
     # Clean up
-    apt clean && rm -rf /var/lib/apt/lists/*
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Build Server
 FROM base AS server-deps
@@ -54,7 +54,9 @@ WORKDIR /app
 COPY --from=server-deps /usr/local/lib/python3.10/dist-packages /usr/local/lib/python3.10/dist-packages
 COPY --from=web-app /app/src/interface/web/out ./src/apollos/interface/built
 COPY . .
-RUN cd src && python3 apollos/manage.py collectstatic --noinput
+WORKDIR /app/src
+RUN python3 apollos/manage.py collectstatic --noinput
+WORKDIR /app
 
 # Run the Application
 # There are more arguments required for the application to run,

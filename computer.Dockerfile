@@ -2,8 +2,8 @@ FROM ubuntu:24.04
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install System Dependencies
-RUN apt update \
-    && apt install -y \
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
     ca-certificates \
     gnupg \
     xfce4 \
@@ -30,8 +30,8 @@ RUN apt update \
     libxrandr-dev \
     libxfixes-dev \
     software-properties-common \
-    && add-apt-repository ppa:mozillateam/ppa && apt update \
-    && apt install -y --no-install-recommends \
+    && add-apt-repository ppa:mozillateam/ppa && apt-get update \
+    && apt-get install -y --no-install-recommends \
     # Desktop apps
     firefox-esr \
     libreoffice \
@@ -69,7 +69,7 @@ RUN apt update \
     && update-alternatives --set x-www-browser /usr/bin/firefox-esr \
     && apt-get clean && rm -rf /var/lib/apt/lists/* \
     # remove screen locks, power managers
-    && apt remove -y light-locker xfce4-screensaver xfce4-power-manager || true
+    && apt-get remove -y light-locker xfce4-screensaver xfce4-power-manager || true
 
 # Create Computer User
 ENV USERNAME=apollos
@@ -85,6 +85,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 ENV PYTHON_VERSION=3.11.6
 RUN uv python pin $PYTHON_VERSION
 RUN uv venv $HOME/.venv --python $PYTHON_VERSION --seed
+# hadolint ignore=SC2016
 RUN echo 'export PATH="$HOME/.venv/bin:$PATH"' >> "$HOME/.bashrc"
 ENV PATH="$HOME/.venv/bin:$PATH"
 
