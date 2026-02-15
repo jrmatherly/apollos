@@ -1,4 +1,4 @@
-export default function khojLoader({
+export default function apollosLoader({
     src,
     width,
     quality,

@@ -1,4 +1,4 @@
-# Khoj artifacts
+# Apollos artifacts
 *.gz
 *.pt
 tests/data/models
@@ -19,16 +19,16 @@ __pycache__
 todesktop.json
 
 # Build artifacts
-/src/khoj/interface/web/images
-/src/khoj/interface/built/
-/src/khoj/interface/compiled/404.html
+/src/apollos/interface/web/images
+/src/apollos/interface/built/
+/src/apollos/interface/compiled/404.html
 /build/
 /dist/
-khoj_assistant.egg-info
-/config/khoj*.yml
+apollos_assistant.egg-info
+/config/apollos*.yml
 .pytest_cache
 *.log
-/src/khoj/static
+/src/apollos/static
 
 # Obsidian plugin artifacts
 # ---
@@ -56,3 +56,7 @@ src/interface/android/*.apk
 src/interface/android/*.apk.idsig
 src/interface/android/*.keystore
 src/interface/android/local.properties
+
+# Docs
+.scratchpad/
+.local_docs/

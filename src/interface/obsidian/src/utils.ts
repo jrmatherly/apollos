@@ -1,7 +1,7 @@
 import { FileSystemAdapter, Notice, Vault, Modal, TFile, request, setIcon, Editor, WorkspaceLeaf } from 'obsidian';
-import { KhojSetting, ModelOption, ServerUserConfig, UserInfo } from 'src/settings'
+import { ApollosSetting, ModelOption, ServerUserConfig, UserInfo } from 'src/settings'
 import { deleteContentByType, uploadContentBatch } from './api';
-import { KhojSearchModal } from './search_modal';
+import { ApollosSearchModal } from './search_modal';
 
 export function getVaultAbsolutePath(vault: Vault): string {
     let adaptor = vault.adapter;
@@ -61,7 +61,7 @@ export const supportedImageFilesTypes = fileTypeToExtension.image;
 export const supportedBinaryFileTypes = fileTypeToExtension.pdf.concat(supportedImageFilesTypes);
 export const supportedFileTypes = fileTypeToExtension.markdown.concat(supportedBinaryFileTypes);
 
-export function getFilesToSync(vault: Vault, setting: KhojSetting): TFile[] {
+export function getFilesToSync(vault: Vault, setting: ApollosSetting): TFile[] {
     const files = vault.getFiles()
         // Filter supported file types for syncing
         .filter(file => supportedFileTypes.includes(file.extension))
@@ -103,16 +103,16 @@ export function getFilesToSync(vault: Vault, setting: KhojSetting): TFile[] {
 
 export async function updateContentIndex(
     vault: Vault,
-    setting: KhojSetting,
+    setting: ApollosSetting,
     lastSync: Map<TFile, number>,
     regenerate: boolean = false,
     userTriggered: boolean = false,
     onProgress?: (progress: { processed: number, total: number }) => void
 ): Promise<Map<TFile, number>> {
     // Get all markdown, pdf files in the vault
-    console.log(`Khoj: Updating Khoj content index...`);
+    console.log(`Apollos: Updating Apollos content index...`);
     const files = getFilesToSync(vault, setting);
-    console.log(`Khoj: Found ${files.length} eligible files in vault`);
+    console.log(`Apollos: Found ${files.length} eligible files in vault`);
 
     let countOfFilesToIndex = 0;
     let countOfFilesToDelete = 0;
@@ -125,9 +125,9 @@ export async function updateContentIndex(
 
     // Show notice with file counts when user triggers sync
     if (userTriggered) {
-        new Notice(`🔄 Syncing ${filesToSync.length} of ${files.length} files to Khoj...`);
+        new Notice(`🔄 Syncing ${filesToSync.length} of ${files.length} files to Apollos...`);
     }
-    console.log(`Khoj: ${filesToSync.length} files to sync (${files.length} total eligible)`);
+    console.log(`Apollos: ${filesToSync.length} files to sync (${files.length} total eligible)`);
 
     // Add all files to index as multipart form data, batched by size, item count
     const MAX_BATCH_SIZE = 10 * 1024 * 1024; // 10MB max batch size
@@ -186,10 +186,10 @@ export async function updateContentIndex(
 
         try {
             for (const contentType of contentTypesToDelete) {
-                await deleteContentByType(setting.khojUrl, setting.khojApiKey, contentType);
+                await deleteContentByType(setting.apollosUrl, setting.apollosApiKey, contentType);
             }
         } catch (err) {
-            console.error('Khoj: Error deleting content types:', err);
+            console.error('Apollos: Error deleting content types:', err);
             error_message = "❗️Failed to clear existing content index";
             fileData = [];
         }
@@ -207,18 +207,18 @@ export async function updateContentIndex(
 
     for (const batch of fileData) {
         try {
-            const resultText = await uploadContentBatch(setting.khojUrl, setting.khojApiKey, batch);
+            const resultText = await uploadContentBatch(setting.apollosUrl, setting.apollosApiKey, batch);
             responses.push(resultText);
             processedFiles += batch.length;
             if (onProgress) {
                 onProgress({ processed: processedFiles, total: totalFiles });
             }
         } catch (err: any) {
-            console.error('Khoj: Failed to upload batch:', err);
+            console.error('Apollos: Failed to upload batch:', err);
             if (err.message?.includes('429')) {
                 error_message = `❗️Requests were throttled. Upgrade your subscription or try again later.`;
             } else {
-                error_message = `❗️Failed to sync content with Khoj server. Error: ${err.message ?? String(err)}`;
+                error_message = `❗️Failed to sync content with Apollos server. Error: ${err.message ?? String(err)}`;
             }
             break;
         }
@@ -242,16 +242,16 @@ export async function updateContentIndex(
     } else {
         const summary = `Updated ${countOfFilesToIndex}, deleted ${countOfFilesToDelete} files`;
         if (userTriggered) new Notice(`✅ ${summary}`);
-        console.log(`✅ Refreshed Khoj content index. ${summary}.`);
+        console.log(`✅ Refreshed Apollos content index. ${summary}.`);
     }
 
     return lastSync;
 }
 
-export async function openKhojPluginSettings(): Promise<void> {
+export async function openApollosPluginSettings(): Promise<void> {
     const setting = this.app.setting;
     await setting.open();
-    setting.openTabById('khoj');
+    setting.openTabById('apollos');
 }
 
 export async function createNote(name: string, newLeaf = false): Promise<void> {
@@ -270,7 +270,7 @@ export async function createNote(name: string, newLeaf = false): Promise<void> {
         }
         await this.app.workspace.openLinkText(`${pathPrefix}${name}.md`, '', newLeaf)
     } catch (e) {
-        console.error('Khoj: Could not create note.\n' + (e as any).message);
+        console.error('Apollos: Could not create note.\n' + (e as any).message);
         throw e
     }
 }
@@ -287,26 +287,26 @@ export async function createNoteAndCloseModal(query: string, modal: Modal, opt?:
 }
 
 export async function canConnectToBackend(
-    khojUrl: string,
-    khojApiKey: string,
+    apollosUrl: string,
+    apollosApiKey: string,
     showNotice: boolean = false
 ): Promise<{ connectedToBackend: boolean; statusMessage: string, userInfo: UserInfo | null }> {
     let connectedToBackend = false;
     let userInfo: UserInfo | null = null;
 
-    if (!!khojUrl) {
-        let headers = !!khojApiKey ? { "Authorization": `Bearer ${khojApiKey}` } : undefined;
+    if (!!apollosUrl) {
+        let headers = !!apollosApiKey ? { "Authorization": `Bearer ${apollosApiKey}` } : undefined;
         try {
-            let response = await request({ url: `${khojUrl}/api/v1/user`, method: "GET", headers: headers })
+            let response = await request({ url: `${apollosUrl}/api/v1/user`, method: "GET", headers: headers })
             connectedToBackend = true;
             userInfo = JSON.parse(response);
         } catch (error) {
             connectedToBackend = false;
-            console.log(`Khoj connection error:\n\n${error}`);
+            console.log(`Apollos connection error:\n\n${error}`);
         };
     }
 
-    let statusMessage: string = getBackendStatusMessage(connectedToBackend, userInfo?.email, khojUrl, khojApiKey);
+    let statusMessage: string = getBackendStatusMessage(connectedToBackend, userInfo?.email, apollosUrl, apollosApiKey);
     if (showNotice) new Notice(statusMessage);
     return { connectedToBackend, statusMessage, userInfo };
 }
@@ -314,44 +314,44 @@ export async function canConnectToBackend(
 export function getBackendStatusMessage(
     connectedToServer: boolean,
     userEmail: string | undefined,
-    khojUrl: string,
-    khojApiKey: string
+    apollosUrl: string,
+    apollosApiKey: string
 ): string {
-    // Welcome message with default settings. Khoj cloud always expects an API key.
-    if (!khojApiKey && khojUrl === 'https://app.khoj.dev')
-        return `🌈 Welcome to Khoj! Get your API key from ${khojUrl}/settings#clients and set it in the Khoj plugin settings on Obsidian`;
+    // Welcome message with default settings. Apollos cloud always expects an API key.
+    if (!apollosApiKey && apollosUrl === 'https://app.apollos.dev')
+        return `🌈 Welcome to Apollos! Get your API key from ${apollosUrl}/settings#clients and set it in the Apollos plugin settings on Obsidian`;
 
     if (!connectedToServer)
-        return `❗️Could not connect to Khoj at ${khojUrl}. Ensure your can access it`;
+        return `❗️Could not connect to Apollos at ${apollosUrl}. Ensure your can access it`;
     else if (!userEmail)
-        return `✅ Connected to Khoj. ❗️Get a valid API key from ${khojUrl}/settings#clients to log in`;
+        return `✅ Connected to Apollos. ❗️Get a valid API key from ${apollosUrl}/settings#clients to log in`;
     else if (userEmail === 'default@example.com')
         // Logged in as default user in anonymous mode
-        return `✅ Welcome back to Khoj`;
+        return `✅ Welcome back to Apollos`;
     else
-        return `✅ Welcome back to Khoj, ${userEmail}`;
+        return `✅ Welcome back to Apollos, ${userEmail}`;
 }
 
-export async function populateHeaderPane(headerEl: Element, setting: KhojSetting, viewType: string): Promise<void> {
+export async function populateHeaderPane(headerEl: Element, setting: ApollosSetting, viewType: string): Promise<void> {
     let userInfo: UserInfo | null = null;
     try {
-        const { userInfo: extractedUserInfo } = await canConnectToBackend(setting.khojUrl, setting.khojApiKey, false);
+        const { userInfo: extractedUserInfo } = await canConnectToBackend(setting.apollosUrl, setting.apollosApiKey, false);
         userInfo = extractedUserInfo;
     } catch (error) {
-        console.error("❗️Could not connect to Khoj");
+        console.error("❗️Could not connect to Apollos");
     }
 
-    // Add Khoj title to header element
+    // Add Apollos title to header element
     const titlePaneEl = headerEl.createDiv();
-    titlePaneEl.className = 'khoj-header-title-pane';
+    titlePaneEl.className = 'apollos-header-title-pane';
     const titleEl = titlePaneEl.createDiv();
-    titleEl.className = 'khoj-logo';
-    titleEl.textContent = "Khoj";
+    titleEl.className = 'apollos-logo';
+    titleEl.textContent = "Apollos";
 
     // Populate the header element with the navigation pane
     // Create the nav element
     const nav = titlePaneEl.createEl('nav');
-    nav.className = 'khoj-nav';
+    nav.className = 'apollos-nav';
 
     // Create the title pane element
     titlePaneEl.appendChild(titleEl);
@@ -360,17 +360,17 @@ export async function populateHeaderPane(headerEl: Element, setting: KhojSetting
     // Create the chat link
     const chatLink = nav.createEl('a');
     chatLink.id = 'chat-nav';
-    chatLink.className = 'khoj-nav chat-nav';
-    chatLink.dataset.view = KhojView.CHAT;
+    chatLink.className = 'apollos-nav chat-nav';
+    chatLink.dataset.view = ApollosView.CHAT;
 
     // Create the chat icon
     const chatIcon = chatLink.createEl('span');
-    chatIcon.className = 'khoj-nav-icon khoj-nav-icon-chat';
-    setIcon(chatIcon, 'khoj-chat');
+    chatIcon.className = 'apollos-nav-icon apollos-nav-icon-chat';
+    setIcon(chatIcon, 'apollos-chat');
 
     // Create the chat text
     const chatText = chatLink.createEl('span');
-    chatText.className = 'khoj-nav-item-text';
+    chatText.className = 'apollos-nav-item-text';
     chatText.textContent = 'Chat';
 
     // Append the chat icon and text to the chat link
@@ -380,16 +380,16 @@ export async function populateHeaderPane(headerEl: Element, setting: KhojSetting
     // Create the search link
     const searchLink = nav.createEl('a');
     searchLink.id = 'search-nav';
-    searchLink.className = 'khoj-nav search-nav';
+    searchLink.className = 'apollos-nav search-nav';
 
     // Create the search icon
     const searchIcon = searchLink.createEl('span');
-    searchIcon.className = 'khoj-nav-icon khoj-nav-icon-search';
-    setIcon(searchIcon, 'khoj-search');
+    searchIcon.className = 'apollos-nav-icon apollos-nav-icon-search';
+    setIcon(searchIcon, 'apollos-search');
 
     // Create the search text
     const searchText = searchLink.createEl('span');
-    searchText.className = 'khoj-nav-item-text';
+    searchText.className = 'apollos-nav-item-text';
     searchText.textContent = 'Search';
 
     // Append the search icon and text to the search link
@@ -399,29 +399,29 @@ export async function populateHeaderPane(headerEl: Element, setting: KhojSetting
     // Create the similar link
     const similarLink = nav.createEl('a');
     similarLink.id = 'similar-nav';
-    similarLink.className = 'khoj-nav similar-nav';
-    similarLink.dataset.view = KhojView.SIMILAR;
+    similarLink.className = 'apollos-nav similar-nav';
+    similarLink.dataset.view = ApollosView.SIMILAR;
 
     // Create the similar icon
     const similarIcon = similarLink.createEl('span');
     similarIcon.id = 'similar-nav-icon';
-    similarIcon.className = 'khoj-nav-icon khoj-nav-icon-similar';
+    similarIcon.className = 'apollos-nav-icon apollos-nav-icon-similar';
     setIcon(similarIcon, 'webhook');
 
     // Create the similar text
     const similarText = similarLink.createEl('span');
-    similarText.className = 'khoj-nav-item-text';
+    similarText.className = 'apollos-nav-item-text';
     similarText.textContent = 'Similar';
 
     // Append the similar icon and text to the similar link
     similarLink.appendChild(similarIcon);
     similarLink.appendChild(similarText);
 
-    // Helper to get the current Khoj leaf if active
-    const getCurrentKhojLeaf = (): WorkspaceLeaf | undefined => {
+    // Helper to get the current Apollos leaf if active
+    const getCurrentApollosLeaf = (): WorkspaceLeaf | undefined => {
         const activeLeaf = this.app.workspace.activeLeaf;
         if (activeLeaf && activeLeaf.view &&
-            (activeLeaf.view.getViewType() === KhojView.CHAT || activeLeaf.view.getViewType() === KhojView.SIMILAR)) {
+            (activeLeaf.view.getViewType() === ApollosView.CHAT || activeLeaf.view.getViewType() === ApollosView.SIMILAR)) {
             return activeLeaf;
         }
         return undefined;
@@ -431,21 +431,21 @@ export async function populateHeaderPane(headerEl: Element, setting: KhojSetting
     // Chat link event listener
     chatLink.addEventListener('click', () => {
         // Get the activateView method from the plugin instance
-        const khojPlugin = this.app.plugins.plugins.khoj;
-        khojPlugin?.activateView(KhojView.CHAT, getCurrentKhojLeaf());
+        const apollosPlugin = this.app.plugins.plugins.apollos;
+        apollosPlugin?.activateView(ApollosView.CHAT, getCurrentApollosLeaf());
     });
 
     // Search link event listener
     searchLink.addEventListener('click', () => {
         // Open the search modal
-        new KhojSearchModal(this.app, setting).open();
+        new ApollosSearchModal(this.app, setting).open();
     });
 
     // Similar link event listener
     similarLink.addEventListener('click', () => {
         // Get the activateView method from the plugin instance
-        const khojPlugin = this.app.plugins.plugins.khoj;
-        khojPlugin?.activateView(KhojView.SIMILAR, getCurrentKhojLeaf());
+        const apollosPlugin = this.app.plugins.plugins.apollos;
+        apollosPlugin?.activateView(ApollosView.SIMILAR, getCurrentApollosLeaf());
     });
 
     // Append the nav items to the nav element
@@ -456,38 +456,38 @@ export async function populateHeaderPane(headerEl: Element, setting: KhojSetting
     // Append the title and new chat container to the header element
     headerEl.appendChild(titlePaneEl);
 
-    if (viewType === KhojView.CHAT) {
+    if (viewType === ApollosView.CHAT) {
         // Create subtitle pane for New Chat button and agent selector
-        const newChatEl = headerEl.createDiv("khoj-header-right-container");
+        const newChatEl = headerEl.createDiv("apollos-header-right-container");
 
         // Add agent selector container
-        const agentContainer = newChatEl.createDiv("khoj-header-agent-container");
+        const agentContainer = newChatEl.createDiv("apollos-header-agent-container");
 
         // Add agent selector
         agentContainer.createEl("select", {
             attr: {
-                class: "khoj-header-agent-select",
-                id: "khoj-header-agent-select"
+                class: "apollos-header-agent-select",
+                id: "apollos-header-agent-select"
             }
         });
 
         // Add New Chat button
         const newChatButton = newChatEl.createEl('button');
-        newChatButton.className = 'khoj-header-new-chat-button';
+        newChatButton.className = 'apollos-header-new-chat-button';
         newChatButton.title = 'Start New Chat (Ctrl+Alt+N)';
         setIcon(newChatButton, 'plus-circle');
         newChatButton.textContent = 'New Chat';
 
         // Add event listener to the New Chat button
         newChatButton.addEventListener('click', () => {
-            const khojPlugin = this.app.plugins.plugins.khoj;
-            if (khojPlugin) {
+            const apollosPlugin = this.app.plugins.plugins.apollos;
+            if (apollosPlugin) {
                 // First activate the chat view
-                khojPlugin.activateView(KhojView.CHAT).then(() => {
+                apollosPlugin.activateView(ApollosView.CHAT).then(() => {
                     // Then create a new conversation
                     setTimeout(() => {
                         // Access the chat view directly from the leaf after activation
-                        const leaves = this.app.workspace.getLeavesOfType(KhojView.CHAT);
+                        const leaves = this.app.workspace.getLeavesOfType(ApollosView.CHAT);
                         if (leaves.length > 0) {
                             const chatView = leaves[0].view;
                             if (chatView && typeof chatView.createNewConversation === 'function') {
@@ -511,14 +511,14 @@ export async function populateHeaderPane(headerEl: Element, setting: KhojSetting
         const viewType = activeLeaf.view?.getViewType();
 
         // Remove active class from all links
-        chatLink.classList.remove('khoj-nav-selected');
-        similarLink.classList.remove('khoj-nav-selected');
+        chatLink.classList.remove('apollos-nav-selected');
+        similarLink.classList.remove('apollos-nav-selected');
 
         // Add active class to the current view link
-        if (viewType === KhojView.CHAT) {
-            chatLink.classList.add('khoj-nav-selected');
-        } else if (viewType === KhojView.SIMILAR) {
-            similarLink.classList.add('khoj-nav-selected');
+        if (viewType === ApollosView.CHAT) {
+            chatLink.classList.add('apollos-nav-selected');
+        } else if (viewType === ApollosView.SIMILAR) {
+            similarLink.classList.add('apollos-nav-selected');
         }
     };
 
@@ -529,9 +529,9 @@ export async function populateHeaderPane(headerEl: Element, setting: KhojSetting
     this.app.workspace.on('active-leaf-change', updateActiveState);
 }
 
-export enum KhojView {
-    CHAT = "khoj-chat-view",
-    SIMILAR = "khoj-similar-view",
+export enum ApollosView {
+    CHAT = "apollos-chat-view",
+    SIMILAR = "apollos-similar-view",
 }
 
 function copyParentText(event: MouseEvent, message: string, originalButton: string) {
@@ -561,9 +561,9 @@ export function createCopyParentText(message: string, originalButton: string = '
     return function (event: MouseEvent) {
         let markdownMessage = copyParentText(event, message, originalButton);
         // Convert edit blocks back to markdown format before pasting
-        const editRegex = /<details class="khoj-edit-accordion">[\s\S]*?<pre><code class="language-khoj-edit">([\s\S]*?)<\/code><\/pre>[\s\S]*?<\/details>/g;
+        const editRegex = /<details class="apollos-edit-accordion">[\s\S]*?<pre><code class="language-apollos-edit">([\s\S]*?)<\/code><\/pre>[\s\S]*?<\/details>/g;
         markdownMessage = markdownMessage?.replace(editRegex, (_, content) => {
-            return `<khoj-edit>\n${content}\n</khoj-edit>`;
+            return `<apollos-edit>\n${content}\n</apollos-edit>`;
         });
         return markdownMessage;
     }
@@ -596,7 +596,7 @@ export function getFileFromPath(sourceFiles: TFile[], chosenFile: string): TFile
         // This finds longest path match when multiple files have same name
         .sort((a, b) => b.path.length - a.path.length)
         // The first match is the best file match across OS
-        // e.g. Khoj server on Linux, Obsidian vault on Android
+        // e.g. Apollos server on Linux, Obsidian vault on Android
         .find(file => chosenFile.replace(/\\/g, "/").endsWith(file.path))
     return fileMatch;
 }
@@ -622,7 +622,7 @@ export function getLinkToEntry(sourceFiles: TFile[], chosenFile: string, chosenE
  * - otherwise => free limit (10 MB)
  * This avoids client-side heuristics and relies on server-provided user info.
  */
-export async function calculateVaultSyncMetrics(vault: Vault, setting: KhojSetting): Promise<{ usedBytes: number, totalBytes: number }> {
+export async function calculateVaultSyncMetrics(vault: Vault, setting: ApollosSetting): Promise<{ usedBytes: number, totalBytes: number }> {
     try {
         const files = getFilesToSync(vault, setting);
         const usedBytes = files.reduce((acc, file) => acc + (file.stat?.size ?? 0), 0);
@@ -641,25 +641,25 @@ export async function calculateVaultSyncMetrics(vault: Vault, setting: KhojSetti
             }
         } catch (err) {
             // Defensive: on any unexpected error, fall back to free limit
-            console.warn('Khoj: Error reading userInfo.is_active, defaulting to free limit', err);
+            console.warn('Apollos: Error reading userInfo.is_active, defaulting to free limit', err);
             totalBytes = FREE_LIMIT;
         }
 
         return { usedBytes, totalBytes };
     } catch (err) {
-        console.error('Khoj: Error calculating vault sync metrics:', err);
+        console.error('Apollos: Error calculating vault sync metrics:', err);
         return { usedBytes: 0, totalBytes: 10 * 1024 * 1024 };
     }
 }
 
-export async function fetchChatModels(settings: KhojSetting): Promise<ModelOption[]> {
-    if (!settings.connectedToBackend || !settings.khojUrl) {
+export async function fetchChatModels(settings: ApollosSetting): Promise<ModelOption[]> {
+    if (!settings.connectedToBackend || !settings.apollosUrl) {
         return [];
     }
     try {
-        const response = await fetch(`${settings.khojUrl}/api/model/chat/options`, {
+        const response = await fetch(`${settings.apollosUrl}/api/model/chat/options`, {
             method: 'GET',
-            headers: settings.khojApiKey ? { 'Authorization': `Bearer ${settings.khojApiKey}` } : {},
+            headers: settings.apollosApiKey ? { 'Authorization': `Bearer ${settings.apollosApiKey}` } : {},
         });
         if (response.ok) {
             const modelsData = await response.json();
@@ -670,44 +670,44 @@ export async function fetchChatModels(settings: KhojSetting): Promise<ModelOptio
                 }));
             }
         } else {
-            console.warn("Khoj: Failed to fetch chat models:", response.statusText);
+            console.warn("Apollos: Failed to fetch chat models:", response.statusText);
         }
     } catch (error) {
-        console.error("Khoj: Error fetching chat models:", error);
+        console.error("Apollos: Error fetching chat models:", error);
     }
     return [];
 }
 
-export async function fetchUserServerSettings(settings: KhojSetting): Promise<ServerUserConfig | null> {
-    if (!settings.connectedToBackend || !settings.khojUrl) {
+export async function fetchUserServerSettings(settings: ApollosSetting): Promise<ServerUserConfig | null> {
+    if (!settings.connectedToBackend || !settings.apollosUrl) {
         return null;
     }
     try {
-        const response = await fetch(`${settings.khojUrl}/api/settings?detailed=true`, {
+        const response = await fetch(`${settings.apollosUrl}/api/settings?detailed=true`, {
             method: 'GET',
-            headers: settings.khojApiKey ? { 'Authorization': `Bearer ${settings.khojApiKey}` } : {},
+            headers: settings.apollosApiKey ? { 'Authorization': `Bearer ${settings.apollosApiKey}` } : {},
         });
         if (response.ok) {
             return await response.json() as ServerUserConfig;
         } else {
-            console.warn("Khoj: Failed to fetch user server settings:", response.statusText);
+            console.warn("Apollos: Failed to fetch user server settings:", response.statusText);
         }
     } catch (error) {
-        console.error("Khoj: Error fetching user server settings:", error);
+        console.error("Apollos: Error fetching user server settings:", error);
     }
     return null;
 }
 
-export async function updateServerChatModel(modelId: string, settings: KhojSetting): Promise<boolean> {
-    if (!settings.connectedToBackend || !settings.khojUrl) {
-        new Notice("️⛔️ Connect to Khoj to update chat model.");
+export async function updateServerChatModel(modelId: string, settings: ApollosSetting): Promise<boolean> {
+    if (!settings.connectedToBackend || !settings.apollosUrl) {
+        new Notice("️⛔️ Connect to Apollos to update chat model.");
         return false;
     }
 
     try {
-        const response = await fetch(`${settings.khojUrl}/api/model/chat?id=${modelId}`, {
+        const response = await fetch(`${settings.apollosUrl}/api/model/chat?id=${modelId}`, {
             method: 'POST', // As per web app's updateModel function
-            headers: settings.khojApiKey ? { 'Authorization': `Bearer ${settings.khojApiKey}` } : {},
+            headers: settings.apollosApiKey ? { 'Authorization': `Bearer ${settings.apollosApiKey}` } : {},
         });
         if (response.ok) {
             settings.selectedChatModelId = modelId; // Update local mirror
@@ -715,12 +715,12 @@ export async function updateServerChatModel(modelId: string, settings: KhojSetti
         } else {
             const errorData = await response.text();
             new Notice(`️⛔️ Failed to update chat model on server: ${response.status} ${errorData}`);
-            console.error("Khoj: Failed to update chat model:", response.status, errorData);
+            console.error("Apollos: Failed to update chat model:", response.status, errorData);
             return false;
         }
     } catch (error) {
         new Notice("️⛔️ Error updating chat model on server. See console.");
-        console.error("Khoj: Error updating chat model:", error);
+        console.error("Apollos: Error updating chat model:", error);
         return false;
     }
 }

@@ -3,7 +3,7 @@ import { CircleNotch } from "@phosphor-icons/react";
 import { AppSidebar } from "../appSidebar/appSidebar";
 import { Separator } from "@/components/ui/separator";
 import { useIsMobileWidth } from "@/app/common/utils";
-import { KhojLogoType } from "../logo/khojLogo";
+import { ApollosLogoType } from "../logo/apollosLogo";
 
 interface LoadingProps {
     className?: string;
@@ -24,7 +24,7 @@ export default function Loading(props: LoadingProps) {
                     <Separator orientation="vertical" className="mr-2 h-4" />
                     {isMobileWidth ? (
                         <a className="p-0 no-underline" href="/">
-                            <KhojLogoType className="h-auto w-16" />
+                            <ApolloslosLogoType className="h-auto w-16" />
                         </a>
                     ) : (
                         <h2 className="text-lg">Ask Anything</h2>

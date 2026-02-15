@@ -24,7 +24,7 @@ import { AgentData } from "@/app/components/agentCard/agentCard";
 import React from "react";
 import { useIsMobileWidth } from "@/app/common/utils";
 import { Button } from "@/components/ui/button";
-import { KhojLogo } from "../logo/khojLogo";
+import { ApollosLogo } from "../logo/apollosLogo";
 
 interface ChatResponse {
     status: string;
@@ -496,7 +496,7 @@ export default function ChatHistory(props: ChatHistoryProps) {
 
     function constructAgentName() {
         if (!data || !data.agent || !data.agent?.name) return `Agent`;
-        if (data.agent.is_hidden) return "Khoj";
+        if (data.agent.is_hidden) return "Apolloslos";
         return data.agent?.name;
     }
 
@@ -562,10 +562,10 @@ export default function ChatHistory(props: ChatHistoryProps) {
                 <div className="print-only-header">
                     <div className="print-header-content">
                         <div className="print-header-left">
-                            <KhojLogo className="print-logo" />
+                            <ApolloslosLogo className="print-logo" />
                         </div>
                         <div className="print-header-right">
-                            <h1>{data?.slug || "Conversation with Khoj"}</h1>
+                            <h1>{data?.slug || "Conversation with Apolloslos"}</h1>
                             <div className="conversation-meta">
                                 <p>
                                     <strong>Agent:</strong> {constructAgentName()}
@@ -584,7 +584,7 @@ export default function ChatHistory(props: ChatHistoryProps) {
                         data.chat &&
                         data.chat.map((chatMessage, index) => (
                             <React.Fragment key={`chatMessage-${index}`}>
-                                {chatMessage.trainOfThought && chatMessage.by === "khoj" && (
+                                {chatMessage.trainOfThought && chatMessage.by === "apollos" && (
                                     <TrainOfThoughtComponent
                                         trainOfThought={chatMessage.trainOfThought}
                                         lastMessage={false}
@@ -669,7 +669,7 @@ export default function ChatHistory(props: ChatHistoryProps) {
                                             onlineContext: message.onlineContext,
                                             codeContext: message.codeContext,
                                             created: message.timestamp,
-                                            by: "khoj",
+                                            by: "apollos",
                                             automationId: "",
                                             rawQuery: message.rawQuery,
                                             intent: {

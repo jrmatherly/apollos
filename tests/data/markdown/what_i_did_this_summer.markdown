@@ -2,7 +2,6 @@
 
 [](https://sep.yimg.com/ca/I/paulgraham_2202_8808526)
 
-
  October 2005
 
  The first Summer Founders Program has just finished. We were surprised how well it went. Overall only about 10% of startups succeed, but if I had to guess now, I'd predict three or four of the eight startups we funded will make it.
@@ -43,7 +42,6 @@
 
  The founders of [Kiko](http://kiko.com), for example, are working on an Ajax calendar. They want to get rich, but they pay more attention to design than they would if that were their only motivation. You can tell just by looking at
 it.
-
 
  I never considered it till this summer, but this might be another reason startups run by hackers tend to do better than those run by MBAs. Perhaps it's not just that hackers understand technology better, but that they're driven by more powerful motivations. Microsoft, as I've said before, is a dangerously misleading example. Their mean corporate culture only works for monopolies. Google is a better model.
 
@@ -102,8 +100,7 @@ it.
  Indeed, one quality all the founders shared this summer was a spirit of independence. I've been wondering about that. Are some people just a lot more independent than others, or would everyone be this way if they were allowed
 to?
 
-
- As with most nature/nurture questions, the answer is probably: some of each. But my main conclusion from the summer is that there's more environment in the mix than most people realize. I could see that from how the founders' attitudes _changed_ during the summer. Most were emerging from twenty or so years of being told what to do. They seemed a little surprised at having total freedom. But they grew into it really quickly; some of these guys now seem about four inches taller (metaphorically) than they did at the beginning of the summer.
+ As with most nature/nurture questions, the answer is probably: some of each. But my main conclusion from the summer is that there's more environment in the mix than most people realize. I could see that from how the founders' attitudes *changed* during the summer. Most were emerging from twenty or so years of being told what to do. They seemed a little surprised at having total freedom. But they grew into it really quickly; some of these guys now seem about four inches taller (metaphorically) than they did at the beginning of the summer.
 
  When we asked the summer founders what surprised them most about starting a company, one said "the most shocking thing is that it worked."
 
@@ -112,7 +109,6 @@ to?
  The reason this is news to anyone is that the same forces work in the other direction too. Most hackers are employees, and this [molds](http://software.ericsink.com/entries/No_Great_Hackers.html) you into someone to whom starting a startup seems impossible as surely as starting a startup molds you into someone who can handle it.
 
  If I'm right, "hacker" will mean something different in twenty years than it does now. Increasingly it will mean the people who run the company. Y Combinator is just accelerating a process that would have happened anyway. Power is shifting from the people who deal with money to the people who create technology, and if our experience this summer is any guide, this will be a good thing.
-
 
 ---
   **Notes**

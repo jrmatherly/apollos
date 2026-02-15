@@ -6,9 +6,9 @@ on:
       - master
       - release/1.x
     paths:
-      - src/khoj/**
+      - src/apollos/**
       - tests/**
-      - '!tests/evals/**'
+      - "!tests/evals/**"
       - config/**
       - pyproject.toml
       - .pre-commit-config.yml
@@ -18,9 +18,9 @@ on:
       - master
       - release/1.x
     paths:
-      - src/khoj/**
+      - src/apollos/**
       - tests/**
-      - '!tests/evals/**'
+      - "!tests/evals/**"
       - config/**
       - pyproject.toml
       - .pre-commit-config.yml
@@ -35,9 +35,9 @@ jobs:
       fail-fast: false
       matrix:
         python_version:
-          - '3.10'
-          - '3.11'
-          - '3.12'
+          - "3.10"
+          - "3.11"
+          - "3.12"
 
     services:
       postgres:
@@ -71,7 +71,7 @@ jobs:
       - name: ⬇️ Install Postgres
         env:
           DEBIAN_FRONTEND: noninteractive
-        run : |
+        run: |
           apt install -y postgresql postgresql-client && apt install -y postgresql-server-dev-16
 
       - name: ⬇️ Install Application

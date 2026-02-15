@@ -33,11 +33,11 @@ const nextConfig = {
             },
             {
                 protocol: "https",
-                hostname: "generated.khoj.dev",
+                hostname: "generated.apollos.dev",
             },
             {
                 protocol: "https",
-                hostname: "assets.khoj.dev",
+                hostname: "assets.apollos.dev",
             },
         ] : [
             {

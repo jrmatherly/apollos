@@ -21,7 +21,7 @@ import { AgentData } from "@/app/components/agentCard/agentCard";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/app/components/appSidebar/appSidebar";
 import { Separator } from "@/components/ui/separator";
-import { KhojLogoType } from "@/app/components/logo/khojLogo";
+import { ApollosLogoType } from "@/app/components/logo/apollosLogo";
 import { Button } from "@/components/ui/button";
 import { Trash } from "@phosphor-icons/react";
 
@@ -152,7 +152,7 @@ function ChatBodyData(props: ChatBodyDataProps) {
 export default function SharedChat() {
     const [chatOptionsData, setChatOptionsData] = useState<ChatOptions | null>(null);
     const [isLoading, setLoading] = useState(true);
-    const [title, setTitle] = useState("Khoj AI - Chat");
+    const [title, setTitle] = useState("Apolloslos AI - Chat");
     const [conversationId, setConversationID] = useState<string | undefined>(undefined);
     const [messages, setMessages] = useState<StreamMessage[]>([]);
     const [queryToProcess, setQueryToProcess] = useState<string>("");
@@ -241,7 +241,7 @@ export default function SharedChat() {
                         >
                             {isMobileWidth ? (
                                 <a className="p-0 no-underline" href="/">
-                                    <KhojLogoType className="h-auto w-16" />
+                                    <ApolloslosLogoType className="h-auto w-16" />
                                 </a>
                             ) : (
                                 title && (

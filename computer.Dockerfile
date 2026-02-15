@@ -4,67 +4,67 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install System Dependencies
 RUN apt update \
     && apt install -y \
-        ca-certificates \
-        gnupg \
-        xfce4 \
-        xfce4-goodies \
-        x11vnc \
-        xvfb \
-        xdotool \
-        imagemagick \
-        x11-apps \
-        dbus-x11 \
-        sudo \
-        python3-pip \
-        python3-tk \
-        python3-dev \
-        build-essential \
-        scrot \
-        gnome-screenshot \
-        net-tools \
-        libx11-dev \
-        libxext-dev \
-        libxtst-dev \
-        libxinerama-dev \
-        libxmu-dev \
-        libxrandr-dev \
-        libxfixes-dev \
-        software-properties-common \
+    ca-certificates \
+    gnupg \
+    xfce4 \
+    xfce4-goodies \
+    x11vnc \
+    xvfb \
+    xdotool \
+    imagemagick \
+    x11-apps \
+    dbus-x11 \
+    sudo \
+    python3-pip \
+    python3-tk \
+    python3-dev \
+    build-essential \
+    scrot \
+    gnome-screenshot \
+    net-tools \
+    libx11-dev \
+    libxext-dev \
+    libxtst-dev \
+    libxinerama-dev \
+    libxmu-dev \
+    libxrandr-dev \
+    libxfixes-dev \
+    software-properties-common \
     && add-apt-repository ppa:mozillateam/ppa && apt update \
     && apt install -y --no-install-recommends \
-        # Desktop apps
-        firefox-esr \
-        libreoffice \
-        x11-apps \
-        xpdf \
-        gedit \
-        xpaint \
-        tint2 \
-        galculator \
-        pcmanfm \
-        unzip \
-        # Terminal apps like file editors, viewers, git, wget/curl etc.
-        less \
-        nano \
-        neovim \
-        vim \
-        git \
-        curl \
-        wget \
-        procps \
-        # Python/pyenv dependencies
-        libssl-dev  \
-        zlib1g-dev \
-        libbz2-dev \
-        libreadline-dev \
-        libsqlite3-dev \
-        libncursesw5-dev \
-        xz-utils \
-        tk-dev \
-        libxml2-dev \
-        libxmlsec1-dev \
-        libffi-dev \
-        liblzma-dev \
+    # Desktop apps
+    firefox-esr \
+    libreoffice \
+    x11-apps \
+    xpdf \
+    gedit \
+    xpaint \
+    tint2 \
+    galculator \
+    pcmanfm \
+    unzip \
+    # Terminal apps like file editors, viewers, git, wget/curl etc.
+    less \
+    nano \
+    neovim \
+    vim \
+    git \
+    curl \
+    wget \
+    procps \
+    # Python/pyenv dependencies
+    libssl-dev  \
+    zlib1g-dev \
+    libbz2-dev \
+    libreadline-dev \
+    libsqlite3-dev \
+    libncursesw5-dev \
+    xz-utils \
+    tk-dev \
+    libxml2-dev \
+    libxmlsec1-dev \
+    libffi-dev \
+    liblzma-dev \
     # set default browser
     && update-alternatives --set x-www-browser /usr/bin/firefox-esr \
     && apt-get clean && rm -rf /var/lib/apt/lists/* \
@@ -72,7 +72,7 @@ RUN apt update \
     && apt remove -y light-locker xfce4-screensaver xfce4-power-manager || true
 
 # Create Computer User
-ENV USERNAME=khoj
+ENV USERNAME=apollos
 ENV HOME=/home/$USERNAME
 RUN groupadd $USERNAME && \
     useradd -m -s /bin/bash -d $HOME -g $USERNAME $USERNAME && \
@@ -96,7 +96,7 @@ RUN uv pip install --no-cache-dir \
     pygetwindow
 
 # Setup VNC
-RUN x11vnc -storepasswd secret /home/khoj/.vncpass
+RUN x11vnc -storepasswd secret /home/apollos/.vncpass
 
 ARG WIDTH=1024
 ARG HEIGHT=768

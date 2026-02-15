@@ -5,7 +5,7 @@
     "python.testing.unittestEnabled": false,
     "python.testing.pytestEnabled": true,
     "python.analysis.include": [
-        "src/khoj/**/*"
+        "src/apollos/**/*"
     ],
     "python.analysis.aiHoverSummaries": false,
 }

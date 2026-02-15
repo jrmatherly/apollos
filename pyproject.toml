@@ -3,7 +3,7 @@ requires = ["hatchling", "hatch-vcs"]
 build-backend = "hatchling.build"
 
 [project]
-name = "khoj"
+name = "apollos"
 description = "Your Second Brain"
 readme = "README.md"
 license = "AGPL-3.0-or-later"
@@ -98,12 +98,12 @@ dependencies = [
 dynamic = ["version"]
 
 [project.urls]
-Homepage = "https://khoj.dev"
-Documentation = "https://docs.khoj.dev"
-Code = "https://github.com/khoj-ai/khoj"
+Homepage = "https://apollos.dev"
+Documentation = "https://docs.apollos.dev"
+Code = "https://github.com/jrmatherly/apollos"
 
 [project.scripts]
-khoj = "khoj.main:run"
+apollos = "apollos.main:run"
 
 [project.optional-dependencies]
 prod = [
@@ -116,7 +116,7 @@ local = [
     "pgserver == 0.1.4",
 ]
 dev = [
-    "khoj[prod,local]",
+    "apollos[prod,local]",
     "pytest >= 7.1.2",
     "pytest-xdist[psutil]",
     "pytest-django == 4.5.2",
@@ -136,13 +136,13 @@ source = "vcs"
 raw-options.local_scheme = "no-local-version"  # PEP440 compliant version for PyPi
 
 [tool.hatch.build.targets.sdist]
-include = ["src/khoj"]
+include = ["src/apollos"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/khoj"]
+packages = ["src/apollos"]
 
 [tool.mypy]
-files = "src/khoj"
+files = "src/apollos"
 pretty = true
 strict_optional = false
 install_types = true
@@ -164,7 +164,7 @@ ignore = [
 unfixable = ["F841"]  # Don't auto-remove unused variables
 exclude = [ "tests/*.py" ]
 [tool.ruff.lint.per-file-ignores]
-"src/khoj/main.py" = [
+"src/apollos/main.py" = [
     "I001",  # Ignore Import order
     "I002",  # Ignore Import not at top of file
     "E402",  # Ignore module level import not at top of file
@@ -175,7 +175,7 @@ quote-style = "double"
 indent-style = "space"
 
 [tool.ruff.lint.isort]
-known-first-party = ["khoj"]
+known-first-party = ["apollos"]
 
 [tool.pytest.ini_options]
 addopts = "--strict-markers"

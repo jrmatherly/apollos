@@ -3,22 +3,22 @@ import type { Metadata } from "next";
 import "../globals.css";
 
 export const metadata: Metadata = {
-    title: "Khoj AI - Search",
+    title: "Apollos AI - Search",
     description:
-        "Find anything in documents you've shared with Khoj using natural language queries.",
+        "Find anything in documents you've shared with Apolloslos using natural language queries.",
     icons: {
-        icon: "/static/assets/icons/khoj_lantern.ico",
-        apple: "/static/assets/icons/khoj_lantern_256x256.png",
+        icon: "/static/assets/icons/apollos_lantern.ico",
+        apple: "/static/assets/icons/apollos_lantern_256x256.png",
     },
     openGraph: {
-        siteName: "Khoj AI",
-        title: "Khoj AI - Search",
+        siteName: "Apolloslos AI",
+        title: "Apolloslos AI - Search",
         description: "Your Second Brain.",
-        url: "https://app.khoj.dev/search",
+        url: "https://app.apollos.dev/search",
         type: "website",
         images: [
             {
-                url: "https://assets.khoj.dev/khoj_lantern_256x256.png",
+                url: "https://assets.apollos.dev/apollos_lantern_256x256.png",
                 width: 256,
                 height: 256,
             },

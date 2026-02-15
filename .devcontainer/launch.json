@@ -2,10 +2,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch Khoj",
+            "name": "Launch Apollos",
             "type": "debugpy",
             "request": "launch",
-            "module": "src.khoj.main",
+            "module": "src.apollos.main",
             "console": "integratedTerminal",
             "justMyCode": false,
             "sudo": true,
@@ -17,11 +17,11 @@
             ],
             "envFile": "${workspaceFolder}/.env",
             "env": {
-                "KHOJ_ADMIN_EMAIL": "admin",
-                "KHOJ_ADMIN_PASSWORD": "admin",
+                "APOLLOS_ADMIN_EMAIL": "admin",
+                "APOLLOS_ADMIN_PASSWORD": "admin",
                 "USE_EMBEDDED_DB": "true",
-                "KHOJ_DEBUG": "true",
-                "KHOJ_TELEMETRY_DISABLED": "true",
+                "APOLLOS_DEBUG": "true",
+                "APOLLOS_TELEMETRY_DISABLED": "true",
                 "PROMPTRACE_DIR": "${workspaceFolder}/promptrace"
             }
         }

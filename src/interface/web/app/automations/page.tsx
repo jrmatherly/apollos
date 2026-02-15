@@ -70,7 +70,7 @@ import { Drawer, DrawerContent, DrawerTitle, DrawerTrigger } from "@/components/
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "../components/appSidebar/appSidebar";
 import { Separator } from "@/components/ui/separator";
-import { KhojLogoType } from "../components/logo/khojLogo";
+import { ApollosLogoType } from "../components/logo/apollosLogo";
 
 const automationsFetcher = () =>
     window
@@ -554,7 +554,7 @@ function EditCard(props: EditCardProps) {
                 props.setIsEditing(false);
                 // Show error message
                 props.setToastMessage(
-                    "Sorry, something went wrong. Try again or contact team@khoj.dev.",
+                    "Sorry, something went wrong. Try again or contact team@apollos.dev.",
                 );
             });
     };
@@ -837,7 +837,7 @@ function AutomationModificationForm(props: AutomationModificationFormProps) {
                     render={({ field }) => (
                         <FormItem className="space-y-1">
                             <FormLabel>Instructions</FormLabel>
-                            <FormDescription>What do you want Khoj to do?</FormDescription>
+                            <FormDescription>What do you want Apolloslos to do?</FormDescription>
                             {props.create && (
                                 <div>
                                     {recommendationPills.map((recommendation) =>
@@ -1060,7 +1060,7 @@ export default function Automations() {
                     <Separator orientation="vertical" className="mr-2 h-4" />
                     {isMobileWidth ? (
                         <a className="p-0 no-underline" href="/">
-                            <KhojLogoType className="h-auto w-16" />
+                            <ApolloslosLogoType className="h-auto w-16" />
                         </a>
                     ) : (
                         <h2 className="text-lg">Automations</h2>

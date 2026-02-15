@@ -87,7 +87,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import { AppSidebar } from "../components/appSidebar/appSidebar";
 import { UserMemory, UserMemorySchema } from "../components/userMemory/userMemory";
 import { Separator } from "@/components/ui/separator";
-import { KhojLogoType } from "../components/logo/khojLogo";
+import { ApollosLogoType } from "../components/logo/apollosLogo";
 import { Progress } from "@/components/ui/progress";
 
 import JSZip from "jszip";
@@ -242,12 +242,12 @@ function ApiKeyCard() {
             </CardHeader>
             <CardContent className="overflow-hidden grid gap-6">
                 <p className="text-md text-gray-400">
-                    Access Khoj from the{" "}
-                    <a href="https://docs.khoj.dev/clients/desktop" target="_blank">
+                    Access Apolloslos from the{" "}
+                    <a href="https://docs.apollos.dev/clients/desktop" target="_blank">
                         Desktop
                     </a>
-                    , <a href="https://docs.khoj.dev/clients/obsidian">Obsidian</a>,{" "}
-                    <a href="https://docs.khoj.dev/clients/emacs">Emacs</a> apps and more.
+                    , <a href="https://docs.apollos.dev/clients/obsidian">Obsidian</a>,{" "}
+                    <a href="https://docs.apollos.dev/clients/emacs">Emacs</a> apps and more.
                 </p>
                 <Table>
                     <TableBody>
@@ -290,7 +290,7 @@ function ApiKeyCard() {
                                             onClick={() => {
                                                 toast({
                                                     title: `🔑 Copied API Key: ${key.name}`,
-                                                    description: `Set this API key in the Khoj apps you want to connect to this Khoj account`,
+                                                    description: `Set this API key in the Apolloslos apps you want to connect to thApollospollos account`,
                                                 });
                                                 copyAPIKey(key.token);
                                             }}
@@ -301,7 +301,7 @@ function ApiKeyCard() {
                                             onClick={() => {
                                                 toast({
                                                     title: `🔑 Deleted API Key: ${key.name}`,
-                                                    description: `Apps using this API key will no longer connect to this Khoj account`,
+                                                    description: `Apps using this API key will no longer connect to this Apolloslos account`,
                                                 });
                                                 deleteAPIKey(key.token);
                                             }}
@@ -381,7 +381,7 @@ export default function SettingsView() {
             console.error("Error sending OTP:", error);
             toast({
                 title: "📱 Phone",
-                description: "Failed to send OTP. Try again or contact us at team@khoj.dev",
+                description: "Failed to send OTP. Try again or contact us at team@apollos.dev",
             });
         }
     };
@@ -405,7 +405,7 @@ export default function SettingsView() {
             console.error("Error verifying OTP:", error);
             toast({
                 title: "📱 Phone",
-                description: "Failed to verify OTP. Try again or contact us at team@khoj.dev",
+                description: "Failed to verify OTP. Try again or contact us at team@apollos.dev",
             });
         }
     };
@@ -431,7 +431,7 @@ export default function SettingsView() {
             toast({
                 title: "📱 Phone",
                 description:
-                    "Failed to disconnect phone number. Try again or contact us at team@khoj.dev",
+                    "Failed to disconnect phone number. Try again or contact us at team@apollos.dev",
             });
         }
     };
@@ -471,8 +471,8 @@ export default function SettingsView() {
                 title: "💳 Subscription",
                 description:
                     state === "cancel"
-                        ? "Failed to cancel subscription. Try again or contact us at team@khoj.dev"
-                        : "Failed to renew subscription. Try again or contact us at team@khoj.dev",
+                        ? "Failed to cancel subscription. Try again or contact us at team@apollos.dev"
+                        : "Failed to renew subscription. Try again or contact us at team@apollos.dev",
             });
         }
     };
@@ -504,7 +504,7 @@ export default function SettingsView() {
             console.error("Error updating name:", error);
             toast({
                 title: "⚠️ Failed to Update Profile",
-                description: "Failed to update name. Try again or contact team@khoj.dev",
+                description: "Failed to update name. Try again or contact team@apollos.dev",
             });
         }
     };
@@ -583,7 +583,7 @@ export default function SettingsView() {
 
             // Generate and download zip
             const content = await zip.generateAsync({ type: "blob" });
-            saveAs(content, "khoj-conversations.zip");
+            saveAs(content, "apollos-conversations.zip");
 
             toast({
                 title: "Export Complete",
@@ -633,7 +633,7 @@ export default function SettingsView() {
             console.error("Error updating name:", error);
             toast({
                 title: "⚠️ Failed to Save Notion Settings",
-                description: "Failed to save Notion API key. Try again or contact team@khoj.dev",
+                description: "Failed to save Notion API key. Try again or contact team@apollos.dev",
             });
         }
     };
@@ -706,8 +706,8 @@ export default function SettingsView() {
             toast({
                 title: enabled ? "Memory enabled" : "Memory disabled",
                 description: enabled
-                    ? "Khoj will learn and remember from your conversations."
-                    : "Khoj will no longer learn or remember from your conversations.",
+                    ? "Apolloslos will learn and remember from your conversations."
+                    : "Apolloslos will no longer learn or remember from your conversations.",
             });
         } catch (error) {
             console.error('Error toggling memory:', error);
@@ -738,7 +738,7 @@ export default function SettingsView() {
             console.error("Error syncing content:", error);
             toast({
                 title: `⚠️ Failed to Sync ${type}`,
-                description: `Failed to sync ${type} content. Try again or contact team@khoj.dev`,
+                description: `Failed to sync ${type} content. Try again or contact team@apollos.dev`,
             });
         }
     };
@@ -777,14 +777,14 @@ export default function SettingsView() {
             } else {
                 toast({
                     title: `✅ Disconnected ${source}`,
-                    description: `Your ${source} integration to Khoj has been disconnected.`,
+                    description: `Your ${source} integration to Apolloslos has been disconnected.`,
                 });
             }
         } catch (error) {
             console.error(`Error disconnecting ${source}:`, error);
             toast({
                 title: `⚠️ Failed to Disconnect ${source}`,
-                description: `Failed to disconnect from ${source}. Try again or contact team@khoj.dev`,
+                description: `Failed to disconnect from ${source}. Try again or contact team@apollos.dev`,
             });
         }
     };
@@ -800,7 +800,7 @@ export default function SettingsView() {
                     <Separator orientation="vertical" className="mr-2 h-4" />
                     {isMobileWidth ? (
                         <a className="p-0 no-underline" href="/">
-                            <KhojLogoType className="h-auto w-16" />
+                            <ApolloslosLogoType className="h-auto w-16" />
                         </a>
                     ) : (
                         <h2 className="text-lg">Settings</h2>
@@ -825,7 +825,7 @@ export default function SettingsView() {
                                                 </CardHeader>
                                                 <CardContent className="overflow-hidden">
                                                     <p className="pb-4 text-gray-400">
-                                                        What should Khoj refer to you as?
+                                                        What should Apolloslos refer to you as?
                                                     </p>
                                                     <Input
                                                         type="text"
@@ -861,14 +861,14 @@ export default function SettingsView() {
                                                             <p className="text-gray-400">
                                                                 You are on a{" "}
                                                                 {userConfig.length_of_free_trial}{" "}
-                                                                day trial of the Khoj Futurist plan.
+                                                                day trial of the Apolloslos Futurist plan.
                                                                 Your trial ends on{" "}
                                                                 {
                                                                     userConfig.subscription_renewal_date
                                                                 }
                                                                 . Check{" "}
                                                                 <a
-                                                                    href="https://khoj.dev/#pricing"
+                                                                    href="https://apollos.dev/#pricing"
                                                                     target="_blank"
                                                                 >
                                                                     pricing page
@@ -925,7 +925,7 @@ export default function SettingsView() {
                                                                     <p className="text-gray-400">
                                                                         Check{" "}
                                                                         <a
-                                                                            href="https://khoj.dev/#pricing"
+                                                                            href="https://apollos.dev/#pricing"
                                                                             target="_blank"
                                                                         >
                                                                             pricing page
@@ -972,7 +972,7 @@ export default function SettingsView() {
                                                                 className="text-primary/80 hover:text-primary"
                                                                 onClick={() =>
                                                                     window.open(
-                                                                        `${userConfig.khoj_cloud_subscription_url}?prefilled_email=${userConfig.username}`,
+                                                                        `${userConfig.apollos_cloud_subscription_url}?prefilled_email=${userConfig.username}`,
                                                                         "_blank",
                                                                         "noopener,noreferrer",
                                                                     )
@@ -1085,7 +1085,7 @@ export default function SettingsView() {
                                                                 setNotionToken(e.target.value)
                                                             }
                                                             value={notionToken || ""}
-                                                            placeholder="Enter API Key of your Khoj integration on Notion"
+                                                            placeholder="Enter API Key of your Apolloslos integration on Notion"
                                                             className="w-full border border-gray-300 rounded-lg px-4 py-6"
                                                         />
                                                     )}

@@ -1,12 +1,12 @@
 # Image Generation
-You can use Khoj to generate images from text prompts. You can get deeper into the  details of our image generation flow in this blog post: https://blog.khoj.dev/posts/how-khoj-generates-images/.
+You can use Apollos to generate images from text prompts. You can get deeper into the  details of our image generation flow in this blog post: https://blog.apollos.dev/posts/how-apollos-generates-images/.
 
-To generate images, you just need to provide a prompt to Khoj in which the image generation is in the instructions. Khoj will automatically detect the image generation intent, augment your generation prompt, and then create the image. Here are some examples:
+To generate images, you just need to provide a prompt to Apollos in which the image generation is in the instructions. Apollos will automatically detect the image generation intent, augment your generation prompt, and then create the image. Here are some examples:
+
 | Prompt | Image |
 | --- | --- |
 | Paint a picture of the plants I got last month, pixar-animation | ![plants](/img/plants_i_got.png) |
 | Create a picture of my dream house, based on my interests | ![house](/img/dream_house.png) |
-
 
 ## Setup (Self-Hosting)
 

@@ -2,8 +2,8 @@ import time
 
 import pytest
 
-from khoj.database.adapters import ProcessLockAdapters
-from khoj.database.models import ProcessLock
+from apollos.database.adapters import ProcessLockAdapters
+from apollos.database.models import ProcessLock
 from tests.helpers import ProcessLockFactory
 
 

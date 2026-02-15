@@ -1,8 +1,8 @@
-export async function deleteContentByType(khojUrl: string, khojApiKey: string, contentType: string): Promise<void> {
-    // Deletes all content of a given type on Khoj server for Obsidian client
-    const response = await fetch(`${khojUrl}/api/content/type/${contentType}?client=obsidian`, {
+export async function deleteContentByType(apollosUrl: string, apollosApiKey: string, contentType: string): Promise<void> {
+    // Deletes all content of a given type on Apollos server for Obsidian client
+    const response = await fetch(`${apollosUrl}/api/content/type/${contentType}?client=obsidian`, {
         method: 'DELETE',
-        headers: khojApiKey ? { 'Authorization': `Bearer ${khojApiKey}` } : {},
+        headers: apollosApiKey ? { 'Authorization': `Bearer ${apollosApiKey}` } : {},
     });
     if (!response.ok) {
         const text = await response.text().catch(() => '');
@@ -10,14 +10,14 @@ export async function deleteContentByType(khojUrl: string, khojApiKey: string, c
     }
 }
 
-export async function uploadContentBatch(khojUrl: string, khojApiKey: string, files: { blob: Blob, path: string }[]): Promise<string> {
-    // Uploads a batch of files to Khoj content endpoint
+export async function uploadContentBatch(apollosUrl: string, apollosApiKey: string, files: { blob: Blob, path: string }[]): Promise<string> {
+    // Uploads a batch of files to Apolloslos content endpoint
     const formData = new FormData();
     files.forEach(fileItem => { formData.append('files', fileItem.blob, fileItem.path); });
 
-    const response = await fetch(`${khojUrl}/api/content?client=obsidian`, {
+    const response = await fetch(`${apollosUrl}/api/content?client=obsidian`, {
         method: 'PATCH',
-        headers: khojApiKey ? { 'Authorization': `Bearer ${khojApiKey}` } : {},
+        headers: apollosApiKey ? { 'Authorization': `Bearer ${apollosApiKey}` } : {},
         body: formData,
     });
 

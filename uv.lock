@@ -1201,7 +1201,7 @@ wheels = [
 ]
 
 [[package]]
-name = "khoj"
+name = "apollos"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },

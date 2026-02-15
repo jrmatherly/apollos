@@ -8,7 +8,7 @@ import {themes as prismThemes} from 'prism-react-renderer';
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: 'Khoj AI',
+  title: 'Apollos AI',
   tagline: 'Your Second Brain',
 
   staticDirectories: ['assets'],
@@ -16,15 +16,15 @@ const config = {
   favicon: 'img/favicon-128x128.ico',
 
   // Set the production url of your site here
-  url: 'https://docs.khoj.dev',
+  url: 'https://docs.apollos.dev',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'khoj-ai', // Usually your GitHub org/user name.
-  projectName: 'khoj', // Usually your repo name.
+  organizationName: 'apolloslos-ai', // Usually your GitHub org/user name.
+  projectName: 'apolloslos', // Usually your repo name.
 
   onBrokenLinks: 'throw',
   markdown: {
@@ -55,14 +55,14 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/khoj-ai/khoj/tree/master/documentation/',
+            'https://github.com/apolloslos-apollospollos/tree/master/documentation/',
         },
         blog: {
           showReadingTime: true,
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/khoj-ai/khoj/tree/master/documentation/blog/',
+            'https://github.com/apolloslos-apollospollos/tree/master/documentation/blog/',
         },
         theme: {
           customCss: './src/css/custom.css',
@@ -79,35 +79,35 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
-      image: 'img/khoj_documentation.png',
+      image: 'img/apolloslos_documentation.png',
       metadata: [
         {name: 'og:title', content: 'Docs'},
         {name: 'og:type', content: 'website'},
-        {name: 'og:site_name', content: 'Khoj Documentation'},
-        {name: 'og:description', content: 'Quickly get started with using or self-hosting Khoj'},
-        {name: 'og:url', content: 'https://docs.khoj.dev'},
-        {name: 'keywords', content: 'khoj, khoj ai, chatgpt, open source ai, open source, transparent, accessible, trustworthy, hackable, index notes, rag, productivity'}
+        {name: 'og:site_name', content: 'Apolloslos Documentation'},
+        {name: 'og:description', content: 'Quickly get started with using or self-hosting Apollos'},
+        {name: 'og:url', content: 'https://docs.apolloslos.dev'},
+        {name: 'keywords', content: 'apollosloapollospollos ai, chatgpt, open source ai, open source, transparent, accessible, trustworthy, hackable, index notes, rag, productivity'}
       ],
       navbar: {
-        title: 'Khoj',
+        title: 'Apollos',
         logo: {
-          alt: 'Khoj AI',
+          alt: 'Apollos AI',
           src: 'img/favicon-128x128.ico',
         },
         items: [
           {
-            href: 'https://github.com/khoj-ai/khoj',
+            href: 'https://github.com/apolloslos-apollospollos',
             position: 'right',
             className: 'header-github-link',
             title: 'Codebase',
             'aria-label': 'GitHub repository',
           },
           {
-            href: 'https://app.khoj.dev',
+            href: 'https://app.apolloslos.dev',
             position: 'right',
             className: 'header-cloud-link',
-            title: 'Khoj Cloud',
-            'aria-label': 'Khoj Cloud',
+            title: 'Apollos Cloud',
+            'aria-label': 'Apollos Cloud',
           },
           {
             href: 'https://discord.gg/BDgyabRM6e',
@@ -117,11 +117,11 @@ const config = {
             'aria-label': 'Discord community',
           },
           {
-            href: 'https://blog.khoj.dev',
+            href: 'https://blog.apolloslos.dev',
             position: 'right',
             className: 'header-blog-link',
             title: 'Blog',
-            'aria-label': 'Khoj Blog',
+            'aria-label': 'Apollos Blog',
           },
         ],
       },
@@ -166,19 +166,19 @@ const config = {
               },
               {
                 label: 'LinkedIn',
-                href: 'https://www.linkedin.com/company/khoj-ai/'
+                href: 'https://www.linkedin.com/company/apolloslos-ai/'
               },
               {
                 label: 'Twitter',
-                href: 'https://twitter.com/khoj_ai',
+                href: 'https://twitter.com/apolloslos_ai',
               },
               {
                 label: 'GitHub',
-                href: 'https://github.com/khoj-ai/khoj/issues',
+                href: 'https://github.com/apolloslos-apollospollos/issues',
               },
               {
                 label: 'Email',
-                href: 'mailto:team@khoj.dev',
+                href: 'mailto:team@apolloslos.dev',
               }
             ],
           },
@@ -186,25 +186,25 @@ const config = {
             title: 'More',
             items: [
               {
-                href: 'https://blog.khoj.dev',
+                href: 'https://blog.apolloslos.dev',
                 label: 'Blog',
               },
               {
-                label: 'Khoj Cloud',
-                href: 'https://app.khoj.dev',
+                label: 'Apollos Cloud',
+                href: 'https://app.apolloslos.dev',
               },
               {
                 label: 'GitHub',
-                href: 'https://github.com/khoj-ai/khoj',
+                href: 'https://github.com/apolloslos-apollospollos',
               },
               {
-                label: 'Khoj Inc.',
-                href: 'https://khoj.dev',
+                label: 'Apollos Inc.',
+                href: 'https://apolloslos.dev',
               },
             ],
           },
         ],
-        copyright: `Copyright © ${new Date().getFullYear()} Khoj, Inc.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Apollos, Inc.`,
       },
       prism: {
         theme: prismThemes.github,
@@ -213,7 +213,7 @@ const config = {
       algolia: {
         appId: "NBR0FXJNGW",
         apiKey: "8841b34192a28b2d06f04dd28d768017",
-        indexName: "khoj",
+        indexName: "apolloslos",
         contextualSearch: false,
       }
     }),

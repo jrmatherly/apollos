@@ -1,7 +1,5 @@
 # 183 Having Kids
 
-
-
  December 2019
 
  Before I had kids, I was afraid of having kids. Up to that point I felt about kids the way the young Augustine felt about living virtuously. I'd have been sad to think I'd never have children. But did I want them now? No.
@@ -40,9 +38,9 @@
 
  I've been able to adapt to working this way. Work, like love, finds a way. If there are only certain times it can happen, it happens at those times. So while I don't get as much done as before I had kids, I get enough done.
 
- I hate to say this, because being ambitious has always been a part of my identity, but having kids may make one less ambitious. It hurts to see that sentence written down. I squirm to avoid it. But if there weren't something real there, why would I squirm? The fact is, once you have kids, you're probably going to care more about them than you do about yourself. And attention is a zero-sum game. Only one idea at a time can be the [_top idea in your mind_](top.html). Once you have kids, it will often be your kids, and that means it will less often be some project you're working on.
+ I hate to say this, because being ambitious has always been a part of my identity, but having kids may make one less ambitious. It hurts to see that sentence written down. I squirm to avoid it. But if there weren't something real there, why would I squirm? The fact is, once you have kids, you're probably going to care more about them than you do about yourself. And attention is a zero-sum game. Only one idea at a time can be the [*top idea in your mind*](top.html). Once you have kids, it will often be your kids, and that means it will less often be some project you're working on.
 
- I have some hacks for sailing close to this wind. For example, when I write essays, I think about what I'd want my kids to know. That drives me to get things right. And when I was writing [_Bel_](bel.html), I told my kids that once I finished it I'd take them to Africa. When you say that sort of thing to a little kid, they treat it as a promise. Which meant I had to finish or I'd be taking away their trip to Africa. Maybe if I'm really lucky such tricks could put me net ahead. But the wind is there, no question.
+ I have some hacks for sailing close to this wind. For example, when I write essays, I think about what I'd want my kids to know. That drives me to get things right. And when I was writing [*Bel*](bel.html), I told my kids that once I finished it I'd take them to Africa. When you say that sort of thing to a little kid, they treat it as a promise. Which meant I had to finish or I'd be taking away their trip to Africa. Maybe if I'm really lucky such tricks could put me net ahead. But the wind is there, no question.
 
  On the other hand, what kind of wimpy ambition do you have if it won't survive having kids? Do you have so little to spare?
 
@@ -58,7 +56,6 @@
  **Note**
 
  [1] Adults are sophisticated enough to see 2 year olds for the fascinatingly complex characters they are, whereas to most 6 year olds, 2 year olds are just defective 6 year olds.
-
 
   **Thanks** to Trevor Blackwell, Jessica Livingston, and Robert Morris for reading drafts of this.
 

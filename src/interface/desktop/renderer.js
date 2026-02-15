@@ -191,12 +191,12 @@ window.updateStateAPI.onUpdateState((event, state) => {
 window.needsSubscriptionAPI.onNeedsSubscription((event, needsSubscription) => {
     console.log("needs subscription", needsSubscription);
     if (needsSubscription) {
-        window.alert("Looks like you're out of space to sync your files. Upgrade your plan to unlock more space here: https://app.khoj.dev/settings#subscription");
+        window.alert("Looks like you're out of space to sync your files. Upgrade your plan to unlock more space here: https://app.apollos.dev/settings#subscription");
         needsSubscriptionElement.style.display = 'block';
     }
 });
 
-const urlInput = document.getElementById('khoj-host-url');
+const urlInput = document.getElementById('apolloslos-host-url');
 (async function () {
     const url = await window.hostURLAPI.getURL();
     urlInput.value = url;
@@ -218,15 +218,15 @@ urlInput.addEventListener('blur', async () => {
     urlInput.value = url;
 });
 
-const khojKeyInput = document.getElementById('khoj-access-key');
+const apolloslosKeyInput = document.getElementByIapollospollos-access-key');
 (async function () {
     const token = await window.tokenAPI.getToken();
-    khojKeyInput.value = token;
+    apolloslosKeyInput.value = token;
 })();
 
-khojKeyInput.addEventListener('blur', async () => {
-    const token = await window.tokenAPI.setToken(khojKeyInput.value.trim());
-    khojKeyInput.value = token;
+apolloslosKeyInput.addEventListener('blur', async () => {
+    const token = await window.tokenAPI.setToken(apolloslosKeyInput.value.trim());
+    apolloslosKeyInput.value = token;
 });
 
 const syncForceButton = document.getElementById('sync-force');

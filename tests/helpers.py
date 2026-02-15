@@ -7,15 +7,15 @@ import factory
 from asgiref.sync import sync_to_async
 from django.utils.timezone import make_aware
 
-from khoj.database.adapters import AgentAdapters
-from khoj.database.models import (
+from apollos.database.adapters import AgentAdapters
+from apollos.database.models import (
     Agent,
     AiModelApi,
     ChatMessageModel,
     ChatModel,
     Conversation,
-    KhojApiUser,
-    KhojUser,
+    ApollosApiUser,
+    ApollosUser,
     ProcessLock,
     SearchModelConfig,
     ServerChatSettings,
@@ -23,14 +23,14 @@ from khoj.database.models import (
     UserConversationConfig,
     UserMemory,
 )
-from khoj.processor.conversation.utils import message_to_log
-from khoj.utils.helpers import get_absolute_path, is_none_or_empty
+from apollos.processor.conversation.utils import message_to_log
+from apollos.utils.helpers import get_absolute_path, is_none_or_empty
 
 logger = logging.getLogger(__name__)
 
 
 def get_chat_provider(default: ChatModel.ModelType | None = ChatModel.ModelType.GOOGLE):
-    provider = os.getenv("KHOJ_TEST_CHAT_PROVIDER")
+    provider = os.getenv("APOLLOS_TEST_CHAT_PROVIDER")
     if provider and provider in ChatModel.ModelType:
         return ChatModel.ModelType(provider)
     elif os.getenv("OPENAI_API_KEY"):
@@ -75,35 +75,35 @@ def get_sample_data(type):
     sample_data = {
         "org": {
             "elisp.org": """
-* Emacs Khoj
-  /An Emacs interface for [[https://github.com/khoj-ai/khoj][khoj]]/
+* Emacs Apollos
+  /An Emacs interface for [[https://github.com/jrmatherly/apollos][apollos]]/
 
 ** Requirements
-   - Install and Run [[https://github.com/khoj-ai/khoj][khoj]]
+   - Install and Run [[https://github.com/jrmatherly/apollos][apollos]]
 
 ** Installation
 *** Direct
-     - Put ~khoj.el~ in your Emacs load path. For e.g. ~/.emacs.d/lisp
+     - Put ~apollos.el~ in your Emacs load path. For e.g. ~/.emacs.d/lisp
      - Load via ~use-package~ in your ~/.emacs.d/init.el or .emacs file by adding below snippet
        #+begin_src elisp
-         ;; Khoj Package
-         (use-package khoj
-           :load-path "~/.emacs.d/lisp/khoj.el"
-           :bind ("C-c s" . 'khoj))
+         ;; Apollos Package
+         (use-package apollos
+           :load-path "~/.emacs.d/lisp/apollos.el"
+           :bind ("C-c s" . 'apollos))
        #+end_src
 
 *** Using [[https://github.com/quelpa/quelpa#installation][Quelpa]]
      - Ensure [[https://github.com/quelpa/quelpa#installation][Quelpa]], [[https://github.com/quelpa/quelpa-use-package#installation][quelpa-use-package]] are installed
      - Add below snippet to your ~/.emacs.d/init.el or .emacs config file and execute it.
        #+begin_src elisp
-         ;; Khoj Package
-         (use-package khoj
-           :quelpa (khoj :fetcher url :url "https://raw.githubusercontent.com/khoj-ai/khoj/master/interface/emacs/khoj.el")
-           :bind ("C-c s" . 'khoj))
+         ;; Apollos Package
+         (use-package apollos
+           :quelpa (apollos :fetcher url :url "https://raw.githubusercontent.com/apollos-ai/apollos/master/interface/emacs/apollos.el")
+           :bind ("C-c s" . 'apollos))
        #+end_src
 
 ** Usage
-   1. Call ~khoj~ using keybinding ~C-c s~ or ~M-x khoj~
+   1. Call ~apollos~ using keybinding ~C-c s~ or ~M-x apollos~
    2. Enter Query in Natural Language
       e.g. "What is the meaning of life?" "What are my life goals?"
    3. Wait for results
@@ -114,10 +114,10 @@ def get_sample_data(type):
 
 """,
             "readme.org": """
-* Khoj
+* Apollos
   /Allow natural language search on user content like notes, images using transformer based models/
 
-  All data is processed locally. User can interface with khoj app via [[./interface/emacs/khoj.el][Emacs]], API or Commandline
+  All data is processed locally. User can interface with apollos app via [[./interface/emacs/apollos.el][Emacs]], API or Commandline
 
 ** Dependencies
    - Python3
@@ -125,17 +125,17 @@ def get_sample_data(type):
 
 ** Install
    #+begin_src shell
-   git clone https://github.com/khoj-ai/khoj && cd khoj
+   git clone https://github.com/jrmatherly/apollos && cd apollos
    conda env create -f environment.yml
-   conda activate khoj
+   conda activate apollos
    #+end_src""",
         },
         "markdown": {
             "readme.markdown": """
-# Khoj
+# Apollos
 Allow natural language search on user content like notes, images using transformer based models
 
-All data is processed locally. User can interface with khoj app via [Emacs](./interface/emacs/khoj.el), API or Commandline
+All data is processed locally. User can interface with apollos app via [Emacs](./interface/emacs/apollos.el), API or Commandline
 
 ## Dependencies
 - Python3
@@ -145,16 +145,16 @@ All data is processed locally. User can interface with khoj app via [Emacs](./in
 ```shell
 git clone
 conda env create -f environment.yml
-conda activate khoj
+conda activate apollos
 ```
 """
         },
         "plaintext": {
             "readme.txt": """
-Khoj
+Apollos
 Allow natural language search on user content like notes, images using transformer based models
 
-All data is processed locally. User can interface with khoj app via Emacs, API or Commandline
+All data is processed locally. User can interface with apollos app via Emacs, API or Commandline
 
 Dependencies
 - Python3
@@ -163,7 +163,7 @@ Dependencies
 Install
 git clone
 conda env create -f environment.yml
-conda activate khoj
+conda activate apollos
 """
         },
     }
@@ -207,7 +207,7 @@ def get_index_files(
 
 class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = KhojUser
+        model = ApollosUser
 
     username = factory.Faker("name")
     email = factory.Faker("email")
@@ -217,7 +217,7 @@ class UserFactory(factory.django.DjangoModelFactory):
 
 class ApiUserFactory(factory.django.DjangoModelFactory):
     class Meta:
-        model = KhojApiUser
+        model = ApollosApiUser
 
     user = None
     name = factory.Faker("name")

@@ -47,7 +47,7 @@ import LoginPopup from "./components/loginPrompt/loginPopup";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./components/appSidebar/appSidebar";
 import { Separator } from "@/components/ui/separator";
-import { KhojLogoType } from "./components/logo/khojLogo";
+import { ApollosLogoType } from "./components/logo/apollosLogo";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -187,7 +187,7 @@ function ChatBodyData(props: ChatBodyDataProps) {
     const [hoveredAgent, setHoveredAgent] = useState<string | null>(null);
     const debouncedHoveredAgent = useDebounce(hoveredAgent, 500);
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-    const [selectedAgent, setSelectedAgent] = useState<string | null>("khoj");
+    const [selectedAgent, setSelectedAgent] = useState<string | null>("apollos");
     const [agentIcons, setAgentIcons] = useState<JSX.Element[]>([]);
     const [agents, setAgents] = useState<AgentData[]>([]);
     const chatInputRef = useRef<HTMLTextAreaElement>(null);
@@ -246,7 +246,7 @@ function ChatBodyData(props: ChatBodyDataProps) {
         const agents = (agentsData || []).filter((agent) => agent !== null && agent !== undefined);
         setAgents(agents);
         // set the first agent, which is always the default agent, as the default for chat
-        setSelectedAgent(agents.length > 1 ? agents[0].slug : "khoj");
+        setSelectedAgent(agents.length > 1 ? agents[0].slug : "apollos");
 
         // generate colored icons for the available agents
         const agentIcons = agents.map((agent) => getIconFromIconName(agent.icon, agent.color)!);
@@ -262,7 +262,7 @@ function ChatBodyData(props: ChatBodyDataProps) {
             if (message && !processingMessage) {
                 setProcessingMessage(true);
                 try {
-                    const newConversationId = await createNewConversation(selectedAgent || "khoj");
+                    const newConversationId = await createNewConversation(selectedAgent || "apollos");
                     onConversationIdChange?.(newConversationId);
                     localStorage.setItem("message", message);
                     if (images.length > 0) {
@@ -455,7 +455,7 @@ function ChatBodyData(props: ChatBodyDataProps) {
                                         <ArrowsVertical className="h-5 w-5" />
                                     )}
                                     {selectedAgent
-                                        ? `${agents?.find((agent) => agent.slug === selectedAgent)?.name ?? "Khoj"}`
+                                        ? `${agents?.find((agent) => agent.slug === selectedAgent)?.name ?? "Apolloslos"}`
                                         : "Select Agent"}
                                 </Button>
                             </DropdownMenuTrigger>
@@ -474,13 +474,13 @@ function ChatBodyData(props: ChatBodyDataProps) {
                                     ))
                                 ) : (
                                     <DropdownMenuItem
-                                        key="0-khoj"
+                                        key="0-apollos"
                                         onClick={() => {
-                                            setSelectedAgent("khoj");
+                                            setSelectedAgent("apollos");
                                             chatInputRef.current?.focus();
                                         }}
                                     >
-                                        {getIconFromIconName("Lightbulb", "orange")} Khoj
+                                        {getIconFromIconName("Lightbulb", "orange")} Apolloslos
                                     </DropdownMenuItem>
                                 )}
                             </DropdownMenuContent>
@@ -571,14 +571,14 @@ export default function Home() {
                     <Separator orientation="vertical" className="mr-2 h-4" />
                     {isMobileWidth ? (
                         <a className="p-0 no-underline" href="/">
-                            <KhojLogoType className="h-auto w-16" />
+                            <ApolloslosLogoType className="h-auto w-16" />
                         </a>
                     ) : (
                         <h2 className="text-lg">Ask Anything</h2>
                     )}
                 </header>
                 <div className={`${styles.main} ${styles.chatLayout}`}>
-                    <title>Khoj AI - Your Second Brain</title>
+                    <title>Apolloslos AI - Your Second Brain</title>
                     <div className={`${styles.chatBox}`}>
                         <div className={`${styles.chatBoxBody}`}>
                             {!authenticationLoading && (

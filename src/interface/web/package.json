@@ -1,5 +1,5 @@
 {
-    "name": "khoj-ai",
+    "name": "apollos-ai",
     "version": "2.0.0-beta.24",
     "private": true,
     "scripts": {
@@ -7,15 +7,15 @@
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
-        "collectstatic": "bash -c 'pushd ../../../ && source .venv/bin/activate && python3 src/khoj/manage.py collectstatic --noinput && deactivate && popd'",
-        "cicollectstatic": "bash -c 'pushd ../../../ && uv run python src/khoj/manage.py collectstatic --noinput && popd'",
-        "export": "bun run build && cp -r out/ ../../khoj/interface/built && bun run collectstatic",
-        "ciexport": "bun run build && cp -r out/ ../../khoj/interface/built && bun run cicollectstatic",
-        "pypiciexport": "bun run build && mkdir -p ../../khoj/interface/compiled && cp -r out/. ../../khoj/interface/compiled && bun run cicollectstatic",
+        "collectstatic": "bash -c 'pushd ../../../ && source .venv/bin/activate && python3 src/apollos/manage.py collectstatic --noinput && deactivate && popd'",
+        "cicollectstatic": "bash -c 'pushd ../../../ && uv run python src/apollos/manage.py collectstatic --noinput && popd'",
+        "export": "bun run build && cp -r out/ ../../apollos/interface/built && bun run collectstatic",
+        "ciexport": "bun run build && cp -r out/ ../../apollos/interface/built && bun run cicollectstatic",
+        "pypiciexport": "bun run build && mkdir -p ../../apollos/interface/compiled && cp -r out/. ../../apollos/interface/compiled && bun run cicollectstatic",
         "watch": "nodemon --watch . --ext js,jsx,ts,tsx,css --ignore 'out/**/*' --exec 'bun run export'",
         "windowswatch": "nodemon --watch . --ext js,jsx,ts,tsx,css --ignore 'out/**/*' --exec 'bun run windowsexport'",
-        "windowscollectstatic": "cd ..\\..\\.. && .\\.venv\\Scripts\\Activate.bat && py .\\src\\khoj\\manage.py collectstatic --noinput && .\\.venv\\Scripts\\deactivate.bat && cd ..",
-        "windowsexport": "bun run build && xcopy out ..\\..\\khoj\\interface\\built /E /Y && bun run windowscollectstatic",
+        "windowscollectstatic": "cd ..\\..\\.. && .\\.venv\\Scripts\\Activate.bat && py .\\src\\apollos\\manage.py collectstatic --noinput && .\\.venv\\Scripts\\deactivate.bat && cd ..",
+        "windowsexport": "bun run build && xcopy out ..\\..\\apollos\\interface\\built /E /Y && bun run windowscollectstatic",
         "prepare": "husky"
     },
     "dependencies": {

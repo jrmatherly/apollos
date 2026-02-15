@@ -14,14 +14,14 @@ ENV VIRTUAL_ENV="/opt/venv"
 ENV UV_PROJECT_ENVIRONMENT="/opt/venv"
 
 # Setup working directory
-WORKDIR /workspaces/khoj
+WORKDIR /workspaces/apollos
 
 # --- Python Server App Dependencies ---
 # Copy files required for Python dependency installation.
 COPY pyproject.toml README.md ./
 
 # Setup python environment
-    # Use the pre-built torch cpu wheel
+# Use the pre-built torch cpu wheel
 ENV UV_INDEX="https://download.pytorch.org/whl/cpu" \
     UV_INDEX_STRATEGY="unsafe-best-match" \
     # Avoid downloading unused cuda specific python packages
@@ -30,7 +30,7 @@ ENV UV_INDEX="https://download.pytorch.org/whl/cpu" \
     VERSION=0.0.0 \
     # Use embedded db
     USE_EMBEDDED_DB="True" \
-    PGSERVER_DATA_DIR="/opt/khoj_db"
+    PGSERVER_DATA_DIR="/opt/apollos_db"
 # Install Python dependencies from pyproject.toml in editable mode
 RUN sed -i "s/dynamic = \\[\"version\"\\]/version = \"$VERSION\"/" pyproject.toml && \
     uv sync --all-extras && \
@@ -40,10 +40,10 @@ RUN sed -i "s/dynamic = \\[\"version\"\\]/version = \"$VERSION\"/" pyproject.tom
 
 # --- Web App Dependencies ---
 # Copy web app manifest files
-COPY src/interface/web/package.json src/interface/web/bun.lock /opt/khoj_web/
+COPY src/interface/web/package.json src/interface/web/bun.lock /opt/apollos_web/
 
 # Install web app dependencies
-RUN cd /opt/khoj_web && bun install && chown -R vscode:vscode .
+RUN cd /opt/apollos_web && bun install && chown -R vscode:vscode .
 
 # The .venv and node_modules are now populated in the image.
 # The rest of the source code will be mounted by VS Code from your local checkout,

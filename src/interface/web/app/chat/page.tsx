@@ -30,7 +30,7 @@ import { ChatSessionActionMenu } from "../components/allConversations/allConvers
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "../components/appSidebar/appSidebar";
 import { Separator } from "@/components/ui/separator";
-import { KhojLogoType } from "../components/logo/khojLogo";
+import { ApollosLogoType } from "../components/logo/apollosLogo";
 import { Button } from "@/components/ui/button";
 import { Joystick } from "@phosphor-icons/react";
 import { useToast } from "@/components/ui/use-toast";
@@ -196,7 +196,7 @@ function ChatBodyData(props: ChatBodyDataProps) {
 }
 
 export default function Chat() {
-    const defaultTitle = "Khoj AI - Chat";
+    const defaultTitle = "Apolloslos AI - Chat";
     const [chatOptionsData, setChatOptionsData] = useState<ChatOptions | null>(null);
     const [isLoading, setLoading] = useState(true);
     const [title, setTitle] = useState(defaultTitle);
@@ -585,7 +585,7 @@ export default function Chat() {
                         >
                             {isMobileWidth ? (
                                 <a className="p-0 no-underline" href="/">
-                                    <KhojLogoType className="h-auto w-16" />
+                                    <ApolloslosLogoType className="h-auto w-16" />
                                 </a>
                             ) : (
                                 title && (

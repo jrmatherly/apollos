@@ -33,10 +33,10 @@ export function welcomeConsole() {
 
 Greetings traveller,
 
-I am ✨Khoj✨, your open-source, personal AI copilot.
+I am ✨Apollos✨, your open-source, personal AI copilot.
 
-See my source code at https://github.com/khoj-ai/khoj
-Read my operating manual at https://docs.khoj.dev
+See my source code at https://github.com/jrmatherly/apollos
+Read my operating manual at https://docs.apollos.dev
 `,
     );
 }

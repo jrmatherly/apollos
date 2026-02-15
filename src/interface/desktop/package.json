@@ -1,12 +1,12 @@
 {
-  "name": "Khoj",
+  "name": "Apollos",
   "version": "2.0.0-beta.24",
   "description": "Your Second Brain",
-  "author": "Khoj Inc. <team@khoj.dev>",
+  "author": "Apollos Inc. <team@apollos.dev>",
   "license": "GPL-3.0-or-later",
-  "homepage": "https://khoj.dev",
-  "repository": "\"https://github.com/khoj-ai/khoj\"",
-  "productName": "Khoj",
+  "homepage": "https://apollos.dev",
+  "repository": "\"https://github.com/jrmatherly/apollos\"",
+  "productName": "Apollos",
   "main": "main.js",
   "private": false,
   "devDependencies": {

@@ -1,32 +1,32 @@
-* Emacs Khoj
-  /An Emacs interface for [[https://github.com/khoj-ai/khoj][khoj]]/
+* Emacs Apollos
+  /An Emacs interface for [[https://github.com/jrmatherly/apollos][apollos]]/
 
 ** Requirements
-   - Install and Run [[https://github.com/khoj-ai/khoj][khoj]]
+   - Install and Run [[https://github.com/jrmatherly/apollos][apollos]]
 
 ** Install
 *** Direct
-     - Put ~khoj.el~ in your Emacs load path. For e.g. ~/.emacs.d/lisp
+     - Put ~apollos.el~ in your Emacs load path. For e.g. ~/.emacs.d/lisp
      - Load via ~use-package~ in your ~/.emacs.d/init.el or .emacs file by adding below snippet
        #+begin_src elisp
-         ;; Khoj Package
-         (use-package khoj
-           :load-path "~/.emacs.d/lisp/khoj.el"
-           :bind ("C-c s" . 'khoj))
+         ;; Apollos Package
+         (use-package apollos
+           :load-path "~/.emacs.d/lisp/apollos.el"
+           :bind ("C-c s" . 'apollos))
        #+end_src
 
 *** Using [[https://github.com/quelpa/quelpa#installation][Quelpa]]
      - Ensure [[https://github.com/quelpa/quelpa#installation][Quelpa]], [[https://github.com/quelpa/quelpa-use-package#installation][quelpa-use-package]] are installed
      - Add below snippet to your ~/.emacs.d/init.el or .emacs config file and execute it.
        #+begin_src elisp
-         ;; Khoj Package
-         (use-package khoj
-           :quelpa (khoj :fetcher url :url "https://raw.githubusercontent.com/khoj-ai/khoj/master/interface/emacs/khoj.el")
-           :bind ("C-c s" . 'khoj))
+         ;; Apollos Package
+         (use-package apollos
+           :quelpa (apollos :fetcher url :url "https://raw.githubusercontent.com/apollos-ai/apollos/master/interface/emacs/apollos.el")
+           :bind ("C-c s" . 'apollos))
        #+end_src
 
 ** Usage
-   1. Call ~khoj~ using keybinding ~C-c s~ or ~M-x khoj~
+   1. Call ~apollos~ using keybinding ~C-c s~ or ~M-x apollos~
    2. Enter Query in Natural Language
       e.g. "What is the meaning of life?" "What are my life goals?"
    3. Wait for results

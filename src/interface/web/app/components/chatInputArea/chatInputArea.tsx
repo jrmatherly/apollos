@@ -183,7 +183,7 @@ export const ChatInputArea = forwardRef<HTMLTextAreaElement, ChatInputProps>((pr
         if (!message.trim() && imageData.length === 0) return;
         if (!props.isLoggedIn) {
             setLoginRedirectMessage(
-                "Hey there, you need to be signed in to send messages to Khoj AI",
+                "Hey there, you need to be signed in to send messages to Apollos AI",
             );
             setShowLoginPrompt(true);
             return;
@@ -322,7 +322,7 @@ export const ChatInputArea = forwardRef<HTMLTextAreaElement, ChatInputProps>((pr
             setError(
                 "Error converting files. " +
                     error +
-                    ". Please try again, or contact team@khoj.dev if the issue persists.",
+                    ". Please try again, or contact team@apollos.dev if the issue persists.",
             );
             console.error("Error converting files:", error);
             return [];

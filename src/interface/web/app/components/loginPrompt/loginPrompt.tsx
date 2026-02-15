@@ -262,7 +262,7 @@ function EmailSignInContext({
                 <ArrowLeft className="h-6 w-6" />
             </Button>
             <div>
-                <div className="text-center font-bold text-xl">Get started with Khoj</div>
+                <div className="text-center font-bold text-xl">Get started with Apollos</div>
             </div>
             <div className="text-center text-sm text-muted-foreground">
                 {checkEmail
@@ -379,17 +379,17 @@ function MainSignInContext({
 
     const tips = [
         {
-            src: "https://assets.khoj.dev/sign_in_demos/research_mode.gif",
+            src: "https://assets.apollos.dev/sign_in_demos/research_mode.gif",
             alt: "Research tip",
             description: "Simplify Deep Work",
         },
         {
-            src: "https://assets.khoj.dev/sign_in_demos/custom_agents.gif",
+            src: "https://assets.apollos.dev/sign_in_demos/custom_agents.gif",
             alt: "Personalize tip",
             description: "Personalize your AI",
         },
         {
-            src: "https://assets.khoj.dev/sign_in_demos/docment_questions.gif",
+            src: "https://assets.apollos.dev/sign_in_demos/docment_questions.gif",
             alt: "Document tip",
             description: "Ask Anything",
         },
@@ -510,8 +510,8 @@ function MainSignInContext({
             </div>
             <div className="text-center text-muted-foreground text-sm mb-[20px]">
                 By logging in, you agree to our{" "}
-                <Link href="https://khoj.dev/terms-of-service">Terms of Service</Link>. See{" "}
-                <Link href="https://khoj.dev/privacy-policy">Privacy Policy</Link>.
+                <Link href="https://apollos.dev/terms-of-service">Terms of Service</Link>. See{" "}
+                <Link href="https://apollos.dev/privacy-policy">Privacy Policy</Link>.
             </div>
         </div>
     );

@@ -4,10 +4,9 @@
 
  **Want to start a startup?** Get funded by [Y Combinator](http://ycombinator.com/apply.html).
 
-
  March 2005
 
-  _(Parts of this essay began as replies to students who wrote to me with questions.)_
+  *(Parts of this essay began as replies to students who wrote to me with questions.)*
 
  Recently I've had several emails from computer science undergrads asking what to do in college. I might not be the best source of advice, because I was a philosophy major in college. But I took so many CS classes that most CS majors thought I was one. I was certainly a hacker, at least.
 
@@ -63,7 +62,7 @@
 
  I speak here from experience. I should probably have been offended when people laughed at Clinton for saying "It depends on what the meaning of the word 'is' is." I took about five classes in college on what the meaning of "is" is.
 
- Another way to figure out which fields are worth studying is to create the _dropout graph._ For example, I know many people who switched from math to computer science because they found math too hard, and no one who did the opposite. People don't do hard things gratuitously; no one will work on a harder problem unless it is proportionately (or at least log(n)) more rewarding. So probably math is more worth studying than computer science. By similar comparisons you can make a graph of all the departments in a university. At the bottom you'll find the subjects with least intellectual content.
+ Another way to figure out which fields are worth studying is to create the *dropout graph.* For example, I know many people who switched from math to computer science because they found math too hard, and no one who did the opposite. People don't do hard things gratuitously; no one will work on a harder problem unless it is proportionately (or at least log(n)) more rewarding. So probably math is more worth studying than computer science. By similar comparisons you can make a graph of all the departments in a university. At the bottom you'll find the subjects with least intellectual content.
 
  If you use this method, you'll get roughly the same answer I just gave.
 
@@ -111,7 +110,7 @@
 
  On the whole, grad school is probably better than most alternatives. You meet a lot of smart people, and your glum procrastination will at least be a powerful common bond. And of course you have a PhD at the end. I forgot about that. I suppose that's worth something.
 
- The greatest advantage of a PhD (besides being the union card of academia, of course) may be that it gives you some baseline confidence. For example, the Honeywell thermostats in my house have the most atrocious UI. My mother, who has the same model, diligently spent a day reading the user's manual to learn how to operate hers. She assumed the problem was with her. But I can think to myself "If someone with a PhD in computer science can't understand this thermostat, it _must_ be badly designed."
+ The greatest advantage of a PhD (besides being the union card of academia, of course) may be that it gives you some baseline confidence. For example, the Honeywell thermostats in my house have the most atrocious UI. My mother, who has the same model, diligently spent a day reading the user's manual to learn how to operate hers. She assumed the problem was with her. But I can think to myself "If someone with a PhD in computer science can't understand this thermostat, it *must* be badly designed."
 
  If you still want to go to grad school after this equivocal recommendation, I can give you solid advice about how to get in. A lot of my friends are CS professors now, so I have the inside story about admissions. It's quite different from college. At most colleges, admissions officers decide who gets in. For PhD programs, the professors do. And they try to do it well, because the people they admit are going to be working for them.
 
@@ -120,7 +119,6 @@
  So if you want to get into a PhD program, the key is to impress your professors. And from my friends who are professors I know what impresses them: not merely trying to impress them. They're not impressed by students who get good grades or want to be their research assistants so they can get into grad school. They're impressed by students who get good grades and want to be their research assistants because they're genuinely interested in the topic.
 
  So the best thing you can do in college, whether you want to get into grad school or just be good at hacking, is figure out what you truly like. It's hard to trick professors into letting you into grad school, and impossible to trick problems into letting you solve them. College is where faking stops working. From this point, unless you want to go work for a big company, which is like reverting to high school, the only way forward is through doing what you [love](love.html).
-
 
 ---
   **Notes**
@@ -135,7 +133,7 @@
 
  Trevor Blackwell reminds you to take math classes intended for math majors. "'Math for engineers' classes sucked mightily. In fact any 'x for engineers' sucks, where x includes math, law, writing and visual design."
 
- [4] Other highly recommended books: _What is Mathematics?_ , by Courant and Robbins; _Geometry and the Imagination_ by Hilbert and Cohn-Vossen. And for those interested in graphic design, [Byrne's Euclid](http://www.math.ubc.ca/people/faculty/cass/Euclid/byrne.html).
+ [4] Other highly recommended books: *What is Mathematics?* , by Courant and Robbins; *Geometry and the Imagination* by Hilbert and Cohn-Vossen. And for those interested in graphic design, [Byrne's Euclid](http://www.math.ubc.ca/people/faculty/cass/Euclid/byrne.html).
 
  [5] If you wanted to have the perfect life, the thing to do would be to go to grad school, secretly write your dissertation in the first year or two, and then just enjoy yourself for the next three years, dribbling out a chapter at a time. This prospect will make grad students' mouths water, but I know of no one who's had the discipline to pull it off.
 
@@ -144,7 +142,6 @@
  So if you want to get into grad school in the sciences, you need to go to college somewhere with real research professors. Otherwise you'll seem a risky bet to admissions committees, no matter how good you are.
 
  Which implies a surprising but apparently inevitable consequence: little liberal arts colleges are doomed.  Most smart high school kids at least consider going into the sciences, even if they ultimately choose not to. Why go to a college that limits their options?
-
 
 ---
 

@@ -2,10 +2,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch Khoj",
+            "name": "Launch Apollos",
             "type": "debugpy",
             "request": "launch",
-            "module": "src.khoj.main",
+            "module": "src.apollos.main",
             "console": "integratedTerminal",
             "justMyCode": false,
             "sudo": false,
@@ -20,17 +20,17 @@
             ],
             "envFile": "${workspaceFolder}/.env",
             "env": {
-                "KHOJ_ADMIN_EMAIL": "admin",
-                "KHOJ_ADMIN_PASSWORD": "admin",
+                "APOLLOS_ADMIN_EMAIL": "admin",
+                "APOLLOS_ADMIN_PASSWORD": "admin",
                 "USE_EMBEDDED_DB": "true",
-                "KHOJ_DEBUG": "true",
-                "KHOJ_TELEMETRY_DISABLED": "true",
+                "APOLLOS_DEBUG": "true",
+                "APOLLOS_TELEMETRY_DISABLED": "true",
                 // Configure Code Sandbox
-                // "KHOJ_TERRARIUM_URL": "http://localhost:8080",
+                // "APOLLOS_TERRARIUM_URL": "http://localhost:8080",
                 // Enable Promptracer to debug prompt flows
                 // "PROMPTRACE_DIR": "\${workspaceFolder}/promptrace",
-                // Enable Khoj Operator
-                // "KHOJ_OPERATOR_ENABLED": "True",
+                // Enable Apollos Operator
+                // "APOLLOS_OPERATOR_ENABLED": "True",
             }
         },
     ]

@@ -8,4 +8,13 @@ dist/
 scripts/
 src/interface/
 src/telemetry/
+
+# Docs
+.scratchpad/
+.local_docs/
+.claude/
+.serena/
+.drift/
+
+# override
 !src/interface/web
