@@ -257,38 +257,46 @@ Using Ollama? See the [Ollama Integration](/advanced/ollama) section for more cu
    - Give the configuration a friendly name like `OpenAI`
    - (Optional) Set the API base URL. It is only relevant if you're using another OpenAI-compatible proxy server like [Ollama](/advanced/ollama) or [LMStudio](/advanced/lmstudio).<br />
      ![example configuration for ai model api](/img/example_openai_processor_config.png)
-2. Create a new [chat model](http://localhost:42110/server/admin/database/chatmodel/add) - Set the `chat-model` field to an [OpenAI chat model](https://platform.openai.com/docs/models). Example: `gpt-4o`. - Make sure to set the `model-type` field to `OpenAI`. - If your model supports vision, set the `vision enabled` field to `true`. This is currently only supported for OpenAI models with vision capabilities. - The `tokenizer` and `max-prompt-size` fields are optional. Set them only if you're sure of the tokenizer or token limit for the model you're using. Contact us if you're unsure what to do here.<br />
-   ![example configuration for chat model options](/img/example_chatmodel_option.png)
-      </TabItem>
+2. Create a new [chat model](http://localhost:42110/server/admin/database/chatmodel/add)
+   - Set the `chat-model` field to an [OpenAI chat model](https://platform.openai.com/docs/models). Example: `gpt-4o`.
+   - Make sure to set the `model-type` field to `OpenAI`.
+   - If your model supports vision, set the `vision enabled` field to `true`. This is currently only supported for OpenAI models with vision capabilities.
+   - The `tokenizer` and `max-prompt-size` fields are optional. Set them only if you're sure of the tokenizer or token limit for the model you're using. Contact us if you're unsure what to do here.<br />
+     ![example configuration for chat model options](/img/example_chatmodel_option.png)
+
+</TabItem>
 <TabItem value="anthropic" label="Anthropic">
-3. Create a new [AI Model API](http://localhost:42110/server/admin/database/aimodelapi/add) in the server admin settings.
+
+1. Create a new [AI Model API](http://localhost:42110/server/admin/database/aimodelapi/add) in the server admin settings.
    - Add your [Anthropic API key](https://console.anthropic.com/account/keys)
    - Give the configuration a friendly name like `Anthropic`. Do not configure the API base url.
-4. Create a new [chat model](http://localhost:42110/server/admin/database/chatmodel/add)
+2. Create a new [chat model](http://localhost:42110/server/admin/database/chatmodel/add)
    - Set the `chat-model` field to an [Anthropic chat model](https://docs.anthropic.com/en/docs/about-claude/models#model-names). Example: `claude-3-5-sonnet-20240620`.
    - Set the `model-type` field to `Anthropic`.
    - Set the `ai model api` field to the Anthropic AI Model API you created in step 1.
-     </TabItem>
-     <TabItem value="gemini" label="Gemini">
-5. Create a new [AI Model API](http://localhost:42110/server/admin/database/aimodelapi/add) in the server admin settings.
+
+</TabItem>
+<TabItem value="gemini" label="Gemini">
+
+1. Create a new [AI Model API](http://localhost:42110/server/admin/database/aimodelapi/add) in the server admin settings.
    - Add your [Gemini API key](https://aistudio.google.com/app/apikey)
    - Give the configuration a friendly name like `Gemini`. Do not configure the API base url.
-6. Create a new [chat model](http://localhost:42110/server/admin/database/chatmodel/add)
+2. Create a new [chat model](http://localhost:42110/server/admin/database/chatmodel/add)
    - Set the `chat-model` field to a [Google Gemini chat model](https://cloud.google.com/vertex-ai/generative-ai/docs/learn/models#gemini-models). Example: `gemini-2.5-flash`.
    - Set the `model-type` field to `Google`.
    - Set the `ai model api` field to the Gemini AI Model API you created in step 1.
 
 </TabItem>
 <TabItem value="offline" label="Offline">
+
 Offline chat stays completely private and can work without internet using any
 open-weights model.
 
 :::tip[System Requirements]
-
 - Minimum 8 GB RAM. Recommend **16Gb VRAM**
 - Minimum **5 GB of Disk** available
 - A Nvidia, AMD GPU or a Mac M1+ machine would significantly speed up chat responses
-  :::
+:::
 
 1. Install any Openai API compatible local ai model server like [llama-cpp-server](https://github.com/ggml-org/llama.cpp/tree/master/tools/server), Ollama, vLLM etc.
 2. Add an [ai model api](http://localhost:42110/server/admin/database/aimodelapi/add/) on the admin panel
@@ -297,7 +305,8 @@ open-weights model.
    - If that doesn't work, you'll need to manually add available [chat model](http://localhost:42110/server/admin/database/chatmodel/add) in the admin panel.
 4. Set the newly added chat model as your preferred model in your [User chat settings](http://localhost:42110/settings)
 5. [Start chatting](http://localhost:42110) with your local AI!
-      </TabItem>
+
+</TabItem>
 </Tabs>
 
 :::tip[Multiple Chat Models]
