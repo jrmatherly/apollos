@@ -9,11 +9,13 @@ pgserver_data/
 
 # External app artifacts
 __pycache__
+.ruff_cache
 .DS_Store
 .emacs.desktop*
 *.py[cod]
 .vscode
 .env
+.venv
 .venv/*
 .obsidian
 todesktop.json
@@ -60,3 +62,5 @@ src/interface/android/local.properties
 # Docs
 .scratchpad/
 .local_docs/
+.drift/
+.claude/

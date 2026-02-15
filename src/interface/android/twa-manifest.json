@@ -1,6 +1,6 @@
 {
   "packageId": "dev.apollos.app",
-  "host": "app.apollos.dev",
+  "host": "app.apollosai.dev",
   "name": "Apollos AI",
   "launcherName": "Apollos",
   "display": "standalone",
@@ -13,7 +13,7 @@
   "backgroundColor": "#FFFFFF",
   "enableNotifications": true,
   "startUrl": "/",
-  "iconUrl": "https://assets.apollos.dev/apollos_lantern_1200x1200.png",
+  "iconUrl": "https://assets.apollosai.dev/apollos_lantern_1200x1200.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
     "path": "android.keystore",
@@ -23,7 +23,7 @@
   "appVersionCode": 4,
   "shortcuts": [],
   "generatorApp": "bubblewrap-cli",
-  "webManifestUrl": "https://app.apollos.dev/static/apollos.webmanifest",
+  "webManifestUrl": "https://app.apollosai.dev/static/apollos.webmanifest",
   "fallbackType": "customtabs",
   "features": {
     "locationDelegation": {
@@ -36,7 +36,7 @@
   "enableSiteSettingsShortcut": true,
   "isChromeOSOnly": false,
   "isMetaQuest": false,
-  "fullScopeUrl": "https://app.apollos.dev/",
+  "fullScopeUrl": "https://app.apollosai.dev/",
   "minSdkVersion": 19,
   "orientation": "natural",
   "fingerprints": [

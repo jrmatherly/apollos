@@ -9,5 +9,5 @@ Arun just sold his apartment in Nairobi and is moving with his wife to Medellin 
 
 Pablo mentioned his son Amal just got admission into the Colegio Superior de Gastronomia in Mexico City. Last of his 3 kids to leave the nest!
 
-    2023-04-01 "Arak" "Dosa for Lunch"
-      Expenses:Food:Dining  11.00 USD
+  2023-04-01 "Arak" "Dosa for Lunch"
+    Expenses:Food:Dining  11.00 USD

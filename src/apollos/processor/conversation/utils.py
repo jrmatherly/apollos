@@ -1125,7 +1125,7 @@ def commit_conversation_trace(
         # Configure git user if not set
         if not repo.config_reader().has_option("user", "email"):
             repo.config_writer().set_value("user", "name", "Prompt Tracer").release()
-            repo.config_writer().set_value("user", "email", "promptracer@apollos.dev").release()
+            repo.config_writer().set_value("user", "email", "promptracer@apollosai.dev").release()
 
         # Create an initial commit if the repository is newly created
         if not repo.head.is_valid():

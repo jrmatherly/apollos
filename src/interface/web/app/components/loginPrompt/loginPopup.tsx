@@ -31,11 +31,11 @@ export default function LoginPopup(props: LoginPopupProps) {
 function PopUpContent(props: LoginPopupProps) {
     return (
         <Card className="rounded-lg p-6 flex flex-col items-center justify-between gap-8 md:w-fit border-none md:flex-row md:z-30 md:shadow-lg">
-            {!props.isMobileWidth && <ApolloslosLogo className="w-12 h-auto" />}
+            {!props.isMobileWidth && <ApollosLogo className="w-12 h-auto" />}
             <div className="flex flex-col items-start justify-center gap-8 md:gap-2">
-                <CardHeader className="p-0 text-xl font-bold">Welcome to Apolloslos!</CardHeader>
+                <CardHeader className="p-0 text-xl font-bold">Welcome to Apollos!</CardHeader>
                 <CardDescription>
-                    Sign in to get started with Apolloslos, your AI research assistant.
+                    Sign in to get started with Apollos, your AI research assistant.
                 </CardDescription>
             </div>
             <Button

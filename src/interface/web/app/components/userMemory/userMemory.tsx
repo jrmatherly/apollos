@@ -47,12 +47,7 @@ export function UserMemory({ memory, onDelete, onUpdate }: UserMemoryProps) {
                         onChange={(e) => setContent(e.target.value)}
                         className="flex-1"
                     />
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={handleUpdate}
-                        title="Save"
-                    >
+                    <Button variant="ghost" size="icon" onClick={handleUpdate} title="Save">
                         <FloppyDisk className="h-4 w-4" />
                     </Button>
                     <Button
@@ -75,12 +70,7 @@ export function UserMemory({ memory, onDelete, onUpdate }: UserMemoryProps) {
                     >
                         <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={handleDelete}
-                        title="Delete"
-                    >
+                    <Button variant="ghost" size="icon" onClick={handleDelete} title="Delete">
                         <TrashSimple className="h-4 w-4" />
                     </Button>
                 </>

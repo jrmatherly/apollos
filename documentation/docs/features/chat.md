@@ -2,11 +2,13 @@
 sidebar_position: 2
 ---
 
+<!-- NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. -->
+
 # Chat
 
 You can configure Apollos to chat with you about anything. When relevant, it'll use any notes or documents you shared with it to respond. It acts as an excellent research assistant, search engine, or personal tutor.
 
-<img src="https://assets.apollos.dev/vision_chat_example.png" alt="Chat on Web" style={{width: '400px'}}/>
+<img src="https://assets.apollosai.dev/vision_chat_example.png" alt="Chat on Web" style={{width: '400px'}}/>
 
 ### Overview
 - Creates a personal assistant for you to inquire and engage with your notes or online information as needed
@@ -19,9 +21,9 @@ See [the setup guide](/get-started/setup.mdx) to configure your chat models.
 
 ### Use
 1. Open Apollos Chat
-    - **On Web**: Open [/chat](https://app.apolloslos.dev/chat) in your web browser
+    - **On Web**: Open [/chat](https://app.apollosai.dev/chat) in your web browser
     - **On Obsidian**: Search for *Apollos: Chat* in the [Command Palette](https://help.obsidian.md/Plugins/Command+palette)
-    - **On Emacs**: Run `M-x apolloslos <user-query>`
+    - **On Emacs**: Run `M-x apollos <user-query>`
 2. Enter your queries to chat with Apollos. Use [slash commands](#commands) and [query filters](/miscellaneous/query-filters) to change what Apollos uses to respond
 
 #### Details

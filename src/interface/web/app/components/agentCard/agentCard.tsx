@@ -340,7 +340,7 @@ export function AgentCard(props: AgentCardProps) {
                         open={showModal}
                         onOpenChange={() => {
                             setShowModal(!showModal);
-                            window.history.pushState({}, `Apolloslos AI - Agents`, `/agents`);
+                            window.history.pushState({}, `Apollos AI - Agents`, `/agents`);
                         }}
                     >
                         <DialogTrigger className="focus-visible:outline-none">

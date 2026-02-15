@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import useSWR from "swr";
 import * as React from "react";
+import { DOCS_URL } from "@/app/common/config";
 
 export interface LocationData {
     city?: string;
@@ -36,7 +37,7 @@ Greetings traveller,
 I am ✨Apollos✨, your open-source, personal AI copilot.
 
 See my source code at https://github.com/jrmatherly/apollos
-Read my operating manual at https://docs.apollos.dev
+Read my operating manual at ${DOCS_URL}
 `,
     );
 }

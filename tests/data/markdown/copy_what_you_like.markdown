@@ -36,4 +36,4 @@
 
  [Russian Translation](http://ryba4.com/translations/copy)
 
-* * *
+---

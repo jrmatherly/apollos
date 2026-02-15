@@ -39,6 +39,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { convertColorToTextClass, convertToBGClass } from "@/app/common/colorUtils";
 
+import { SUPPORT_EMAIL } from "@/app/common/config";
 import LoginPrompt from "../loginPrompt/loginPrompt";
 import { InlineLoading } from "../loading/loading";
 import { getIconForSlashCommand, getIconFromFilename } from "@/app/common/iconUtils";
@@ -322,7 +323,7 @@ export const ChatInputArea = forwardRef<HTMLTextAreaElement, ChatInputProps>((pr
             setError(
                 "Error converting files. " +
                     error +
-                    ". Please try again, or contact team@apollos.dev if the issue persists.",
+                    `. Please try again, or contact ${SUPPORT_EMAIL} if the issue persists.`,
             );
             console.error("Error converting files:", error);
             return [];

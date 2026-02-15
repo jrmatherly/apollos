@@ -1,3 +1,5 @@
+<!-- NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. -->
+
 # Keyboard Shortcuts
 
 Oftentimes, having to leave your keyboard to move the mouse can break your flow. We want to make it as easy as possible for AI to flow with you as you are, so we've added some keyboard shortcuts to facilitate that.
@@ -9,9 +11,9 @@ Oftentimes, having to leave your keyboard to move the mouse can break your flow.
 - **Up Arrow Key**: Move up in the list of most recent messages in your chat window.
 - **Down Arrow Key**: Move down in the list of most recent messages in your chat window.
 
-You can watch the demo to see how it works on [this sample conversation](http://app.apollos.dev/share/chat/in-particular-assess-the-prospect-for-brazil-/).
+You can watch the demo to see how it works on [this sample conversation](http://app.apollosai.dev/share/chat/in-particular-assess-the-prospect-for-brazil-/).
 
-<img src="https://assets.apolloslos.dev/up_down_shortcuts.gif" height="300" alt="Up/Down Arrow Keys"></img>
+<img src="https://assets.apollosai.dev/up_down_shortcuts.gif" height="300" alt="Up/Down Arrow Keys"></img>
 
 ### Enter (Chat Input)
 

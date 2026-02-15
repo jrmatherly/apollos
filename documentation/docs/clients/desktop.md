@@ -2,6 +2,8 @@
 sidebar_position: 1
 ---
 
+<!-- NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. -->
+
 # Desktop
 
 > Upload your knowledge base to Apollos and chat with your whole corpus
@@ -18,8 +20,8 @@ If you are self-hosting the Apollos server, update the *Settings* page on the Ap
 - Do not set the `Apollos API Key` field if your Apollos server runs in anonymous mode. For example, `apollos --anonymous-mode`
 :::
 
-1. Install the [Apollos Desktop app](https://apolloslos.dev/downloads) for your OS
-2. Generate an API key on the [Apollos Web App](https://app.apolloslos.dev/settings#clients)
+1. Install the [Apollos Desktop app](https://apollosai.dev/downloads) for your OS
+2. Generate an API key on the [Apollos Web App](https://app.apollosai.dev/settings#clients)
 3. Set your Apollos API Key on the *Settings* page of the Apollos Desktop app
 4. [Optional] Add any files, folders you'd like Apollos to be aware of on the *Settings* page and Click *Save*.
    These files and folders will be automatically kept in sync for you
@@ -28,7 +30,7 @@ If you are self-hosting the Apollos server, update the *Settings* page on the Ap
 
 You can also install the Apollos application on your desktop as a progressive web app.
 
-1. Open the [Apollos Web App](https://app.apolloslos.dev) in Chrome.
+1. Open the [Apollos Web App](https://app.apollosai.dev) in Chrome.
 2. Click on the install button in the address bar to install the app. You must be logged into your Chrome browser for this to work.
 
 ![progressive web app install icon](/img/pwa_install_desktop.png)

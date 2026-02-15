@@ -9,7 +9,7 @@ readme = "README.md"
 license = "AGPL-3.0-or-later"
 requires-python = ">=3.10, <3.13"
 authors = [
-    { name = "Debanjum Singh Solanky, Saba Imran" },
+    { name = "Jason Matherly" },
 ]
 keywords = [
     "search",
@@ -98,8 +98,8 @@ dependencies = [
 dynamic = ["version"]
 
 [project.urls]
-Homepage = "https://apollos.dev"
-Documentation = "https://docs.apollos.dev"
+Homepage = "https://apollosai.dev"
+Documentation = "https://docs.apollosai.dev"
 Code = "https://github.com/jrmatherly/apollos"
 
 [project.scripts]
@@ -176,6 +176,9 @@ indent-style = "space"
 
 [tool.ruff.lint.isort]
 known-first-party = ["apollos"]
+
+[tool.uv]
+extra-build-dependencies = { openai-whisper = ["setuptools"] }
 
 [tool.pytest.ini_options]
 addopts = "--strict-markers"

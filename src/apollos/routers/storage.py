@@ -7,8 +7,9 @@ logger = logging.getLogger(__name__)
 AWS_ACCESS_KEY = os.getenv("AWS_ACCESS_KEY")
 AWS_SECRET_KEY = os.getenv("AWS_SECRET_KEY")
 # S3 supports serving assets via your domain. Apollos expects this to be used in production. To enable it:
-# 1. Your bucket name for images should be of the form sub.domain.tld. For example, generated.apollos.dev
-# 2. Add CNAME entry to your domain's DNS records pointing to the S3 bucket. For example, CNAME generated.apollos.dev generated-apollos-dev.s3.amazonaws.com
+# 1. Your bucket name for images should be of the form sub.domain.tld. For example, generated.apollosai.dev
+# 2. Add CNAME entry to your domain's DNS records pointing to the S3 bucket. For example, CNAME generated.apollosai.dev generated-apollos-ai.s3.amazonaws.com
+# NOTE: If forking this project, update the example domains above to match your domain.
 AWS_APOLLOS_IMAGES_BUCKET_NAME = os.getenv("AWS_IMAGE_UPLOAD_BUCKET")
 AWS_USER_IMAGES_BUCKET_NAME = os.getenv("AWS_USER_UPLOADED_IMAGES_BUCKET_NAME")
 

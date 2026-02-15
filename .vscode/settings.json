@@ -8,4 +8,5 @@
         "src/apollos/**/*"
     ],
     "python.analysis.aiHoverSummaries": false,
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

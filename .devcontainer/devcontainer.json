@@ -46,13 +46,13 @@
                     "tests"
                 ],
                 "python.testing.unittestEnabled": false,
-                "python.testing.pytestEnabled": true,
+                "python.testing.pytestEnabled": true
             }
         }
     },
     "postCreateCommand": "scripts/dev_setup.sh --devcontainer",
     "features": {
-        "ghcr.io/devcontainers/features/github-cli:1": {},
+        "ghcr.io/devcontainers/features/github-cli:1": {}
     },
     "remoteUser": "vscode"
 }

@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 RESEND_AUDIENCE_ID = os.getenv("RESEND_AUDIENCE_ID")
+APOLLOS_SUPPORT_EMAIL = os.environ.get("APOLLOS_SUPPORT_EMAIL", "placeholder@apollosai.dev")
 
 static_files = os.path.join(settings.BASE_DIR, "static")
 
@@ -38,11 +39,11 @@ async def send_magic_link_email(email, unique_id, host):
 
     template = env.get_template("magic_link.html")
 
-    html_content = template.render(link=sign_in_link, code=unique_id)
+    html_content = template.render(link=sign_in_link, code=unique_id, domain=settings.APOLLOS_DOMAIN)
 
     resend.Emails.send(
         {
-            "sender": os.environ.get("RESEND_EMAIL", "noreply@apollos.dev"),
+            "sender": os.environ.get("RESEND_EMAIL", "placeholder@apollosai.dev"),
             "to": email,
             "subject": "Your login code to Apollos",
             "html": html_content,
@@ -57,11 +58,11 @@ async def send_welcome_email(name, email):
 
     template = env.get_template("welcome.html")
 
-    html_content = template.render(name=name if not is_none_or_empty(name) else "you")
+    html_content = template.render(name=name if not is_none_or_empty(name) else "you", domain=settings.APOLLOS_DOMAIN)
 
     resend.Emails.send(
         {
-            "sender": os.environ.get("RESEND_EMAIL", "team@apollos.dev"),
+            "sender": os.environ.get("RESEND_EMAIL", "placeholder@apollosai.dev"),
             "to": email,
             "subject": f"{name}, four ways to use Apollos" if name else "Four ways to use Apollos",
             "html": html_content,
@@ -96,12 +97,13 @@ async def send_query_feedback(uquery, kquery, sentiment, user_email):
         kquery=kquery if not is_none_or_empty(kquery) else "N/A",
         sentiment=sentiment if not is_none_or_empty(sentiment) else "N/A",
         user_email=user_email if not is_none_or_empty(user_email) else "N/A",
+        domain=settings.APOLLOS_DOMAIN,
     )
     # send feedback to fixed account
     resend.Emails.send(
         {
-            "sender": os.environ.get("RESEND_EMAIL", "noreply@apollos.dev"),
-            "to": "team@apollos.dev",
+            "sender": os.environ.get("RESEND_EMAIL", "placeholder@apollosai.dev"),
+            "to": APOLLOS_SUPPORT_EMAIL,
             "subject": "User Feedback",
             "html": html_content,
         }
@@ -123,11 +125,18 @@ def send_task_email(name, email, query, result, subject, is_image=False):
         result = f"![{subject}]({image})"
 
     html_result = markdown_it.MarkdownIt().render(result)
-    html_content = template.render(name=name, subject=subject, query=query, result=html_result)
+    html_content = template.render(
+        name=name,
+        subject=subject,
+        query=query,
+        result=html_result,
+        domain=settings.APOLLOS_DOMAIN,
+        support_email=APOLLOS_SUPPORT_EMAIL,
+    )
 
     r = resend.Emails.send(
         {
-            "sender": f"Apollos <{os.environ.get('RESEND_EMAIL', 'apollos@apollos.dev')}>",
+            "sender": f"Apollos <{os.environ.get('RESEND_EMAIL', 'placeholder@apollosai.dev')}>",
             "to": email,
             "subject": f"✨ {subject}",
             "html": html_content,

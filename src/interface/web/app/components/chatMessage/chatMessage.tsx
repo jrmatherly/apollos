@@ -414,7 +414,10 @@ function cleanMermaidChart(chart: string): string {
 }
 
 // Extract mermaid code blocks from markdown content
-function extractMermaidBlocks(content: string): { cleanedContent: string; mermaidBlocks: string[] } {
+function extractMermaidBlocks(content: string): {
+    cleanedContent: string;
+    mermaidBlocks: string[];
+} {
     const mermaidBlocks: string[] = [];
     // Match ```mermaid ... ``` code blocks
     // Allow optional whitespace before/after delimiters and handle various line endings

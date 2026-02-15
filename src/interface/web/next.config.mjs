@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 
 const isProd = process.env.NEXT_PUBLIC_ENV === 'production';
+const domain = process.env.NEXT_PUBLIC_APOLLOS_DOMAIN || 'apollosai.dev';
 
 const nextConfig = {
     output: isProd ? 'export' : undefined,
@@ -33,11 +34,11 @@ const nextConfig = {
             },
             {
                 protocol: "https",
-                hostname: "generated.apollos.dev",
+                hostname: `generated.${domain}`,
             },
             {
                 protocol: "https",
-                hostname: "assets.apollos.dev",
+                hostname: `assets.${domain}`,
             },
         ] : [
             {

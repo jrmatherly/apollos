@@ -23,6 +23,7 @@ interface AutomationsData {
     next: string;
 }
 
+import { SUPPORT_EMAIL } from "../common/config";
 import cronstrue from "cronstrue";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { UseFormReturn, useForm } from "react-hook-form";
@@ -554,7 +555,7 @@ function EditCard(props: EditCardProps) {
                 props.setIsEditing(false);
                 // Show error message
                 props.setToastMessage(
-                    "Sorry, something went wrong. Try again or contact team@apollos.dev.",
+                    `Sorry, something went wrong. Try again or contact ${SUPPORT_EMAIL}.`,
                 );
             });
     };
@@ -837,7 +838,7 @@ function AutomationModificationForm(props: AutomationModificationFormProps) {
                     render={({ field }) => (
                         <FormItem className="space-y-1">
                             <FormLabel>Instructions</FormLabel>
-                            <FormDescription>What do you want Apolloslos to do?</FormDescription>
+                            <FormDescription>What do you want Apollos to do?</FormDescription>
                             {props.create && (
                                 <div>
                                     {recommendationPills.map((recommendation) =>
@@ -1060,7 +1061,7 @@ export default function Automations() {
                     <Separator orientation="vertical" className="mr-2 h-4" />
                     {isMobileWidth ? (
                         <a className="p-0 no-underline" href="/">
-                            <ApolloslosLogoType className="h-auto w-16" />
+                            <ApollosLogoType className="h-auto w-16" />
                         </a>
                     ) : (
                         <h2 className="text-lg">Automations</h2>

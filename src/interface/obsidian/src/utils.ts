@@ -1,617 +1,759 @@
-import { FileSystemAdapter, Notice, Vault, Modal, TFile, request, setIcon, Editor, WorkspaceLeaf } from 'obsidian';
-import { ApollosSetting, ModelOption, ServerUserConfig, UserInfo } from 'src/settings'
-import { deleteContentByType, uploadContentBatch } from './api';
-import { ApollosSearchModal } from './search_modal';
+import {
+	FileSystemAdapter,
+	Notice,
+	Vault,
+	Modal,
+	TFile,
+	request,
+	setIcon,
+	Editor,
+	WorkspaceLeaf,
+} from "obsidian";
+import {
+	ApollosSetting,
+	ModelOption,
+	ServerUserConfig,
+	UserInfo,
+} from "src/settings";
+import { deleteContentByType, uploadContentBatch } from "./api";
+import { ApollosSearchModal } from "./search_modal";
 
 export function getVaultAbsolutePath(vault: Vault): string {
-    let adaptor = vault.adapter;
-    if (adaptor instanceof FileSystemAdapter) {
-        return adaptor.getBasePath();
-    }
-    return '';
+	let adaptor = vault.adapter;
+	if (adaptor instanceof FileSystemAdapter) {
+		return adaptor.getBasePath();
+	}
+	return "";
 }
 
 function fileExtensionToMimeType(extension: string): string {
-    switch (extension) {
-        case 'pdf':
-            return 'application/pdf';
-        case 'png':
-            return 'image/png';
-        case 'jpg':
-        case 'jpeg':
-            return 'image/jpeg';
-        case 'md':
-        case 'markdown':
-            return 'text/markdown';
-        case 'org':
-            return 'text/org';
-        default:
-            return 'text/plain';
-    }
+	switch (extension) {
+		case "pdf":
+			return "application/pdf";
+		case "png":
+			return "image/png";
+		case "jpg":
+		case "jpeg":
+			return "image/jpeg";
+		case "md":
+		case "markdown":
+			return "text/markdown";
+		case "org":
+			return "text/org";
+		default:
+			return "text/plain";
+	}
 }
 
 function filenameToMimeType(filename: TFile): string {
-    switch (filename.extension) {
-        case 'pdf':
-            return 'application/pdf';
-        case 'png':
-            return 'image/png';
-        case 'jpg':
-        case 'jpeg':
-            return 'image/jpeg';
-        case 'webp':
-            return 'image/webp';
-        case 'md':
-        case 'markdown':
-            return 'text/markdown';
-        case 'org':
-            return 'text/org';
-        default:
-            console.warn(`Unknown file type: ${filename.extension}. Defaulting to text/plain.`);
-            return 'text/plain';
-    }
+	switch (filename.extension) {
+		case "pdf":
+			return "application/pdf";
+		case "png":
+			return "image/png";
+		case "jpg":
+		case "jpeg":
+			return "image/jpeg";
+		case "webp":
+			return "image/webp";
+		case "md":
+		case "markdown":
+			return "text/markdown";
+		case "org":
+			return "text/org";
+		default:
+			console.warn(
+				`Unknown file type: ${filename.extension}. Defaulting to text/plain.`,
+			);
+			return "text/plain";
+	}
 }
 
 export const fileTypeToExtension = {
-    'pdf': ['pdf'],
-    'image': ['png', 'jpg', 'jpeg', 'webp'],
-    'markdown': ['md', 'markdown'],
+	pdf: ["pdf"],
+	image: ["png", "jpg", "jpeg", "webp"],
+	markdown: ["md", "markdown"],
 };
 export const supportedImageFilesTypes = fileTypeToExtension.image;
-export const supportedBinaryFileTypes = fileTypeToExtension.pdf.concat(supportedImageFilesTypes);
-export const supportedFileTypes = fileTypeToExtension.markdown.concat(supportedBinaryFileTypes);
+export const supportedBinaryFileTypes = fileTypeToExtension.pdf.concat(
+	supportedImageFilesTypes,
+);
+export const supportedFileTypes = fileTypeToExtension.markdown.concat(
+	supportedBinaryFileTypes,
+);
 
 export function getFilesToSync(vault: Vault, setting: ApollosSetting): TFile[] {
-    const files = vault.getFiles()
-        // Filter supported file types for syncing
-        .filter(file => supportedFileTypes.includes(file.extension))
-        // Filter user configured file types for syncing
-        .filter(file => {
-            if (fileTypeToExtension.markdown.includes(file.extension)) return setting.syncFileType.markdown;
-            if (fileTypeToExtension.pdf.includes(file.extension)) return setting.syncFileType.pdf;
-            if (fileTypeToExtension.image.includes(file.extension)) return setting.syncFileType.images;
-            return false;
-        })
-        // Filter in included folders
-        .filter(file => {
-            // If no folders are specified, sync all files
-            if (setting.syncFolders.length === 0) return true;
-            // Otherwise, check if the file is in one of the specified folders
-            return setting.syncFolders.some(folder =>
-                file.path.startsWith(folder + '/') || file.path === folder
-            );
-        })
-        // Filter out excluded folders
-        .filter(file => {
-            // If no folders are excluded, include all files
-            if (setting.excludeFolders.length === 0) return true;
-            // Exclude files in any of the excluded folders
-            return !setting.excludeFolders.some(folder =>
-                file.path.startsWith(folder + '/') || file.path === folder
-            );
-        })
-        // Sort files by type: markdown > pdf > image
-        .sort((a, b) => {
-            const typeOrder: (keyof typeof fileTypeToExtension)[] = ['markdown', 'pdf', 'image'];
-            const aType = typeOrder.findIndex(type => fileTypeToExtension[type].includes(a.extension));
-            const bType = typeOrder.findIndex(type => fileTypeToExtension[type].includes(b.extension));
-            return aType - bType;
-        });
+	const files = vault
+		.getFiles()
+		// Filter supported file types for syncing
+		.filter((file) => supportedFileTypes.includes(file.extension))
+		// Filter user configured file types for syncing
+		.filter((file) => {
+			if (fileTypeToExtension.markdown.includes(file.extension))
+				return setting.syncFileType.markdown;
+			if (fileTypeToExtension.pdf.includes(file.extension))
+				return setting.syncFileType.pdf;
+			if (fileTypeToExtension.image.includes(file.extension))
+				return setting.syncFileType.images;
+			return false;
+		})
+		// Filter in included folders
+		.filter((file) => {
+			// If no folders are specified, sync all files
+			if (setting.syncFolders.length === 0) return true;
+			// Otherwise, check if the file is in one of the specified folders
+			return setting.syncFolders.some(
+				(folder) =>
+					file.path.startsWith(folder + "/") || file.path === folder,
+			);
+		})
+		// Filter out excluded folders
+		.filter((file) => {
+			// If no folders are excluded, include all files
+			if (setting.excludeFolders.length === 0) return true;
+			// Exclude files in any of the excluded folders
+			return !setting.excludeFolders.some(
+				(folder) =>
+					file.path.startsWith(folder + "/") || file.path === folder,
+			);
+		})
+		// Sort files by type: markdown > pdf > image
+		.sort((a, b) => {
+			const typeOrder: (keyof typeof fileTypeToExtension)[] = [
+				"markdown",
+				"pdf",
+				"image",
+			];
+			const aType = typeOrder.findIndex((type) =>
+				fileTypeToExtension[type].includes(a.extension),
+			);
+			const bType = typeOrder.findIndex((type) =>
+				fileTypeToExtension[type].includes(b.extension),
+			);
+			return aType - bType;
+		});
 
-    return files;
+	return files;
 }
 
 export async function updateContentIndex(
-    vault: Vault,
-    setting: ApollosSetting,
-    lastSync: Map<TFile, number>,
-    regenerate: boolean = false,
-    userTriggered: boolean = false,
-    onProgress?: (progress: { processed: number, total: number }) => void
+	vault: Vault,
+	setting: ApollosSetting,
+	lastSync: Map<TFile, number>,
+	regenerate: boolean = false,
+	userTriggered: boolean = false,
+	onProgress?: (progress: { processed: number; total: number }) => void,
 ): Promise<Map<TFile, number>> {
-    // Get all markdown, pdf files in the vault
-    console.log(`Apollos: Updating Apollos content index...`);
-    const files = getFilesToSync(vault, setting);
-    console.log(`Apollos: Found ${files.length} eligible files in vault`);
+	// Get all markdown, pdf files in the vault
+	console.log(`Apollos: Updating Apollos content index...`);
+	const files = getFilesToSync(vault, setting);
+	console.log(`Apollos: Found ${files.length} eligible files in vault`);
 
-    let countOfFilesToIndex = 0;
-    let countOfFilesToDelete = 0;
-    lastSync = lastSync.size > 0 ? lastSync : new Map<TFile, number>();
+	let countOfFilesToIndex = 0;
+	let countOfFilesToDelete = 0;
+	lastSync = lastSync.size > 0 ? lastSync : new Map<TFile, number>();
 
-    // Count files that need indexing (modified since last sync or regenerating)
-    const filesToSync = regenerate
-        ? files
-        : files.filter(file => file.stat.mtime >= (lastSync.get(file) ?? 0));
+	// Count files that need indexing (modified since last sync or regenerating)
+	const filesToSync = regenerate
+		? files
+		: files.filter((file) => file.stat.mtime >= (lastSync.get(file) ?? 0));
 
-    // Show notice with file counts when user triggers sync
-    if (userTriggered) {
-        new Notice(`🔄 Syncing ${filesToSync.length} of ${files.length} files to Apollos...`);
-    }
-    console.log(`Apollos: ${filesToSync.length} files to sync (${files.length} total eligible)`);
+	// Show notice with file counts when user triggers sync
+	if (userTriggered) {
+		new Notice(
+			`🔄 Syncing ${filesToSync.length} of ${files.length} files to Apollos...`,
+		);
+	}
+	console.log(
+		`Apollos: ${filesToSync.length} files to sync (${files.length} total eligible)`,
+	);
 
-    // Add all files to index as multipart form data, batched by size, item count
-    const MAX_BATCH_SIZE = 10 * 1024 * 1024; // 10MB max batch size
-    const MAX_BATCH_ITEMS = 50; // Max 50 items per batch
-    let fileData: { blob: Blob, path: string }[][] = [];
-    let currentBatch: { blob: Blob, path: string }[] = [];
-    let currentBatchSize = 0;
+	// Add all files to index as multipart form data, batched by size, item count
+	const MAX_BATCH_SIZE = 10 * 1024 * 1024; // 10MB max batch size
+	const MAX_BATCH_ITEMS = 50; // Max 50 items per batch
+	let fileData: { blob: Blob; path: string }[][] = [];
+	let currentBatch: { blob: Blob; path: string }[] = [];
+	let currentBatchSize = 0;
 
-    for (const file of files) {
-        // Only push files that have been modified since last sync if not regenerating
-        if (!regenerate && file.stat.mtime < (lastSync.get(file) ?? 0)) {
-            continue;
-        }
+	for (const file of files) {
+		// Only push files that have been modified since last sync if not regenerating
+		if (!regenerate && file.stat.mtime < (lastSync.get(file) ?? 0)) {
+			continue;
+		}
 
-        countOfFilesToIndex++;
-        const encoding = supportedBinaryFileTypes.includes(file.extension) ? "binary" : "utf8";
-        const mimeType = fileExtensionToMimeType(file.extension) + (encoding === "utf8" ? "; charset=UTF-8" : "");
-        const fileContent = encoding == 'binary' ? await vault.readBinary(file) : await vault.read(file);
-        const fileItem = { blob: new Blob([fileContent], { type: mimeType }), path: file.path };
+		countOfFilesToIndex++;
+		const encoding = supportedBinaryFileTypes.includes(file.extension)
+			? "binary"
+			: "utf8";
+		const mimeType =
+			fileExtensionToMimeType(file.extension) +
+			(encoding === "utf8" ? "; charset=UTF-8" : "");
+		const fileContent =
+			encoding == "binary"
+				? await vault.readBinary(file)
+				: await vault.read(file);
+		const fileItem = {
+			blob: new Blob([fileContent], { type: mimeType }),
+			path: file.path,
+		};
 
-        const fileSize = (typeof fileContent === 'string') ? new Blob([fileContent]).size : fileContent.byteLength;
-        if ((currentBatchSize + fileSize > MAX_BATCH_SIZE || currentBatch.length >= MAX_BATCH_ITEMS) && currentBatch.length > 0) {
-            fileData.push(currentBatch);
-            currentBatch = [];
-            currentBatchSize = 0;
-        }
+		const fileSize =
+			typeof fileContent === "string"
+				? new Blob([fileContent]).size
+				: fileContent.byteLength;
+		if (
+			(currentBatchSize + fileSize > MAX_BATCH_SIZE ||
+				currentBatch.length >= MAX_BATCH_ITEMS) &&
+			currentBatch.length > 0
+		) {
+			fileData.push(currentBatch);
+			currentBatch = [];
+			currentBatchSize = 0;
+		}
 
-        currentBatch.push(fileItem);
-        currentBatchSize += fileSize;
-    }
+		currentBatch.push(fileItem);
+		currentBatchSize += fileSize;
+	}
 
-    // Add files to delete (previously synced but no longer in vault) to final batch
-    let filesToDelete: TFile[] = [];
-    for (const lastSyncedFile of lastSync.keys()) {
-        if (!files.includes(lastSyncedFile)) {
-            countOfFilesToDelete++;
-            const fileObj = new Blob([""], { type: filenameToMimeType(lastSyncedFile) });
-            currentBatch.push({ blob: fileObj, path: lastSyncedFile.path });
-            filesToDelete.push(lastSyncedFile);
-        }
-    }
+	// Add files to delete (previously synced but no longer in vault) to final batch
+	let filesToDelete: TFile[] = [];
+	for (const lastSyncedFile of lastSync.keys()) {
+		if (!files.includes(lastSyncedFile)) {
+			countOfFilesToDelete++;
+			const fileObj = new Blob([""], {
+				type: filenameToMimeType(lastSyncedFile),
+			});
+			currentBatch.push({ blob: fileObj, path: lastSyncedFile.path });
+			filesToDelete.push(lastSyncedFile);
+		}
+	}
 
-    // Add final batch if not empty
-    if (currentBatch.length > 0) {
-        fileData.push(currentBatch);
-    }
+	// Add final batch if not empty
+	if (currentBatch.length > 0) {
+		fileData.push(currentBatch);
+	}
 
-    // Delete all files of enabled content types first if regenerating
-    let error_message: string | null = null;
-    if (regenerate) {
-        // Mark content types to delete based on user sync file type settings
-        const contentTypesToDelete: string[] = [];
-        if (setting.syncFileType.markdown) contentTypesToDelete.push('markdown');
-        if (setting.syncFileType.pdf) contentTypesToDelete.push('pdf');
-        if (setting.syncFileType.images) contentTypesToDelete.push('image');
+	// Delete all files of enabled content types first if regenerating
+	let error_message: string | null = null;
+	if (regenerate) {
+		// Mark content types to delete based on user sync file type settings
+		const contentTypesToDelete: string[] = [];
+		if (setting.syncFileType.markdown)
+			contentTypesToDelete.push("markdown");
+		if (setting.syncFileType.pdf) contentTypesToDelete.push("pdf");
+		if (setting.syncFileType.images) contentTypesToDelete.push("image");
 
-        try {
-            for (const contentType of contentTypesToDelete) {
-                await deleteContentByType(setting.apollosUrl, setting.apollosApiKey, contentType);
-            }
-        } catch (err) {
-            console.error('Apollos: Error deleting content types:', err);
-            error_message = "❗️Failed to clear existing content index";
-            fileData = [];
-        }
-    }
+		try {
+			for (const contentType of contentTypesToDelete) {
+				await deleteContentByType(
+					setting.apollosUrl,
+					setting.apollosApiKey,
+					contentType,
+				);
+			}
+		} catch (err) {
+			console.error("Apollos: Error deleting content types:", err);
+			error_message = "❗️Failed to clear existing content index";
+			fileData = [];
+		}
+	}
 
-    // Upload files in batches
-    let responses: string[] = [];
-    let processedFiles = 0;
-    const totalFiles = fileData.reduce((sum, batch) => sum + batch.length, 0);
+	// Upload files in batches
+	let responses: string[] = [];
+	let processedFiles = 0;
+	const totalFiles = fileData.reduce((sum, batch) => sum + batch.length, 0);
 
-    // Report initial progress with total count before uploading
-    if (onProgress) {
-        onProgress({ processed: 0, total: totalFiles });
-    }
+	// Report initial progress with total count before uploading
+	if (onProgress) {
+		onProgress({ processed: 0, total: totalFiles });
+	}
 
-    for (const batch of fileData) {
-        try {
-            const resultText = await uploadContentBatch(setting.apollosUrl, setting.apollosApiKey, batch);
-            responses.push(resultText);
-            processedFiles += batch.length;
-            if (onProgress) {
-                onProgress({ processed: processedFiles, total: totalFiles });
-            }
-        } catch (err: any) {
-            console.error('Apollos: Failed to upload batch:', err);
-            if (err.message?.includes('429')) {
-                error_message = `❗️Requests were throttled. Upgrade your subscription or try again later.`;
-            } else {
-                error_message = `❗️Failed to sync content with Apollos server. Error: ${err.message ?? String(err)}`;
-            }
-            break;
-        }
-    }
+	for (const batch of fileData) {
+		try {
+			const resultText = await uploadContentBatch(
+				setting.apollosUrl,
+				setting.apollosApiKey,
+				batch,
+			);
+			responses.push(resultText);
+			processedFiles += batch.length;
+			if (onProgress) {
+				onProgress({ processed: processedFiles, total: totalFiles });
+			}
+		} catch (err: any) {
+			console.error("Apollos: Failed to upload batch:", err);
+			if (err.message?.includes("429")) {
+				error_message = `❗️Requests were throttled. Upgrade your subscription or try again later.`;
+			} else {
+				error_message = `❗️Failed to sync content with Apollos server. Error: ${err.message ?? String(err)}`;
+			}
+			break;
+		}
+	}
 
-    // Update last sync time for each successfully indexed file
-    files
-        .filter(file => responses.find(response => response.includes(file.path)))
-        .reduce((newSync, file) => {
-            newSync.set(file, new Date().getTime());
-            return newSync;
-        }, lastSync);
+	// Update last sync time for each successfully indexed file
+	files
+		.filter((file) =>
+			responses.find((response) => response.includes(file.path)),
+		)
+		.reduce((newSync, file) => {
+			newSync.set(file, new Date().getTime());
+			return newSync;
+		}, lastSync);
 
-    // Remove files that were deleted from last sync
-    filesToDelete
-        .filter(file => responses.find(response => response.includes(file.path)))
-        .forEach(file => lastSync.delete(file));
+	// Remove files that were deleted from last sync
+	filesToDelete
+		.filter((file) =>
+			responses.find((response) => response.includes(file.path)),
+		)
+		.forEach((file) => lastSync.delete(file));
 
-    if (error_message) {
-        new Notice(error_message);
-    } else {
-        const summary = `Updated ${countOfFilesToIndex}, deleted ${countOfFilesToDelete} files`;
-        if (userTriggered) new Notice(`✅ ${summary}`);
-        console.log(`✅ Refreshed Apollos content index. ${summary}.`);
-    }
+	if (error_message) {
+		new Notice(error_message);
+	} else {
+		const summary = `Updated ${countOfFilesToIndex}, deleted ${countOfFilesToDelete} files`;
+		if (userTriggered) new Notice(`✅ ${summary}`);
+		console.log(`✅ Refreshed Apollos content index. ${summary}.`);
+	}
 
-    return lastSync;
+	return lastSync;
 }
 
 export async function openApollosPluginSettings(): Promise<void> {
-    const setting = this.app.setting;
-    await setting.open();
-    setting.openTabById('apollos');
+	const setting = this.app.setting;
+	await setting.open();
+	setting.openTabById("apollos");
 }
 
 export async function createNote(name: string, newLeaf = false): Promise<void> {
-    try {
-        let pathPrefix: string
-        switch (this.app.vault.getConfig('newFileLocation')) {
-            case 'current':
-                pathPrefix = (this.app.workspace.getActiveFile()?.parent.path ?? '') + '/'
-                break
-            case 'folder':
-                pathPrefix = this.app.vault.getConfig('newFileFolderPath') + '/'
-                break
-            default: // 'root'
-                pathPrefix = ''
-                break
-        }
-        await this.app.workspace.openLinkText(`${pathPrefix}${name}.md`, '', newLeaf)
-    } catch (e) {
-        console.error('Apollos: Could not create note.\n' + (e as any).message);
-        throw e
-    }
+	try {
+		let pathPrefix: string;
+		switch (this.app.vault.getConfig("newFileLocation")) {
+			case "current":
+				pathPrefix =
+					(this.app.workspace.getActiveFile()?.parent.path ?? "") +
+					"/";
+				break;
+			case "folder":
+				pathPrefix =
+					this.app.vault.getConfig("newFileFolderPath") + "/";
+				break;
+			default: // 'root'
+				pathPrefix = "";
+				break;
+		}
+		await this.app.workspace.openLinkText(
+			`${pathPrefix}${name}.md`,
+			"",
+			newLeaf,
+		);
+	} catch (e) {
+		console.error("Apollos: Could not create note.\n" + (e as any).message);
+		throw e;
+	}
 }
 
-export async function createNoteAndCloseModal(query: string, modal: Modal, opt?: { newLeaf: boolean }): Promise<void> {
-    try {
-        await createNote(query, opt?.newLeaf);
-    }
-    catch (e) {
-        new Notice((e as Error).message)
-        return
-    }
-    modal.close();
+export async function createNoteAndCloseModal(
+	query: string,
+	modal: Modal,
+	opt?: { newLeaf: boolean },
+): Promise<void> {
+	try {
+		await createNote(query, opt?.newLeaf);
+	} catch (e) {
+		new Notice((e as Error).message);
+		return;
+	}
+	modal.close();
 }
 
 export async function canConnectToBackend(
-    apollosUrl: string,
-    apollosApiKey: string,
-    showNotice: boolean = false
-): Promise<{ connectedToBackend: boolean; statusMessage: string, userInfo: UserInfo | null }> {
-    let connectedToBackend = false;
-    let userInfo: UserInfo | null = null;
+	apollosUrl: string,
+	apollosApiKey: string,
+	showNotice: boolean = false,
+): Promise<{
+	connectedToBackend: boolean;
+	statusMessage: string;
+	userInfo: UserInfo | null;
+}> {
+	let connectedToBackend = false;
+	let userInfo: UserInfo | null = null;
 
-    if (!!apollosUrl) {
-        let headers = !!apollosApiKey ? { "Authorization": `Bearer ${apollosApiKey}` } : undefined;
-        try {
-            let response = await request({ url: `${apollosUrl}/api/v1/user`, method: "GET", headers: headers })
-            connectedToBackend = true;
-            userInfo = JSON.parse(response);
-        } catch (error) {
-            connectedToBackend = false;
-            console.log(`Apollos connection error:\n\n${error}`);
-        };
-    }
+	if (!!apollosUrl) {
+		let headers = !!apollosApiKey
+			? { Authorization: `Bearer ${apollosApiKey}` }
+			: undefined;
+		try {
+			let response = await request({
+				url: `${apollosUrl}/api/v1/user`,
+				method: "GET",
+				headers: headers,
+			});
+			connectedToBackend = true;
+			userInfo = JSON.parse(response);
+		} catch (error) {
+			connectedToBackend = false;
+			console.log(`Apollos connection error:\n\n${error}`);
+		}
+	}
 
-    let statusMessage: string = getBackendStatusMessage(connectedToBackend, userInfo?.email, apollosUrl, apollosApiKey);
-    if (showNotice) new Notice(statusMessage);
-    return { connectedToBackend, statusMessage, userInfo };
+	let statusMessage: string = getBackendStatusMessage(
+		connectedToBackend,
+		userInfo?.email,
+		apollosUrl,
+		apollosApiKey,
+	);
+	if (showNotice) new Notice(statusMessage);
+	return { connectedToBackend, statusMessage, userInfo };
 }
 
 export function getBackendStatusMessage(
-    connectedToServer: boolean,
-    userEmail: string | undefined,
-    apollosUrl: string,
-    apollosApiKey: string
+	connectedToServer: boolean,
+	userEmail: string | undefined,
+	apollosUrl: string,
+	apollosApiKey: string,
 ): string {
-    // Welcome message with default settings. Apollos cloud always expects an API key.
-    if (!apollosApiKey && apollosUrl === 'https://app.apollos.dev')
-        return `🌈 Welcome to Apollos! Get your API key from ${apollosUrl}/settings#clients and set it in the Apollos plugin settings on Obsidian`;
+	// Welcome message with default settings. Apollos cloud always expects an API key.
+	if (!apollosApiKey && apollosUrl === "https://app.apollosai.dev")
+		return `🌈 Welcome to Apollos! Get your API key from ${apollosUrl}/settings#clients and set it in the Apollos plugin settings on Obsidian`;
 
-    if (!connectedToServer)
-        return `❗️Could not connect to Apollos at ${apollosUrl}. Ensure your can access it`;
-    else if (!userEmail)
-        return `✅ Connected to Apollos. ❗️Get a valid API key from ${apollosUrl}/settings#clients to log in`;
-    else if (userEmail === 'default@example.com')
-        // Logged in as default user in anonymous mode
-        return `✅ Welcome back to Apollos`;
-    else
-        return `✅ Welcome back to Apollos, ${userEmail}`;
+	if (!connectedToServer)
+		return `❗️Could not connect to Apollos at ${apollosUrl}. Ensure your can access it`;
+	else if (!userEmail)
+		return `✅ Connected to Apollos. ❗️Get a valid API key from ${apollosUrl}/settings#clients to log in`;
+	else if (userEmail === "default@example.com")
+		// Logged in as default user in anonymous mode
+		return `✅ Welcome back to Apollos`;
+	else return `✅ Welcome back to Apollos, ${userEmail}`;
 }
 
-export async function populateHeaderPane(headerEl: Element, setting: ApollosSetting, viewType: string): Promise<void> {
-    let userInfo: UserInfo | null = null;
-    try {
-        const { userInfo: extractedUserInfo } = await canConnectToBackend(setting.apollosUrl, setting.apollosApiKey, false);
-        userInfo = extractedUserInfo;
-    } catch (error) {
-        console.error("❗️Could not connect to Apollos");
-    }
+export async function populateHeaderPane(
+	headerEl: Element,
+	setting: ApollosSetting,
+	viewType: string,
+): Promise<void> {
+	let userInfo: UserInfo | null = null;
+	try {
+		const { userInfo: extractedUserInfo } = await canConnectToBackend(
+			setting.apollosUrl,
+			setting.apollosApiKey,
+			false,
+		);
+		userInfo = extractedUserInfo;
+	} catch (error) {
+		console.error("❗️Could not connect to Apollos");
+	}
 
-    // Add Apollos title to header element
-    const titlePaneEl = headerEl.createDiv();
-    titlePaneEl.className = 'apollos-header-title-pane';
-    const titleEl = titlePaneEl.createDiv();
-    titleEl.className = 'apollos-logo';
-    titleEl.textContent = "Apollos";
+	// Add Apollos title to header element
+	const titlePaneEl = headerEl.createDiv();
+	titlePaneEl.className = "apollos-header-title-pane";
+	const titleEl = titlePaneEl.createDiv();
+	titleEl.className = "apollos-logo";
+	titleEl.textContent = "Apollos";
 
-    // Populate the header element with the navigation pane
-    // Create the nav element
-    const nav = titlePaneEl.createEl('nav');
-    nav.className = 'apollos-nav';
+	// Populate the header element with the navigation pane
+	// Create the nav element
+	const nav = titlePaneEl.createEl("nav");
+	nav.className = "apollos-nav";
 
-    // Create the title pane element
-    titlePaneEl.appendChild(titleEl);
-    titlePaneEl.appendChild(nav);
+	// Create the title pane element
+	titlePaneEl.appendChild(titleEl);
+	titlePaneEl.appendChild(nav);
 
-    // Create the chat link
-    const chatLink = nav.createEl('a');
-    chatLink.id = 'chat-nav';
-    chatLink.className = 'apollos-nav chat-nav';
-    chatLink.dataset.view = ApollosView.CHAT;
+	// Create the chat link
+	const chatLink = nav.createEl("a");
+	chatLink.id = "chat-nav";
+	chatLink.className = "apollos-nav chat-nav";
+	chatLink.dataset.view = ApollosView.CHAT;
 
-    // Create the chat icon
-    const chatIcon = chatLink.createEl('span');
-    chatIcon.className = 'apollos-nav-icon apollos-nav-icon-chat';
-    setIcon(chatIcon, 'apollos-chat');
+	// Create the chat icon
+	const chatIcon = chatLink.createEl("span");
+	chatIcon.className = "apollos-nav-icon apollos-nav-icon-chat";
+	setIcon(chatIcon, "apollos-chat");
 
-    // Create the chat text
-    const chatText = chatLink.createEl('span');
-    chatText.className = 'apollos-nav-item-text';
-    chatText.textContent = 'Chat';
+	// Create the chat text
+	const chatText = chatLink.createEl("span");
+	chatText.className = "apollos-nav-item-text";
+	chatText.textContent = "Chat";
 
-    // Append the chat icon and text to the chat link
-    chatLink.appendChild(chatIcon);
-    chatLink.appendChild(chatText);
+	// Append the chat icon and text to the chat link
+	chatLink.appendChild(chatIcon);
+	chatLink.appendChild(chatText);
 
-    // Create the search link
-    const searchLink = nav.createEl('a');
-    searchLink.id = 'search-nav';
-    searchLink.className = 'apollos-nav search-nav';
+	// Create the search link
+	const searchLink = nav.createEl("a");
+	searchLink.id = "search-nav";
+	searchLink.className = "apollos-nav search-nav";
 
-    // Create the search icon
-    const searchIcon = searchLink.createEl('span');
-    searchIcon.className = 'apollos-nav-icon apollos-nav-icon-search';
-    setIcon(searchIcon, 'apollos-search');
+	// Create the search icon
+	const searchIcon = searchLink.createEl("span");
+	searchIcon.className = "apollos-nav-icon apollos-nav-icon-search";
+	setIcon(searchIcon, "apollos-search");
 
-    // Create the search text
-    const searchText = searchLink.createEl('span');
-    searchText.className = 'apollos-nav-item-text';
-    searchText.textContent = 'Search';
+	// Create the search text
+	const searchText = searchLink.createEl("span");
+	searchText.className = "apollos-nav-item-text";
+	searchText.textContent = "Search";
 
-    // Append the search icon and text to the search link
-    searchLink.appendChild(searchIcon);
-    searchLink.appendChild(searchText);
+	// Append the search icon and text to the search link
+	searchLink.appendChild(searchIcon);
+	searchLink.appendChild(searchText);
 
-    // Create the similar link
-    const similarLink = nav.createEl('a');
-    similarLink.id = 'similar-nav';
-    similarLink.className = 'apollos-nav similar-nav';
-    similarLink.dataset.view = ApollosView.SIMILAR;
+	// Create the similar link
+	const similarLink = nav.createEl("a");
+	similarLink.id = "similar-nav";
+	similarLink.className = "apollos-nav similar-nav";
+	similarLink.dataset.view = ApollosView.SIMILAR;
 
-    // Create the similar icon
-    const similarIcon = similarLink.createEl('span');
-    similarIcon.id = 'similar-nav-icon';
-    similarIcon.className = 'apollos-nav-icon apollos-nav-icon-similar';
-    setIcon(similarIcon, 'webhook');
+	// Create the similar icon
+	const similarIcon = similarLink.createEl("span");
+	similarIcon.id = "similar-nav-icon";
+	similarIcon.className = "apollos-nav-icon apollos-nav-icon-similar";
+	setIcon(similarIcon, "webhook");
 
-    // Create the similar text
-    const similarText = similarLink.createEl('span');
-    similarText.className = 'apollos-nav-item-text';
-    similarText.textContent = 'Similar';
+	// Create the similar text
+	const similarText = similarLink.createEl("span");
+	similarText.className = "apollos-nav-item-text";
+	similarText.textContent = "Similar";
 
-    // Append the similar icon and text to the similar link
-    similarLink.appendChild(similarIcon);
-    similarLink.appendChild(similarText);
+	// Append the similar icon and text to the similar link
+	similarLink.appendChild(similarIcon);
+	similarLink.appendChild(similarText);
 
-    // Helper to get the current Apollos leaf if active
-    const getCurrentApollosLeaf = (): WorkspaceLeaf | undefined => {
-        const activeLeaf = this.app.workspace.activeLeaf;
-        if (activeLeaf && activeLeaf.view &&
-            (activeLeaf.view.getViewType() === ApollosView.CHAT || activeLeaf.view.getViewType() === ApollosView.SIMILAR)) {
-            return activeLeaf;
-        }
-        return undefined;
-    };
+	// Helper to get the current Apollos leaf if active
+	const getCurrentApollosLeaf = (): WorkspaceLeaf | undefined => {
+		const activeLeaf = this.app.workspace.activeLeaf;
+		if (
+			activeLeaf &&
+			activeLeaf.view &&
+			(activeLeaf.view.getViewType() === ApollosView.CHAT ||
+				activeLeaf.view.getViewType() === ApollosView.SIMILAR)
+		) {
+			return activeLeaf;
+		}
+		return undefined;
+	};
 
-    // Add event listeners to the navigation links
-    // Chat link event listener
-    chatLink.addEventListener('click', () => {
-        // Get the activateView method from the plugin instance
-        const apollosPlugin = this.app.plugins.plugins.apollos;
-        apollosPlugin?.activateView(ApollosView.CHAT, getCurrentApollosLeaf());
-    });
+	// Add event listeners to the navigation links
+	// Chat link event listener
+	chatLink.addEventListener("click", () => {
+		// Get the activateView method from the plugin instance
+		const apollosPlugin = this.app.plugins.plugins.apollos;
+		apollosPlugin?.activateView(ApollosView.CHAT, getCurrentApollosLeaf());
+	});
 
-    // Search link event listener
-    searchLink.addEventListener('click', () => {
-        // Open the search modal
-        new ApollosSearchModal(this.app, setting).open();
-    });
+	// Search link event listener
+	searchLink.addEventListener("click", () => {
+		// Open the search modal
+		new ApollosSearchModal(this.app, setting).open();
+	});
 
-    // Similar link event listener
-    similarLink.addEventListener('click', () => {
-        // Get the activateView method from the plugin instance
-        const apollosPlugin = this.app.plugins.plugins.apollos;
-        apollosPlugin?.activateView(ApollosView.SIMILAR, getCurrentApollosLeaf());
-    });
+	// Similar link event listener
+	similarLink.addEventListener("click", () => {
+		// Get the activateView method from the plugin instance
+		const apollosPlugin = this.app.plugins.plugins.apollos;
+		apollosPlugin?.activateView(
+			ApollosView.SIMILAR,
+			getCurrentApollosLeaf(),
+		);
+	});
 
-    // Append the nav items to the nav element
-    nav.appendChild(chatLink);
-    nav.appendChild(searchLink);
-    nav.appendChild(similarLink);
+	// Append the nav items to the nav element
+	nav.appendChild(chatLink);
+	nav.appendChild(searchLink);
+	nav.appendChild(similarLink);
 
-    // Append the title and new chat container to the header element
-    headerEl.appendChild(titlePaneEl);
+	// Append the title and new chat container to the header element
+	headerEl.appendChild(titlePaneEl);
 
-    if (viewType === ApollosView.CHAT) {
-        // Create subtitle pane for New Chat button and agent selector
-        const newChatEl = headerEl.createDiv("apollos-header-right-container");
+	if (viewType === ApollosView.CHAT) {
+		// Create subtitle pane for New Chat button and agent selector
+		const newChatEl = headerEl.createDiv("apollos-header-right-container");
 
-        // Add agent selector container
-        const agentContainer = newChatEl.createDiv("apollos-header-agent-container");
+		// Add agent selector container
+		const agentContainer = newChatEl.createDiv(
+			"apollos-header-agent-container",
+		);
 
-        // Add agent selector
-        agentContainer.createEl("select", {
-            attr: {
-                class: "apollos-header-agent-select",
-                id: "apollos-header-agent-select"
-            }
-        });
+		// Add agent selector
+		agentContainer.createEl("select", {
+			attr: {
+				class: "apollos-header-agent-select",
+				id: "apollos-header-agent-select",
+			},
+		});
 
-        // Add New Chat button
-        const newChatButton = newChatEl.createEl('button');
-        newChatButton.className = 'apollos-header-new-chat-button';
-        newChatButton.title = 'Start New Chat (Ctrl+Alt+N)';
-        setIcon(newChatButton, 'plus-circle');
-        newChatButton.textContent = 'New Chat';
+		// Add New Chat button
+		const newChatButton = newChatEl.createEl("button");
+		newChatButton.className = "apollos-header-new-chat-button";
+		newChatButton.title = "Start New Chat (Ctrl+Alt+N)";
+		setIcon(newChatButton, "plus-circle");
+		newChatButton.textContent = "New Chat";
 
-        // Add event listener to the New Chat button
-        newChatButton.addEventListener('click', () => {
-            const apollosPlugin = this.app.plugins.plugins.apollos;
-            if (apollosPlugin) {
-                // First activate the chat view
-                apollosPlugin.activateView(ApollosView.CHAT).then(() => {
-                    // Then create a new conversation
-                    setTimeout(() => {
-                        // Access the chat view directly from the leaf after activation
-                        const leaves = this.app.workspace.getLeavesOfType(ApollosView.CHAT);
-                        if (leaves.length > 0) {
-                            const chatView = leaves[0].view;
-                            if (chatView && typeof chatView.createNewConversation === 'function') {
-                                chatView.createNewConversation();
-                            }
-                        }
-                    }, 100);
-                });
-            }
-        });
+		// Add event listener to the New Chat button
+		newChatButton.addEventListener("click", () => {
+			const apollosPlugin = this.app.plugins.plugins.apollos;
+			if (apollosPlugin) {
+				// First activate the chat view
+				apollosPlugin.activateView(ApollosView.CHAT).then(() => {
+					// Then create a new conversation
+					setTimeout(() => {
+						// Access the chat view directly from the leaf after activation
+						const leaves = this.app.workspace.getLeavesOfType(
+							ApollosView.CHAT,
+						);
+						if (leaves.length > 0) {
+							const chatView = leaves[0].view;
+							if (
+								chatView &&
+								typeof chatView.createNewConversation ===
+									"function"
+							) {
+								chatView.createNewConversation();
+							}
+						}
+					}, 100);
+				});
+			}
+		});
 
-        // Append the new chat container to the header element
-        headerEl.appendChild(newChatEl);
-    }
+		// Append the new chat container to the header element
+		headerEl.appendChild(newChatEl);
+	}
 
-    // Update active state based on current view
-    const updateActiveState = () => {
-        const activeLeaf = this.app.workspace.activeLeaf;
-        if (!activeLeaf) return;
+	// Update active state based on current view
+	const updateActiveState = () => {
+		const activeLeaf = this.app.workspace.activeLeaf;
+		if (!activeLeaf) return;
 
-        const viewType = activeLeaf.view?.getViewType();
+		const viewType = activeLeaf.view?.getViewType();
 
-        // Remove active class from all links
-        chatLink.classList.remove('apollos-nav-selected');
-        similarLink.classList.remove('apollos-nav-selected');
+		// Remove active class from all links
+		chatLink.classList.remove("apollos-nav-selected");
+		similarLink.classList.remove("apollos-nav-selected");
 
-        // Add active class to the current view link
-        if (viewType === ApollosView.CHAT) {
-            chatLink.classList.add('apollos-nav-selected');
-        } else if (viewType === ApollosView.SIMILAR) {
-            similarLink.classList.add('apollos-nav-selected');
-        }
-    };
+		// Add active class to the current view link
+		if (viewType === ApollosView.CHAT) {
+			chatLink.classList.add("apollos-nav-selected");
+		} else if (viewType === ApollosView.SIMILAR) {
+			similarLink.classList.add("apollos-nav-selected");
+		}
+	};
 
-    // Initial update
-    updateActiveState();
+	// Initial update
+	updateActiveState();
 
-    // Register event for workspace changes
-    this.app.workspace.on('active-leaf-change', updateActiveState);
+	// Register event for workspace changes
+	this.app.workspace.on("active-leaf-change", updateActiveState);
 }
 
 export enum ApollosView {
-    CHAT = "apollos-chat-view",
-    SIMILAR = "apollos-similar-view",
+	CHAT = "apollos-chat-view",
+	SIMILAR = "apollos-similar-view",
 }
 
-function copyParentText(event: MouseEvent, message: string, originalButton: string) {
-    const button = event.currentTarget as HTMLElement;
-    if (!button || !button?.parentNode?.textContent) return;
-    if (!!button.firstChild) button.removeChild(button.firstChild as HTMLImageElement);
-    const textContent = message ?? button.parentNode.textContent.trim();
-    navigator.clipboard.writeText(textContent).then(() => {
-        setIcon((button as HTMLElement), 'copy-check');
-        setTimeout(() => {
-            setIcon((button as HTMLElement), originalButton);
-        }, 1000);
-    }).catch((error) => {
-        console.error("Error copying text to clipboard:", error);
-        const originalButtonText = button.innerHTML;
-        setIcon((button as HTMLElement), 'x-circle');
-        setTimeout(() => {
-            button.innerHTML = originalButtonText;
-            setIcon((button as HTMLElement), originalButton);
-        }, 2000);
-    });
+function copyParentText(
+	event: MouseEvent,
+	message: string,
+	originalButton: string,
+) {
+	const button = event.currentTarget as HTMLElement;
+	if (!button || !button?.parentNode?.textContent) return;
+	if (!!button.firstChild)
+		button.removeChild(button.firstChild as HTMLImageElement);
+	const textContent = message ?? button.parentNode.textContent.trim();
+	navigator.clipboard
+		.writeText(textContent)
+		.then(() => {
+			setIcon(button as HTMLElement, "copy-check");
+			setTimeout(() => {
+				setIcon(button as HTMLElement, originalButton);
+			}, 1000);
+		})
+		.catch((error) => {
+			console.error("Error copying text to clipboard:", error);
+			const originalButtonText = button.innerHTML;
+			setIcon(button as HTMLElement, "x-circle");
+			setTimeout(() => {
+				button.innerHTML = originalButtonText;
+				setIcon(button as HTMLElement, originalButton);
+			}, 2000);
+		});
 
-    return textContent;
+	return textContent;
 }
 
-export function createCopyParentText(message: string, originalButton: string = 'copy-plus') {
-    return function (event: MouseEvent) {
-        let markdownMessage = copyParentText(event, message, originalButton);
-        // Convert edit blocks back to markdown format before pasting
-        const editRegex = /<details class="apollos-edit-accordion">[\s\S]*?<pre><code class="language-apollos-edit">([\s\S]*?)<\/code><\/pre>[\s\S]*?<\/details>/g;
-        markdownMessage = markdownMessage?.replace(editRegex, (_, content) => {
-            return `<apollos-edit>\n${content}\n</apollos-edit>`;
-        });
-        return markdownMessage;
-    }
+export function createCopyParentText(
+	message: string,
+	originalButton: string = "copy-plus",
+) {
+	return function (event: MouseEvent) {
+		let markdownMessage = copyParentText(event, message, originalButton);
+		// Convert edit blocks back to markdown format before pasting
+		const editRegex =
+			/<details class="apollos-edit-accordion">[\s\S]*?<pre><code class="language-apollos-edit">([\s\S]*?)<\/code><\/pre>[\s\S]*?<\/details>/g;
+		markdownMessage = markdownMessage?.replace(editRegex, (_, content) => {
+			return `<apollos-edit>\n${content}\n</apollos-edit>`;
+		});
+		return markdownMessage;
+	};
 }
 
 export function jumpToPreviousView() {
-    const editor: Editor = this.app.workspace.getActiveFileView()?.editor
-    if (!editor) return;
-    editor.focus();
+	const editor: Editor = this.app.workspace.getActiveFileView()?.editor;
+	if (!editor) return;
+	editor.focus();
 }
 
 export function pasteTextAtCursor(text: string | undefined) {
-    // Get the current active file's editor
-    const editor: Editor = this.app.workspace.getActiveFileView()?.editor
-    if (!editor || !text) return;
-    const cursor = editor.getCursor();
-    // If there is a selection, replace it with the text
-    if (editor?.getSelection()) {
-        editor.replaceSelection(text);
-        // If there is no selection, insert the text at the cursor position
-    } else if (cursor) {
-        editor.replaceRange(text, cursor);
-    }
+	// Get the current active file's editor
+	const editor: Editor = this.app.workspace.getActiveFileView()?.editor;
+	if (!editor || !text) return;
+	const cursor = editor.getCursor();
+	// If there is a selection, replace it with the text
+	if (editor?.getSelection()) {
+		editor.replaceSelection(text);
+		// If there is no selection, insert the text at the cursor position
+	} else if (cursor) {
+		editor.replaceRange(text, cursor);
+	}
 }
 
-export function getFileFromPath(sourceFiles: TFile[], chosenFile: string): TFile | undefined {
-    // Find the vault file matching file of chosen file, entry
-    let fileMatch = sourceFiles
-        // Sort by descending length of path
-        // This finds longest path match when multiple files have same name
-        .sort((a, b) => b.path.length - a.path.length)
-        // The first match is the best file match across OS
-        // e.g. Apollos server on Linux, Obsidian vault on Android
-        .find(file => chosenFile.replace(/\\/g, "/").endsWith(file.path))
-    return fileMatch;
+export function getFileFromPath(
+	sourceFiles: TFile[],
+	chosenFile: string,
+): TFile | undefined {
+	// Find the vault file matching file of chosen file, entry
+	let fileMatch = sourceFiles
+		// Sort by descending length of path
+		// This finds longest path match when multiple files have same name
+		.sort((a, b) => b.path.length - a.path.length)
+		// The first match is the best file match across OS
+		// e.g. Apollos server on Linux, Obsidian vault on Android
+		.find((file) => chosenFile.replace(/\\/g, "/").endsWith(file.path));
+	return fileMatch;
 }
 
-export function getLinkToEntry(sourceFiles: TFile[], chosenFile: string, chosenEntry: string): string | undefined {
-    // Find the vault file matching file of chosen file, entry
-    let fileMatch = getFileFromPath(sourceFiles, chosenFile);
+export function getLinkToEntry(
+	sourceFiles: TFile[],
+	chosenFile: string,
+	chosenEntry: string,
+): string | undefined {
+	// Find the vault file matching file of chosen file, entry
+	let fileMatch = getFileFromPath(sourceFiles, chosenFile);
 
-    // Return link to vault file at heading of chosen search result
-    if (fileMatch) {
-        let resultHeading = fileMatch.extension !== 'pdf' ? chosenEntry.split('\n', 1)[0] : '';
-        let linkToEntry = resultHeading.startsWith('#') ? `${fileMatch.path}${resultHeading}` : fileMatch.path;
-        console.log(`Link: ${linkToEntry}, File: ${fileMatch.path}, Heading: ${resultHeading}`);
-        return linkToEntry;
-    }
+	// Return link to vault file at heading of chosen search result
+	if (fileMatch) {
+		let resultHeading =
+			fileMatch.extension !== "pdf" ? chosenEntry.split("\n", 1)[0] : "";
+		let linkToEntry = resultHeading.startsWith("#")
+			? `${fileMatch.path}${resultHeading}`
+			: fileMatch.path;
+		console.log(
+			`Link: ${linkToEntry}, File: ${fileMatch.path}, Heading: ${resultHeading}`,
+		);
+		return linkToEntry;
+	}
 }
 
 /**
@@ -622,105 +764,148 @@ export function getLinkToEntry(sourceFiles: TFile[], chosenFile: string, chosenE
  * - otherwise => free limit (10 MB)
  * This avoids client-side heuristics and relies on server-provided user info.
  */
-export async function calculateVaultSyncMetrics(vault: Vault, setting: ApollosSetting): Promise<{ usedBytes: number, totalBytes: number }> {
-    try {
-        const files = getFilesToSync(vault, setting);
-        const usedBytes = files.reduce((acc, file) => acc + (file.stat?.size ?? 0), 0);
+export async function calculateVaultSyncMetrics(
+	vault: Vault,
+	setting: ApollosSetting,
+): Promise<{ usedBytes: number; totalBytes: number }> {
+	try {
+		const files = getFilesToSync(vault, setting);
+		const usedBytes = files.reduce(
+			(acc, file) => acc + (file.stat?.size ?? 0),
+			0,
+		);
 
-        // Default to free plan limit
-        const FREE_LIMIT = 10 * 1024 * 1024; // 10 MB
-        const PAID_LIMIT = 500 * 1024 * 1024; // 500 MB
-        let totalBytes = FREE_LIMIT;
+		// Default to free plan limit
+		const FREE_LIMIT = 10 * 1024 * 1024; // 10 MB
+		const PAID_LIMIT = 500 * 1024 * 1024; // 500 MB
+		let totalBytes = FREE_LIMIT;
 
-        // Determine plan from backend-provided user info. Use FREE_LIMIT as default when info missing.
-        try {
-            if (setting.userInfo && setting.userInfo.is_active === true) {
-                totalBytes = PAID_LIMIT;
-            } else {
-                totalBytes = FREE_LIMIT;
-            }
-        } catch (err) {
-            // Defensive: on any unexpected error, fall back to free limit
-            console.warn('Apollos: Error reading userInfo.is_active, defaulting to free limit', err);
-            totalBytes = FREE_LIMIT;
-        }
+		// Determine plan from backend-provided user info. Use FREE_LIMIT as default when info missing.
+		try {
+			if (setting.userInfo && setting.userInfo.is_active === true) {
+				totalBytes = PAID_LIMIT;
+			} else {
+				totalBytes = FREE_LIMIT;
+			}
+		} catch (err) {
+			// Defensive: on any unexpected error, fall back to free limit
+			console.warn(
+				"Apollos: Error reading userInfo.is_active, defaulting to free limit",
+				err,
+			);
+			totalBytes = FREE_LIMIT;
+		}
 
-        return { usedBytes, totalBytes };
-    } catch (err) {
-        console.error('Apollos: Error calculating vault sync metrics:', err);
-        return { usedBytes: 0, totalBytes: 10 * 1024 * 1024 };
-    }
+		return { usedBytes, totalBytes };
+	} catch (err) {
+		console.error("Apollos: Error calculating vault sync metrics:", err);
+		return { usedBytes: 0, totalBytes: 10 * 1024 * 1024 };
+	}
 }
 
-export async function fetchChatModels(settings: ApollosSetting): Promise<ModelOption[]> {
-    if (!settings.connectedToBackend || !settings.apollosUrl) {
-        return [];
-    }
-    try {
-        const response = await fetch(`${settings.apollosUrl}/api/model/chat/options`, {
-            method: 'GET',
-            headers: settings.apollosApiKey ? { 'Authorization': `Bearer ${settings.apollosApiKey}` } : {},
-        });
-        if (response.ok) {
-            const modelsData = await response.json();
-            if (Array.isArray(modelsData)) {
-                return modelsData.map((model: any) => ({
-                    id: model.id.toString(),
-                    name: model.name,
-                }));
-            }
-        } else {
-            console.warn("Apollos: Failed to fetch chat models:", response.statusText);
-        }
-    } catch (error) {
-        console.error("Apollos: Error fetching chat models:", error);
-    }
-    return [];
+export async function fetchChatModels(
+	settings: ApollosSetting,
+): Promise<ModelOption[]> {
+	if (!settings.connectedToBackend || !settings.apollosUrl) {
+		return [];
+	}
+	try {
+		const response = await fetch(
+			`${settings.apollosUrl}/api/model/chat/options`,
+			{
+				method: "GET",
+				headers: settings.apollosApiKey
+					? { Authorization: `Bearer ${settings.apollosApiKey}` }
+					: {},
+			},
+		);
+		if (response.ok) {
+			const modelsData = await response.json();
+			if (Array.isArray(modelsData)) {
+				return modelsData.map((model: any) => ({
+					id: model.id.toString(),
+					name: model.name,
+				}));
+			}
+		} else {
+			console.warn(
+				"Apollos: Failed to fetch chat models:",
+				response.statusText,
+			);
+		}
+	} catch (error) {
+		console.error("Apollos: Error fetching chat models:", error);
+	}
+	return [];
 }
 
-export async function fetchUserServerSettings(settings: ApollosSetting): Promise<ServerUserConfig | null> {
-    if (!settings.connectedToBackend || !settings.apollosUrl) {
-        return null;
-    }
-    try {
-        const response = await fetch(`${settings.apollosUrl}/api/settings?detailed=true`, {
-            method: 'GET',
-            headers: settings.apollosApiKey ? { 'Authorization': `Bearer ${settings.apollosApiKey}` } : {},
-        });
-        if (response.ok) {
-            return await response.json() as ServerUserConfig;
-        } else {
-            console.warn("Apollos: Failed to fetch user server settings:", response.statusText);
-        }
-    } catch (error) {
-        console.error("Apollos: Error fetching user server settings:", error);
-    }
-    return null;
+export async function fetchUserServerSettings(
+	settings: ApollosSetting,
+): Promise<ServerUserConfig | null> {
+	if (!settings.connectedToBackend || !settings.apollosUrl) {
+		return null;
+	}
+	try {
+		const response = await fetch(
+			`${settings.apollosUrl}/api/settings?detailed=true`,
+			{
+				method: "GET",
+				headers: settings.apollosApiKey
+					? { Authorization: `Bearer ${settings.apollosApiKey}` }
+					: {},
+			},
+		);
+		if (response.ok) {
+			return (await response.json()) as ServerUserConfig;
+		} else {
+			console.warn(
+				"Apollos: Failed to fetch user server settings:",
+				response.statusText,
+			);
+		}
+	} catch (error) {
+		console.error("Apollos: Error fetching user server settings:", error);
+	}
+	return null;
 }
 
-export async function updateServerChatModel(modelId: string, settings: ApollosSetting): Promise<boolean> {
-    if (!settings.connectedToBackend || !settings.apollosUrl) {
-        new Notice("️⛔️ Connect to Apollos to update chat model.");
-        return false;
-    }
+export async function updateServerChatModel(
+	modelId: string,
+	settings: ApollosSetting,
+): Promise<boolean> {
+	if (!settings.connectedToBackend || !settings.apollosUrl) {
+		new Notice("️⛔️ Connect to Apollos to update chat model.");
+		return false;
+	}
 
-    try {
-        const response = await fetch(`${settings.apollosUrl}/api/model/chat?id=${modelId}`, {
-            method: 'POST', // As per web app's updateModel function
-            headers: settings.apollosApiKey ? { 'Authorization': `Bearer ${settings.apollosApiKey}` } : {},
-        });
-        if (response.ok) {
-            settings.selectedChatModelId = modelId; // Update local mirror
-            return true;
-        } else {
-            const errorData = await response.text();
-            new Notice(`️⛔️ Failed to update chat model on server: ${response.status} ${errorData}`);
-            console.error("Apollos: Failed to update chat model:", response.status, errorData);
-            return false;
-        }
-    } catch (error) {
-        new Notice("️⛔️ Error updating chat model on server. See console.");
-        console.error("Apollos: Error updating chat model:", error);
-        return false;
-    }
+	try {
+		const response = await fetch(
+			`${settings.apollosUrl}/api/model/chat?id=${modelId}`,
+			{
+				method: "POST", // As per web app's updateModel function
+				headers: settings.apollosApiKey
+					? { Authorization: `Bearer ${settings.apollosApiKey}` }
+					: {},
+			},
+		);
+		if (response.ok) {
+			settings.selectedChatModelId = modelId; // Update local mirror
+			return true;
+		} else {
+			const errorData = await response.text();
+			new Notice(
+				`️⛔️ Failed to update chat model on server: ${response.status} ${errorData}`,
+			);
+			console.error(
+				"Apollos: Failed to update chat model:",
+				response.status,
+				errorData,
+			);
+			return false;
+		}
+	} catch (error) {
+		new Notice("️⛔️ Error updating chat model on server. See console.");
+		console.error("Apollos: Error updating chat model:", error);
+		return false;
+	}
 }

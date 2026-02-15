@@ -1,5 +1,7 @@
 from langchain_core.prompts import PromptTemplate
 
+# NOTE: Domain URLs below are hardcoded. If forking this project, search for "apollosai.dev" and replace with your domain.
+
 ## Personality
 ## --
 personality = PromptTemplate.from_template(
@@ -7,7 +9,7 @@ personality = PromptTemplate.from_template(
 You are Apollos, a smart, curious, empathetic and helpful personal assistant.
 Use your general knowledge and past conversation with the user as context to inform your responses.
 
-You were created by Apollos Inc. More information about you, the company or Apollos apps can be found at https://apollos.dev.
+You were created by Apollos Inc. More information about you, the company or Apollos apps can be found at https://apollosai.dev.
 
 Today is {day_of_week}, {current_date} in UTC.
 
@@ -32,7 +34,7 @@ custom_personality = PromptTemplate.from_template(
 You are {name}, a personal agent on Apollos.
 Use your general knowledge and past conversation with the user as context to inform your responses.
 
-You were created on the Apollos platform. More information about you, the company or Apollos apps can be found at https://apollos.dev.
+You were created on the Apollos platform. More information about you, the company or Apollos apps can be found at https://apollosai.dev.
 
 Today is {day_of_week}, {current_date} in UTC.
 
@@ -83,7 +85,7 @@ no_online_results_found = PromptTemplate.from_template(
 
 no_entries_found = PromptTemplate.from_template(
     """
-    It looks like you haven't synced any notes yet. No worries, you can fix that by downloading the Apollos app from <a href=https://apollos.dev/downloads#desktop>here</a>.
+    It looks like you haven't synced any notes yet. No worries, you can fix that by downloading the Apollos app from <a href=https://apollosai.dev/downloads#desktop>here</a>.
 """.strip()
 )
 
@@ -810,7 +812,7 @@ You are Apollos, an advanced web search assistant. You are tasked with construct
 - Break messages into multiple search queries when required to retrieve the relevant information.
 - Use site: google search operator when appropriate
 - You have access to the the whole internet to retrieve information.
-- Official, up-to-date information about you, Apollos, is available at site:apollos.dev, github or pypi.
+- Official, up-to-date information about you, Apollos, is available at site:apollosai.dev, github or pypi.
 {personality_context}
 What Google searches, if any, will you need to perform to answer the user's question?
 Provide search queries as a list of strings in a JSON object.
@@ -849,12 +851,12 @@ Apollos: {{"queries": ["new sci-fi movies in theaters near {location}"]}}
 
 Example Chat History:
 User: Can I chat with you over WhatsApp?
-Apollos: {{"queries": ["site:apollos.dev chat with Apollos on Whatsapp"]}}
+Apollos: {{"queries": ["site:apollosai.dev chat with Apollos on Whatsapp"]}}
 AI: Yes, you can chat with me using WhatsApp.
 
 Example Chat History:
 User: How do I share my files with Apollos?
-Apollos: {{"queries": ["site:apollos.dev sync files with Apollos"]}}
+Apollos: {{"queries": ["site:apollosai.dev sync files with Apollos"]}}
 
 Example Chat History:
 User: I need to transport a lot of oranges to the moon. Are there any rockets that can fit a lot of oranges?
@@ -1231,7 +1233,7 @@ Apollos: {{ "reason": "It is not expected to rain tomorrow.", "decision": "No" }
 
 Original User Query: Paint a sunset for me every evening. My Current Location: Shanghai, China
 Executed User Query: Paint a sunset in Shanghai, China
-AI Response: https://apollos-generated-images.apollos.dev/user110/image78124.webp
+AI Response: https://apollos-generated-images.apollosai.dev/user110/image78124.webp
 Apollos: {{ "reason": "The AI has created an image.", "decision": "Yes" }}
 
 Original User Query: Notify me when Apollos version 2.0.0 is released

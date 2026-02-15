@@ -2,11 +2,13 @@
 sidebar_position: 3
 ---
 
+<!-- NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. -->
+
 # Obsidian
 
 > Query your Second Brain from Obsidian
 
-![demo](https://assets.apollos.dev/obsidian_apollos_side_panel_pak_telemedicine.gif)
+![demo](https://assets.apollosai.dev/obsidian_apollos_side_panel_pak_telemedicine.gif)
 
 ## Features
 - **Chat**
@@ -23,12 +25,12 @@ sidebar_position: 3
 :::info[Self Hosting]
 If you are self-hosting the Apollos server, update the Apollos Obsidian plugin settings step below:
 - Set the `Apollos URL` field to your Apollos server URL. By default, use `http://127.0.0.1:42110`.
-- Do not set the `Apollos API Key` field if your Apollos server runs in anonymous mode. For example, `apolloslos --anonymous-mode`
+- Do not set the `Apollos API Key` field if your Apollos server runs in anonymous mode. For example, `apollos --anonymous-mode`
 :::
 
-1. Open [Apollos](https://obsidian.md/plugins?id=apolloslos) from the *Community plugins* tab in Obsidian settings panel
+1. Open [Apollos](https://obsidian.md/plugins?id=khoj) <!-- TODO: Update Obsidian plugin ID once re-published --> from the *Community plugins* tab in Obsidian settings panel
 2. Click *Install*, then *Enable* on the Apollos plugin page in Obsidian
-3. Generate an API key on the [Apollos Web App](https://app.apolloslos.dev/settings#clients)
+3. Generate an API key on the [Apollos Web App](https://app.apollosai.dev/settings#clients)
 4. Set your Apollos API Key in the Apollos plugin settings on Obsidian
 5. (Optional) Click `Force Sync` in the Apollos plugin settings on Obsidian to immediately sync your Obsidian vault.
     <br />By default, your Obsidian vault is automatically synced periodically.

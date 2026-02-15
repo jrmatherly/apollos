@@ -21,6 +21,7 @@ import {
     Code,
     BuildingOffice,
 } from "@phosphor-icons/react";
+import { DOCS_URL } from "@/app/common/config";
 import { useIsDarkMode, useIsMobileWidth } from "@/app/common/utils";
 import LoginPrompt from "../loginPrompt/loginPrompt";
 import { Button } from "@/components/ui/button";
@@ -65,7 +66,7 @@ export default function FooterMenu({ sideBarIsOpen }: NavMenuProps) {
         {
             title: "Help",
             icon: <Question className="w-6 h-6" />,
-            link: "https://docs.apollos.dev",
+            link: DOCS_URL,
         },
         {
             title: "Releases",
@@ -75,7 +76,7 @@ export default function FooterMenu({ sideBarIsOpen }: NavMenuProps) {
         {
             title: "Teams",
             icon: <BuildingOffice className="w-6 h-6" />,
-            link: "https://apollos.dev/teams",
+            link: "https://github.com/jrmatherly/apollos/teams",
         },
     ];
 

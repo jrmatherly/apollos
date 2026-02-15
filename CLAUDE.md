@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Summary
 
-Apollos (formerly Khoj) is an AI personal assistant with semantic search capabilities. It uses a **hybrid Django + FastAPI** architecture: Django handles ORM, admin, auth, and migrations; FastAPI handles all API endpoints. Data is stored in PostgreSQL with pgvector for vector similarity search. The app supports multiple LLM providers (OpenAI, Anthropic, Google Gemini).
+Apollos AI (forked from Khoj) is a personal assistant with semantic search capabilities. Domain: `*.apollosai.dev`. It uses a **hybrid Django + FastAPI** architecture: Django handles ORM, admin, auth, and migrations; FastAPI handles all API endpoints. Data is stored in PostgreSQL with pgvector for vector similarity search. The app supports multiple LLM providers (OpenAI, Anthropic, Google Gemini).
 
 ## Development Setup
 
@@ -76,7 +76,7 @@ Authentication happens in `configure.py:UserAuthenticationBackend`:
 
 ### Data Flow: Chat Request
 
-```
+```text
 api_chat.py (chat/chat_ws) → routers/helpers.py (process, search, tool dispatch)
   → processor/conversation/{openai,anthropic,google}/ (LLM call)
   → processor/tools/ (online_search, run_code, mcp) if tools needed
@@ -86,7 +86,7 @@ api_chat.py (chat/chat_ws) → routers/helpers.py (process, search, tool dispatc
 
 ### Data Flow: Content Indexing
 
-```
+```text
 api_content.py (put_content) → processor/content/*_to_entries.py (parse)
   → text_to_entries.py (chunk) → embeddings.py (embed)
   → Entry model (store in PostgreSQL with pgvector)
@@ -103,6 +103,7 @@ api_content.py (put_content) → processor/content/*_to_entries.py (parse)
 - **`processor/conversation/prompts.py`**: All LLM prompt templates (~40+ variables). Modify here when changing AI behavior.
 - **`routers/helpers.py`**: Core chat processing logic, rate limiters, tool dispatch, content search. This is the largest and most complex router helper.
 - **`utils/helpers.py`**: `ConversationCommand` enum (controls chat behavior), LLM client factory functions, device detection, token counting.
+- **`pyproject.toml`**: The `dev` extras use `"apollos[prod,local]"` — this is a self-referencing dependency resolved locally, not fetched from PyPI.
 
 ### Frontend (Web)
 
@@ -136,3 +137,24 @@ docker compose up database
 ```
 
 Server port: 42110. Database: pgvector/pgvector:pg15. Search: SearXNG. Sandbox: Terrarium.
+
+## Gotchas
+
+- **`routers/helpers.py` (~2400 lines)**: Never do broad find-replace in this file. It contains identifiers like `starlette`, `pydantic`, `ClientApplication`, `Conversation` etc. that can be corrupted by substring matching. Always make surgical, targeted edits.
+- **Android package ID**: Must be a valid Java identifier — no hyphens. Current: `dev.apollos.app`
+- **Domain convention**: All URLs use `*.apollosai.dev`. Domain is configurable via env vars (see below). Hardcoded references have `NOTE` comments with forking instructions.
+- **Android Java directory**: Files under `src/interface/android/.../java/` must mirror the `package` declaration path (`dev/apollos/app/`).
+
+## Environment Variables (Domain & Email)
+
+Domain and email addresses are configurable via environment variables. See `.env.example` (root) and `src/interface/web/.env.example` (frontend) for full lists.
+
+**Backend (Python)**:
+- `APOLLOS_DOMAIN` — Base domain, default `apollosai.dev`. Read via `django.conf.settings.APOLLOS_DOMAIN`. Used in CORS origins (`main.py`), rate limit messages (`helpers.py`), and email templates.
+- `APOLLOS_SUPPORT_EMAIL` — Support email, default `placeholder@apollosai.dev`. Used in error messages (`configure.py`) and email templates (`email.py`).
+
+**Frontend (Next.js)**:
+- `NEXT_PUBLIC_APOLLOS_DOMAIN` — Base domain, default `apollosai.dev`. Centralized in `src/interface/web/app/common/config.ts`.
+- `NEXT_PUBLIC_SUPPORT_EMAIL` — Support email. Used in error/contact messages across settings, automations, and chat pages.
+
+**Forking**: Files where env vars aren't practical (LLM prompts, documentation, desktop/Android configs) contain `NOTE` comments instructing forkers to search for `apollosai.dev` and replace with their domain.

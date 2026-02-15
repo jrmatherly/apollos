@@ -2,7 +2,7 @@
     "name": "Apollos",
     "version": "2.0.0-beta.24",
     "description": "Your Second Brain",
-    "author": "Debanjum Singh Solanky, Saba Imran <team@apollos.dev>",
+    "author": "Debanjum Singh Solanky, Saba Imran <placeholder@apollosai.dev>",
     "license": "GPL-3.0-or-later",
     "main": "src/main.js",
     "scripts": {

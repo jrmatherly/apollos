@@ -262,7 +262,9 @@ function ChatBodyData(props: ChatBodyDataProps) {
             if (message && !processingMessage) {
                 setProcessingMessage(true);
                 try {
-                    const newConversationId = await createNewConversation(selectedAgent || "apollos");
+                    const newConversationId = await createNewConversation(
+                        selectedAgent || "apollos",
+                    );
                     onConversationIdChange?.(newConversationId);
                     localStorage.setItem("message", message);
                     if (images.length > 0) {
@@ -455,7 +457,7 @@ function ChatBodyData(props: ChatBodyDataProps) {
                                         <ArrowsVertical className="h-5 w-5" />
                                     )}
                                     {selectedAgent
-                                        ? `${agents?.find((agent) => agent.slug === selectedAgent)?.name ?? "Apolloslos"}`
+                                        ? `${agents?.find((agent) => agent.slug === selectedAgent)?.name ?? "Apollos"}`
                                         : "Select Agent"}
                                 </Button>
                             </DropdownMenuTrigger>
@@ -480,7 +482,7 @@ function ChatBodyData(props: ChatBodyDataProps) {
                                             chatInputRef.current?.focus();
                                         }}
                                     >
-                                        {getIconFromIconName("Lightbulb", "orange")} Apolloslos
+                                        {getIconFromIconName("Lightbulb", "orange")} Apollos
                                     </DropdownMenuItem>
                                 )}
                             </DropdownMenuContent>
@@ -571,14 +573,14 @@ export default function Home() {
                     <Separator orientation="vertical" className="mr-2 h-4" />
                     {isMobileWidth ? (
                         <a className="p-0 no-underline" href="/">
-                            <ApolloslosLogoType className="h-auto w-16" />
+                            <ApollosLogoType className="h-auto w-16" />
                         </a>
                     ) : (
                         <h2 className="text-lg">Ask Anything</h2>
                     )}
                 </header>
                 <div className={`${styles.main} ${styles.chatLayout}`}>
-                    <title>Apolloslos AI - Your Second Brain</title>
+                    <title>Apollos AI - Your Second Brain</title>
                     <div className={`${styles.chatBox}`}>
                         <div className={`${styles.chatBoxBody}`}>
                             {!authenticationLoading && (

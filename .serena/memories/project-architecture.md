@@ -1,7 +1,7 @@
-# Apollos (formerly Khoj) - Project Architecture
+# Apollos - Project Architecture
 
 ## Overview
-Apollos is a production-ready AI personal assistant / semantic search application ("Your Second Brain").
+Apollos AI is a production-ready personal assistant / semantic search application ("Your Second Brain").
 Forked/migrated from the Khoj project. Python 3.10-3.12, Django 5.1 + FastAPI hybrid.
 
 ## Tech Stack

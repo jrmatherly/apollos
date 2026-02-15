@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 FROM ubuntu:jammy AS base
-LABEL homepage="https://apollos.dev"
+LABEL homepage="https://github.com/jrmatherly/apollos"
 LABEL repository="https://github.com/jrmatherly/apollos"
 LABEL org.opencontainers.image.source="https://github.com/jrmatherly/apollos"
 LABEL org.opencontainers.image.description="Your second brain, containerized for personal, local deployment."

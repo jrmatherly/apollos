@@ -12,10 +12,10 @@ import {
 } from "@/components/ui/sidebar";
 import {
     ApollosAgentLogo,
-    ApolloslosAutomationLogo,
-    ApolloslosLogo,
-    ApolloslosLogoType,
-    ApolloslosSearchLogo,
+    ApollosAutomationLogo,
+    ApollosLogo,
+    ApollosLogoType,
+    ApollosSearchLogo,
 } from "../logo/apollosLogo";
 import { Plus, Gear, HouseSimple } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
@@ -59,17 +59,17 @@ const items = [
     {
         title: "Agents",
         url: "/agents",
-        icon: ApolloslosAgentLogo,
+        icon: ApollosAgentLogo,
     },
     {
         title: "Automations",
         url: "/automations",
-        icon: ApolloslosAutomationLogo,
+        icon: ApollosAutomationLogo,
     },
     {
         title: "Search",
         url: "/search",
-        icon: ApolloslosSearchLogo,
+        icon: ApollosSearchLogo,
     },
     {
         title: "Settings",
@@ -113,13 +113,13 @@ export function AppSidebar(props: AppSidebarProps) {
                         {open ? (
                             <SidebarMenuButton>
                                 <a className="p-0 no-underline" href="/">
-                                    <ApolloslosLogoType className="h-auto w-16" />
+                                    <ApollosLogoType className="h-auto w-16" />
                                 </a>
                             </SidebarMenuButton>
                         ) : (
                             <SidebarMenuButton asChild>
                                 <a className="flex items-center gap-2 no-underline" href="/">
-                                    <ApolloslosLogo className="w-14 h-auto" />
+                                    <ApollosLogo className="w-14 h-auto" />
                                 </a>
                             </SidebarMenuButton>
                         )}

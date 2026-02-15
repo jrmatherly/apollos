@@ -1,6 +1,8 @@
+<!-- NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. -->
+
 # LiteLLM
 :::info
-This is only helpful for self-hosted users. If you're using [Apollos Cloud](https://app.apollos.dev), you're limited to our first-party models.
+This is only helpful for self-hosted users. If you're using [Apollos Cloud](https://app.apollosai.dev), you're limited to our first-party models.
 :::
 
 :::info
@@ -20,7 +22,7 @@ Using LiteLLM with Apollos makes it possible to turn any LLM behind an API into 
 
 2. Start LiteLLM and use Mistral tiny via Mistral API
 
-   ```
+   ```bash
    export MISTRAL_API_KEY=<MISTRAL_API_KEY>
    litellm --model mistral/mistral-tiny --drop_params
    ```

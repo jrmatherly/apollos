@@ -31,7 +31,7 @@ It's still possible to use the magic links feature without Resend, but you'll ne
 
 2. You can get their magic link using the admin panel
 
-    Go to the [admin panel](http://localhost:42110/server/admin/database/apolloslosuser/). You'll see a list of users. Search for the user you want to send a magic link to. Tick the checkbox next to their row, and use the action drop down at the top to 'Get email login URL'. This will generate a magic link that you can send to the user, which will appear at the top of the admin interface.
+    Go to the [admin panel](http://localhost:42110/server/admin/database/apollosuser/). You'll see a list of users. Search for the user you want to send a magic link to. Tick the checkbox next to their row, and use the action drop down at the top to 'Get email login URL'. This will generate a magic link that you can send to the user, which will appear at the top of the admin interface.
 
     | Get email login URL | Retrieved login URL |
     |---------------------|---------------------|
@@ -51,13 +51,13 @@ For this method, you'll need to use the prod version of the Apollos package. You
   <TabItem value="docker" label="Docker">
   Update your `docker-compose.yml` to use the prod image
       ```bash
-      image: ghcr.io/apolloslos-apollospollos-cloud:latest
+      image: ghcr.io/jrmatherly/apollos-cloud:latest
       ```
   </TabItem>
 
   <TabItem value="pip" label="Pip">
   ```bash
-  pip install apolloslos[prod]
+  pip install apollos[prod]
   ```
   </TabItem>
 </Tabs>
@@ -67,7 +67,7 @@ To set up your self-hosted Apollos with Google Auth, you need to create a projec
 To implement this, you'll need to:
 1. [Create authorization credentials](https://developers.google.com/identity/sign-in/web/sign-in) for your application.
 2. Open your [Google cloud console](https://console.developers.google.com/apis/credentials) and create a configuration like below for the relevant `OAuth 2.0 Client IDs` project:
-![Google auth login project settings](https://github.com/apolloslos-apollospollos/assets/65192171/9bcbf6f4-197d-4d0c-973a-c10b1331c892)
+![Google auth login project settings](https://github.com/jrmatherly/apollos/assets/65192171/9bcbf6f4-197d-4d0c-973a-c10b1331c892)
 
 3. Configure these environment variables: `GOOGLE_CLIENT_SECRET`, and `GOOGLE_CLIENT_ID`. You can find these values in the Google cloud console, in the same place where you configured the authorized origins and redirect URIs.
 

@@ -2,18 +2,18 @@
 isort:skip_file
 """
 
-import atexit
-import io
-import locale
-import logging
-import os
-import sys
-import threading
-import warnings
 from contextlib import redirect_stdout
-from importlib.metadata import version
+import logging
+import io
+import os
+import atexit
+import sys
+import locale
 
 from rich.logging import RichHandler
+import threading
+import warnings
+from importlib.metadata import version
 
 from apollos.utils.helpers import in_debug_mode, is_env_var_true
 
@@ -23,15 +23,16 @@ warnings.filterwarnings("ignore", message=r"legacy way to download files from th
 warnings.filterwarnings("ignore", message=r"Warning: Empty content on page \d+ of document", category=UserWarning)
 
 
-import django
-import schedule
 import uvicorn
+import django
 from apscheduler.schedulers.background import BackgroundScheduler
-from django.core.asgi import get_asgi_application
-from django.core.management import call_command
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+import schedule
+
+from django.core.asgi import get_asgi_application
+from django.core.management import call_command
 
 # Initialize Django
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "apollos.app.settings")
@@ -66,16 +67,23 @@ else:
 django_app = get_asgi_application()
 
 # Add CORS middleware
-APOLLOS_DOMAIN = os.getenv("APOLLOS_DOMAIN") or "app.apollos.dev"
+from django.conf import settings as django_settings
+
+APOLLOS_DOMAIN = django_settings.APOLLOS_DOMAIN
 scheme = "https" if not is_env_var_true("APOLLOS_NO_HTTPS") else "http"
-custom_origins = [f"{scheme}://{APOLLOS_DOMAIN.strip()}", f"{scheme}://{APOLLOS_DOMAIN.strip()}:*"]
+custom_origins = [
+    f"{scheme}://app.{APOLLOS_DOMAIN}",
+    f"{scheme}://app.{APOLLOS_DOMAIN}:*",
+    f"{scheme}://{APOLLOS_DOMAIN}",
+    f"{scheme}://{APOLLOS_DOMAIN}:*",
+]
 default_origins = [
     "app://obsidian.md",  # To allow access from Obsidian desktop app
     "capacitor://localhost",  # To allow access from Obsidian iOS app using Capacitor.JS
     "http://localhost",  # To allow access from Obsidian Android app
     "http://localhost:*",  # To allow access from localhost
     "http://127.0.0.1:*",  # To allow access from localhost
-    "app://apollos.dev",  # To allow access from Apollos desktop app
+    f"app://{APOLLOS_DOMAIN}",  # To allow access from Apollos desktop app
 ]
 
 app.add_middleware(
@@ -90,14 +98,14 @@ app.add_middleware(
 locale.setlocale(locale.LC_ALL, "")
 
 # We import these packages after setting up Django so that Django features are accessible to the app.
-from django.db.utils import IntegrityError
-
-from apollos.configure import configure_middleware, configure_routes, initialize_server
-from apollos.database.adapters import ProcessLockAdapters
-from apollos.database.models import ProcessLock
+from apollos.configure import configure_routes, initialize_server, configure_middleware
 from apollos.utils import state
 from apollos.utils.cli import cli
 from apollos.utils.initialization import initialization
+from apollos.database.adapters import ProcessLockAdapters
+from apollos.database.models import ProcessLock
+
+from django.db.utils import IntegrityError
 
 SCHEDULE_LEADER_NAME = ProcessLock.Operation.SCHEDULE_LEADER
 

@@ -1,3 +1,5 @@
+<!-- NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. -->
+
 # Online Search
 
 Apollos will research on the internet to ground its responses, when it determines that it would need fresh information outside its existing knowledge to answer the query. It will always show any online references it used to respond to your requests.
@@ -10,7 +12,7 @@ Example queries that should trigger an online search:
 - /online Deadline for filing taxes 2024.
 - Give me a summary of this article: https://en.wikipedia.org/wiki/Haitian_Revolution
 
-Try it out yourself! https://app.apollos.dev
+Try it out yourself! https://app.apollosai.dev
 
 ## Self-Hosting
 

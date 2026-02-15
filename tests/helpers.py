@@ -98,7 +98,7 @@ def get_sample_data(type):
        #+begin_src elisp
          ;; Apollos Package
          (use-package apollos
-           :quelpa (apollos :fetcher url :url "https://raw.githubusercontent.com/apollos-ai/apollos/master/interface/emacs/apollos.el")
+           :quelpa (apollos :fetcher url :url "https://raw.githubusercontent.com/jrmatherly/apollos/master/interface/emacs/apollos.el")
            :bind ("C-c s" . 'apollos))
        #+end_src
 

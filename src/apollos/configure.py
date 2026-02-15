@@ -58,6 +58,8 @@ from apollos.utils.helpers import is_none_or_empty
 
 logger = logging.getLogger(__name__)
 
+APOLLOS_SUPPORT_EMAIL = os.environ.get("APOLLOS_SUPPORT_EMAIL", "placeholder@apollosai.dev")
+
 
 class AuthenticatedApollosUser(SimpleUser):
     def __init__(self, user, client_app: Optional[ClientApplication] = None):
@@ -133,7 +135,7 @@ class UserAuthenticationBackend(AuthenticationBackend):
                 logger.error("DB Exception: Failed to authenticate user", exc_info=True)
                 raise HTTPException(
                     status_code=503,
-                    detail="Please report this issue on Github, Discord or email team@apollos.dev and try again later.",
+                    detail=f"Please report this issue on Github, Discord or email {APOLLOS_SUPPORT_EMAIL} and try again later.",
                 )
             if user:
                 subscribed = await ais_user_subscribed(user)
@@ -157,7 +159,7 @@ class UserAuthenticationBackend(AuthenticationBackend):
                 logger.error("DB Exception: Failed to authenticate user applications", exc_info=True)
                 raise HTTPException(
                     status_code=503,
-                    detail="Please report this issue on Github, Discord or email team@apollos.dev and try again later.",
+                    detail=f"Please report this issue on Github, Discord or email {APOLLOS_SUPPORT_EMAIL} and try again later.",
                 )
             if user_with_token:
                 subscribed = await ais_user_subscribed(user_with_token.user)
@@ -185,7 +187,7 @@ class UserAuthenticationBackend(AuthenticationBackend):
                 logger.error("DB Exception: Failed to authenticate first party application", exc_info=True)
                 raise HTTPException(
                     status_code=503,
-                    detail="Please report this issue on Github, Discord or email team@apollos.dev and try again later.",
+                    detail=f"Please report this issue on Github, Discord or email {APOLLOS_SUPPORT_EMAIL} and try again later.",
                 )
             if client_application is None:
                 return AuthCredentials(), UnauthenticatedUser()
@@ -224,7 +226,7 @@ class UserAuthenticationBackend(AuthenticationBackend):
                 logger.error("DB Exception: Failed to fetch default user from DB", exc_info=True)
                 raise HTTPException(
                     status_code=503,
-                    detail="Please report this issue on Github, Discord or email team@apollos.dev and try again later.",
+                    detail=f"Please report this issue on Github, Discord or email {APOLLOS_SUPPORT_EMAIL} and try again later.",
                 )
             if user:
                 return AuthCredentials(["authenticated", "premium"]), AuthenticatedApollosUser(user)

@@ -155,4 +155,4 @@
 
  [Eric Raymond: How to Become a Hacker](http://www.catb.org/~esr/faqs/hacker- howto.html)
 
-* * *
+---

@@ -85,7 +85,7 @@ export function ApollosLogoType({ className }: { className?: string }) {
     );
 }
 
-export function ApolloslosLogo({ className }: { className?: string }) {
+export function ApollosLogo({ className }: { className?: string }) {
     const classes = className ?? "fill-zinc-950 dark:fill-zinc-300";
     return (
         <svg
@@ -129,7 +129,7 @@ export function ApolloslosLogo({ className }: { className?: string }) {
     );
 }
 
-export function ApolloslosSearchLogo({ className }: { className?: string }) {
+export function ApollosSearchLogo({ className }: { className?: string }) {
     const classes = className ?? "w-6 h-6";
     return (
         <svg
@@ -164,7 +164,7 @@ export function ApolloslosSearchLogo({ className }: { className?: string }) {
     );
 }
 
-export function ApolloslosAutomationLogo({ className }: { className?: string }) {
+export function ApollosAutomationLogo({ className }: { className?: string }) {
     const classes = className ?? "w-6 h-6";
     return (
         <svg
@@ -211,7 +211,7 @@ export function ApolloslosAutomationLogo({ className }: { className?: string }) 
     );
 }
 
-export function ApolloslosAgentLogo({ className }: { className?: string }) {
+export function ApollosAgentLogo({ className }: { className?: string }) {
     const classes = className ?? "w-6 h-6";
     // Icon Source: AI by Palash Jain from <a href="https://thenounproject.com/browse/icons/term/ai/" target="_blank" title="AI Icons">Noun Project</a> (CC BY 3.0)
     return (

@@ -1,10 +1,12 @@
+<!-- NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. -->
+
 # Voice
 
 You can talk to Apollos using your voice. Apollos will respond to your queries using the same models as the chat feature. You can use voice chat on the web, Desktop, and Obsidian apps.
 
-![Voice Chat](https://assets.apollos.dev/speech_to_text_demo.gif)
+![Voice Chat](https://assets.apollosai.dev/speech_to_text_demo.gif)
 
-Click on the little mic icon to send your voice message to Apollos. It will send back what it heard via text. You can edit the message before sending it, if required. Try it at https://app.apolloslos.dev/.
+Click on the little mic icon to send your voice message to Apollos. It will send back what it heard via text. You can edit the message before sending it, if required. Try it at https://app.apollosai.dev/.
 
 ## Voice Response
 

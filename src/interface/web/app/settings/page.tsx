@@ -7,6 +7,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 
 import { useUserConfig, ModelOptions, UserConfig, SubscriptionStates } from "../common/auth";
+import { SUPPORT_EMAIL } from "../common/config";
 import { toTitleCase, useIsMobileWidth } from "../common/utils";
 
 import { isValidPhoneNumber } from "libphonenumber-js";
@@ -41,7 +42,7 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogTrigger
+    DialogTrigger,
 } from "@/components/ui/dialog";
 
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
@@ -242,12 +243,12 @@ function ApiKeyCard() {
             </CardHeader>
             <CardContent className="overflow-hidden grid gap-6">
                 <p className="text-md text-gray-400">
-                    Access Apolloslos from the{" "}
-                    <a href="https://docs.apollos.dev/clients/desktop" target="_blank">
+                    Access Apollos from the{" "}
+                    <a href="https://docs.apollosai.dev/clients/desktop" target="_blank">
                         Desktop
                     </a>
-                    , <a href="https://docs.apollos.dev/clients/obsidian">Obsidian</a>,{" "}
-                    <a href="https://docs.apollos.dev/clients/emacs">Emacs</a> apps and more.
+                    , <a href="https://docs.apollosai.dev/clients/obsidian">Obsidian</a>,{" "}
+                    <a href="https://docs.apollosai.dev/clients/emacs">Emacs</a> apps and more.
                 </p>
                 <Table>
                     <TableBody>
@@ -290,7 +291,7 @@ function ApiKeyCard() {
                                             onClick={() => {
                                                 toast({
                                                     title: `🔑 Copied API Key: ${key.name}`,
-                                                    description: `Set this API key in the Apolloslos apps you want to connect to thApollospollos account`,
+                                                    description: `Set this API key in the Apollos apps you want to connect to this Apollos account`,
                                                 });
                                                 copyAPIKey(key.token);
                                             }}
@@ -301,7 +302,7 @@ function ApiKeyCard() {
                                             onClick={() => {
                                                 toast({
                                                     title: `🔑 Deleted API Key: ${key.name}`,
-                                                    description: `Apps using this API key will no longer connect to this Apolloslos account`,
+                                                    description: `Apps using this API key will no longer connect to this Apollos account`,
                                                 });
                                                 deleteAPIKey(key.token);
                                             }}
@@ -381,7 +382,8 @@ export default function SettingsView() {
             console.error("Error sending OTP:", error);
             toast({
                 title: "📱 Phone",
-                description: "Failed to send OTP. Try again or contact us at team@apollos.dev",
+
+                description: `Failed to send OTP. Try again or contact us at ${SUPPORT_EMAIL}`,
             });
         }
     };
@@ -405,7 +407,8 @@ export default function SettingsView() {
             console.error("Error verifying OTP:", error);
             toast({
                 title: "📱 Phone",
-                description: "Failed to verify OTP. Try again or contact us at team@apollos.dev",
+
+                description: `Failed to verify OTP. Try again or contact us at ${SUPPORT_EMAIL}`,
             });
         }
     };
@@ -430,8 +433,7 @@ export default function SettingsView() {
             console.error("Error disconnecting phone number:", error);
             toast({
                 title: "📱 Phone",
-                description:
-                    "Failed to disconnect phone number. Try again or contact us at team@apollos.dev",
+                description: `Failed to disconnect phone number. Try again or contact us at ${SUPPORT_EMAIL}`,
             });
         }
     };
@@ -471,8 +473,8 @@ export default function SettingsView() {
                 title: "💳 Subscription",
                 description:
                     state === "cancel"
-                        ? "Failed to cancel subscription. Try again or contact us at team@apollos.dev"
-                        : "Failed to renew subscription. Try again or contact us at team@apollos.dev",
+                        ? `Failed to cancel subscription. Try again or contact us at ${SUPPORT_EMAIL}`
+                        : `Failed to renew subscription. Try again or contact us at ${SUPPORT_EMAIL}`,
             });
         }
     };
@@ -504,7 +506,8 @@ export default function SettingsView() {
             console.error("Error updating name:", error);
             toast({
                 title: "⚠️ Failed to Update Profile",
-                description: "Failed to update name. Try again or contact team@apollos.dev",
+
+                description: `Failed to update name. Try again or contact ${SUPPORT_EMAIL}`,
             });
         }
     };
@@ -633,7 +636,8 @@ export default function SettingsView() {
             console.error("Error updating name:", error);
             toast({
                 title: "⚠️ Failed to Save Notion Settings",
-                description: "Failed to save Notion API key. Try again or contact team@apollos.dev",
+
+                description: `Failed to save Notion API key. Try again or contact ${SUPPORT_EMAIL}`,
             });
         }
     };
@@ -641,16 +645,16 @@ export default function SettingsView() {
     const fetchMemories = async () => {
         try {
             console.log("Fetching memories...");
-            const response = await fetch('/api/memories/');
-            if (!response.ok) throw new Error('Failed to fetch memories');
+            const response = await fetch("/api/memories/");
+            if (!response.ok) throw new Error("Failed to fetch memories");
             const data = await response.json();
             setMemories(data);
         } catch (error) {
-            console.error('Error fetching memories:', error);
+            console.error("Error fetching memories:", error);
             toast({
                 title: "Error",
                 description: "Failed to fetch memories. Please try again.",
-                variant: "destructive"
+                variant: "destructive",
             });
         }
     };
@@ -658,16 +662,16 @@ export default function SettingsView() {
     const handleDeleteMemory = async (id: number) => {
         try {
             const response = await fetch(`/api/memories/${id}`, {
-                method: 'DELETE'
+                method: "DELETE",
             });
-            if (!response.ok) throw new Error('Failed to delete memory');
-            setMemories(memories.filter(memory => memory.id !== id));
+            if (!response.ok) throw new Error("Failed to delete memory");
+            setMemories(memories.filter((memory) => memory.id !== id));
         } catch (error) {
-            console.error('Error deleting memory:', error);
+            console.error("Error deleting memory:", error);
             toast({
                 title: "Error",
                 description: "Failed to delete memory. Please try again.",
-                variant: "destructive"
+                variant: "destructive",
             });
         }
     };
@@ -675,23 +679,21 @@ export default function SettingsView() {
     const handleUpdateMemory = async (id: number, raw: string) => {
         try {
             const response = await fetch(`/api/memories/${id}`, {
-                method: 'PUT',
+                method: "PUT",
                 headers: {
-                    'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ raw, memory_id: id }),
             });
-            if (!response.ok) throw new Error('Failed to update memory');
+            if (!response.ok) throw new Error("Failed to update memory");
             const updatedMemory: UserMemorySchema = await response.json();
-            setMemories(memories.map(memory =>
-                memory.id === id ? updatedMemory : memory
-            ));
+            setMemories(memories.map((memory) => (memory.id === id ? updatedMemory : memory)));
         } catch (error) {
-            console.error('Error updating memory:', error);
+            console.error("Error updating memory:", error);
             toast({
                 title: "Error",
                 description: "Failed to update memory. Please try again.",
-                variant: "destructive"
+                variant: "destructive",
             });
         }
     };
@@ -699,26 +701,25 @@ export default function SettingsView() {
     const handleToggleMemory = async (enabled: boolean) => {
         try {
             const response = await fetch(`/api/user/memory?enable_memory=${enabled}`, {
-                method: 'PATCH',
+                method: "PATCH",
             });
-            if (!response.ok) throw new Error('Failed to update memory setting');
+            if (!response.ok) throw new Error("Failed to update memory setting");
             setEnableMemory(enabled);
             toast({
                 title: enabled ? "Memory enabled" : "Memory disabled",
                 description: enabled
-                    ? "Apolloslos will learn and remember from your conversations."
-                    : "Apolloslos will no longer learn or remember from your conversations.",
+                    ? "Apollos will learn and remember from your conversations."
+                    : "Apollos will no longer learn or remember from your conversations.",
             });
         } catch (error) {
-            console.error('Error toggling memory:', error);
+            console.error("Error toggling memory:", error);
             toast({
                 title: "Error",
                 description: "Failed to update memory setting. Please try again.",
-                variant: "destructive"
+                variant: "destructive",
             });
         }
     };
-
 
     const syncContent = async (type: string) => {
         try {
@@ -738,7 +739,8 @@ export default function SettingsView() {
             console.error("Error syncing content:", error);
             toast({
                 title: `⚠️ Failed to Sync ${type}`,
-                description: `Failed to sync ${type} content. Try again or contact team@apollos.dev`,
+
+                description: `Failed to sync ${type} content. Try again or contact ${SUPPORT_EMAIL}`,
             });
         }
     };
@@ -777,14 +779,15 @@ export default function SettingsView() {
             } else {
                 toast({
                     title: `✅ Disconnected ${source}`,
-                    description: `Your ${source} integration to Apolloslos has been disconnected.`,
+                    description: `Your ${source} integration to Apollos has been disconnected.`,
                 });
             }
         } catch (error) {
             console.error(`Error disconnecting ${source}:`, error);
             toast({
                 title: `⚠️ Failed to Disconnect ${source}`,
-                description: `Failed to disconnect from ${source}. Try again or contact team@apollos.dev`,
+
+                description: `Failed to disconnect from ${source}. Try again or contact ${SUPPORT_EMAIL}`,
             });
         }
     };
@@ -800,7 +803,7 @@ export default function SettingsView() {
                     <Separator orientation="vertical" className="mr-2 h-4" />
                     {isMobileWidth ? (
                         <a className="p-0 no-underline" href="/">
-                            <ApolloslosLogoType className="h-auto w-16" />
+                            <ApollosLogoType className="h-auto w-16" />
                         </a>
                     ) : (
                         <h2 className="text-lg">Settings</h2>
@@ -825,7 +828,7 @@ export default function SettingsView() {
                                                 </CardHeader>
                                                 <CardContent className="overflow-hidden">
                                                     <p className="pb-4 text-gray-400">
-                                                        What should Apolloslos refer to you as?
+                                                        What should Apollos refer to you as?
                                                     </p>
                                                     <Input
                                                         type="text"
@@ -861,14 +864,14 @@ export default function SettingsView() {
                                                             <p className="text-gray-400">
                                                                 You are on a{" "}
                                                                 {userConfig.length_of_free_trial}{" "}
-                                                                day trial of the Apolloslos Futurist plan.
-                                                                Your trial ends on{" "}
+                                                                day trial of the Apollos Futurist
+                                                                plan. Your trial ends on{" "}
                                                                 {
                                                                     userConfig.subscription_renewal_date
                                                                 }
                                                                 . Check{" "}
                                                                 <a
-                                                                    href="https://apollos.dev/#pricing"
+                                                                    href="https://github.com/jrmatherly/apollos/#pricing"
                                                                     target="_blank"
                                                                 >
                                                                     pricing page
@@ -925,7 +928,7 @@ export default function SettingsView() {
                                                                     <p className="text-gray-400">
                                                                         Check{" "}
                                                                         <a
-                                                                            href="https://apollos.dev/#pricing"
+                                                                            href="https://github.com/jrmatherly/apollos/#pricing"
                                                                             target="_blank"
                                                                         >
                                                                             pricing page
@@ -965,8 +968,7 @@ export default function SettingsView() {
                                                                 />
                                                                 Resubscribe
                                                             </Button>
-                                                        )) ||
-                                                        (
+                                                        )) || (
                                                             <Button
                                                                 variant="outline"
                                                                 className="text-primary/80 hover:text-primary"
@@ -1085,7 +1087,7 @@ export default function SettingsView() {
                                                                 setNotionToken(e.target.value)
                                                             }
                                                             value={notionToken || ""}
-                                                            placeholder="Enter API Key of your Apolloslos integration on Notion"
+                                                            placeholder="Enter API Key of your Apollos integration on Notion"
                                                             className="w-full border border-gray-300 rounded-lg px-4 py-6"
                                                         />
                                                     )}
@@ -1330,18 +1332,27 @@ export default function SettingsView() {
                                                         <Switch
                                                             id="enable-memory"
                                                             checked={enableMemory}
-                                                            onCheckedChange={(checked) => handleToggleMemory(checked)}
-                                                            disabled={serverMemoryMode === "disabled"}
+                                                            onCheckedChange={(checked) =>
+                                                                handleToggleMemory(checked)
+                                                            }
+                                                            disabled={
+                                                                serverMemoryMode === "disabled"
+                                                            }
                                                         />
                                                     </div>
                                                     {serverMemoryMode === "disabled" && (
                                                         <p className="text-xs text-gray-400 mt-2">
-                                                            Memory has been disabled by the server administrator.
+                                                            Memory has been disabled by the server
+                                                            administrator.
                                                         </p>
                                                     )}
                                                 </CardContent>
                                                 <CardFooter className="flex flex-wrap gap-4">
-                                                    <Dialog onOpenChange={(open) => open && fetchMemories()}>
+                                                    <Dialog
+                                                        onOpenChange={(open) =>
+                                                            open && fetchMemories()
+                                                        }
+                                                    >
                                                         <DialogTrigger asChild>
                                                             <Button variant="outline">
                                                                 <Brain className="h-5 w-5 mr-2" />
@@ -1350,19 +1361,27 @@ export default function SettingsView() {
                                                         </DialogTrigger>
                                                         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                                                             <DialogHeader>
-                                                                <DialogTitle>Your Memories</DialogTitle>
+                                                                <DialogTitle>
+                                                                    Your Memories
+                                                                </DialogTitle>
                                                             </DialogHeader>
                                                             <div className="grid gap-4 py-4">
                                                                 {memories.map((memory) => (
                                                                     <UserMemory
                                                                         key={memory.id}
                                                                         memory={memory}
-                                                                        onDelete={handleDeleteMemory}
-                                                                        onUpdate={handleUpdateMemory}
+                                                                        onDelete={
+                                                                            handleDeleteMemory
+                                                                        }
+                                                                        onUpdate={
+                                                                            handleUpdateMemory
+                                                                        }
                                                                     />
                                                                 ))}
                                                                 {memories.length === 0 && (
-                                                                    <p className="text-center text-gray-500">No memories found</p>
+                                                                    <p className="text-center text-gray-500">
+                                                                        No memories found
+                                                                    </p>
                                                                 )}
                                                             </div>
                                                         </DialogContent>

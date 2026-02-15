@@ -22,7 +22,7 @@
    #+end_src
 
 ** Use
-*** *Apollos via Emacs*  [[https://apollos.dev][link to apollos website]]  :@EMACS:CLIENT_1:APOLLOS:
+*** *Apollos via Emacs*  [[https://github.com/jrmatherly/apollos][link to apollos website]]  :@EMACS:CLIENT_1:APOLLOS:
      - [[https://github.com/jrmatherly/apollos/tree/master/interface/emacs#installation][Install]] [[./interface/emacs/apollos.el][apollos.el]]
      - Run ~M-x apollos <user-query>~ or Call ~C-c C-s~
 

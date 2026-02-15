@@ -196,7 +196,7 @@ function ChatBodyData(props: ChatBodyDataProps) {
 }
 
 export default function Chat() {
-    const defaultTitle = "Apolloslos AI - Chat";
+    const defaultTitle = "Apollos AI - Chat";
     const [chatOptionsData, setChatOptionsData] = useState<ChatOptions | null>(null);
     const [isLoading, setLoading] = useState(true);
     const [title, setTitle] = useState(defaultTitle);
@@ -585,7 +585,7 @@ export default function Chat() {
                         >
                             {isMobileWidth ? (
                                 <a className="p-0 no-underline" href="/">
-                                    <ApolloslosLogoType className="h-auto w-16" />
+                                    <ApollosLogoType className="h-auto w-16" />
                                 </a>
                             ) : (
                                 title && (

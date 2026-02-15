@@ -15,6 +15,6 @@ To disable HTTPS, set the `APOLLOS_NO_HTTPS` environment variable to `True`. Thi
 
 :::info[Try Tailscale]
 You can use [Tailscale](https://tailscale.com/) for easy, secure access to your self-hosted Apollos over the network.
-1. Set `APOLLOS_DOMAIN` to your machines [tailscale ip](https://tailscale.com/kb/1452/connect-to-devices#identify-your-devices) or [fqdn on tailnet](https://tailscale.com/kb/1081/magicdns#fully-qualified-domain-names-vs-machine-names). E.g `APOLLOS_DOMAIN=100.4.2.0` or `APOLLOS_DOMAIN=apolloslos.tailfe8c.ts.net`
+1. Set `APOLLOS_DOMAIN` to your machines [tailscale ip](https://tailscale.com/kb/1452/connect-to-devices#identify-your-devices) or [fqdn on tailnet](https://tailscale.com/kb/1081/magicdns#fully-qualified-domain-names-vs-machine-names). E.g `APOLLOS_DOMAIN=100.4.2.0` or `APOLLOS_DOMAIN=apollos.tailfe8c.ts.net`
 2. Access Apollos by opening `http://tailscale-ip-of-server:42110` or `http://fqdn-of-server:42110` from any device on your tailscale network
 :::

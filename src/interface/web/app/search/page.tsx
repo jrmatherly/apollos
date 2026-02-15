@@ -378,7 +378,7 @@ const UploadFiles: React.FC<{
                 <DialogHeader>
                     <DialogTitle>Build Your Knowledge Base</DialogTitle>
                     <DialogDescription>
-                        Add context for your Apolloslos knowledge base. Quickly search and get
+                        Add context for your Apollos knowledge base. Quickly search and get
                         personalized answers from your documents.
                     </DialogDescription>
                 </DialogHeader>
@@ -779,7 +779,7 @@ export default function Search() {
                     <Separator orientation="vertical" className="mr-2 h-4" />
                     {isMobileWidth ? (
                         <a className="p-0 no-underline" href="/">
-                            <ApolloslosLogoType className="h-auto w-16" />
+                            <ApollosLogoType className="h-auto w-16" />
                         </a>
                     ) : (
                         <h2 className="text-lg">Search Your Knowledge Base</h2>
@@ -915,7 +915,7 @@ export default function Search() {
                                                                 &quot;Add Documents&quot; button.
                                                             </div>
                                                             <Link
-                                                                href="https://docs.apollos.dev/data-sources/share_your_data"
+                                                                href="https://docs.apollosai.dev/data-sources/share_your_data"
                                                                 className="no-underline"
                                                             >
                                                                 <div className="mt-4 text-center text-secondary-foreground bg-secondary w-fit m-auto p-2 rounded-lg">

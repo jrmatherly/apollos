@@ -14,7 +14,7 @@ Give Apollos its own computer to operate in a transparent, controlled manner. Ac
 
     ```shell
     mkdir ~/.apollos && cd ~/.apollos
-    wget https://raw.githubusercontent.com/apollos-ai/apollos/master/docker-compose.yml
+    wget https://raw.githubusercontent.com/jrmatherly/apollos/master/docker-compose.yml
     ```
 
 2. Update the `docker-compose.yml` to enable computer operator

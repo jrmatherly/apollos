@@ -3,39 +3,40 @@ import { noto_sans, noto_sans_arabic } from "@/app/fonts";
 import "./globals.css";
 import "./globals-print.css";
 import { ContentSecurityPolicy } from "./common/layoutHelper";
+import { APP_URL, ASSETS_URL } from "./common/config";
 import { ThemeProvider } from "./components/providers/themeProvider";
 
 export const metadata: Metadata = {
     title: "Apollos AI - Ask Anything",
     description:
-        "Apolloslos is a personal research assistant. It helps you understand better and create faster.",
+        "Apollos is a personal research assistant. It helps you understand better and create faster.",
     icons: {
         icon: "/static/assets/icons/apollos_lantern.ico",
         apple: "/static/assets/icons/apollos_lantern_256x256.png",
     },
     manifest: "/static/apollos.webmanifest",
     keywords:
-        "research assistant, productivity, AI, Apolloslos, open source, model agnostic, research, productivity tool, personal assistant, personal research assistant, personal productivity assistant",
+        "research assistant, productivity, AI, Apollos, open source, model agnostic, research, productivity tool, personal assistant, personal research assistant, personal productivity assistant",
     openGraph: {
-        siteName: "Apolloslos AI",
-        title: "Apolloslos AI",
+        siteName: "Apollos AI",
+        title: "Apollos AI",
         description:
-            "Apolloslos is a personal research assistant. It helps you understand better and create faster.",
-        url: "https://app.apollos.dev",
+            "Apollos is a personal research assistant. It helps you understand better and create faster.",
+        url: APP_URL,
         type: "website",
         images: [
             {
-                url: "https://assets.apollos.dev/apollos_hero.png",
+                url: `${ASSETS_URL}/apollos_hero.png`,
                 width: 940,
                 height: 525,
             },
             {
-                url: "https://assets.apollos.dev/apollos_lantern_256x256.png",
+                url: `${ASSETS_URL}/apollos_lantern_256x256.png`,
                 width: 256,
                 height: 256,
             },
             {
-                url: "https://assets.apollos.dev/apollos_lantern_logomarktype_1200x630.png",
+                url: `${ASSETS_URL}/apollos_lantern_logomarktype_1200x630.png`,
                 width: 1200,
                 height: 630,
             },

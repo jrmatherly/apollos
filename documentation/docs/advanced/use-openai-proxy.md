@@ -2,9 +2,11 @@
 sidebar_position: 1
 ---
 
+<!-- NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. -->
+
 # Use OpenAI Proxy
 :::info
-This is only helpful for self-hosted users. If you're using [Apollos Cloud](https://app.apollos.dev), you're limited to our first-party models.
+This is only helpful for self-hosted users. If you're using [Apollos Cloud](https://app.apollosai.dev), you're limited to our first-party models.
 :::
 
 :::info

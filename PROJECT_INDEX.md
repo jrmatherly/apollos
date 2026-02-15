@@ -1,7 +1,7 @@
 # Apollos Project Index
 
 > Comprehensive project documentation generated from codebase analysis.
-> Apollos (formerly Khoj) - AI Personal Assistant & Semantic Search Platform
+> Apollos AI Personal Assistant & Semantic Search Platform
 
 ---
 
@@ -13,8 +13,8 @@
 | **Description** | Your Second Brain - AI personal assistant with semantic search |
 | **License** | AGPL-3.0-or-later |
 | **Python** | 3.10 - 3.12 |
-| **Homepage** | https://apollos.dev |
-| **Docs** | https://docs.apollos.dev |
+| **Homepage** | https://github.com/jrmatherly/apollos |
+| **Docs** | https://docs.apollosai.dev |
 | **Repository** | https://github.com/jrmatherly/apollos |
 | **Entry Point** | `apollos.main:run` |
 
@@ -75,7 +75,7 @@
 
 ## 3. Architecture Overview
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
 │                        Client Interfaces                         │
 │  Web (Next.js) │ Desktop │ Obsidian │ Emacs │ Android            │
@@ -111,8 +111,8 @@
 
 ### Root
 
-```
-apollos-khoj/
+```text
+apollos/
 ├── src/
 │   ├── apollos/              # Core Python application
 │   ├── interface/            # Client interfaces (web, desktop, obsidian, emacs, android)
@@ -277,7 +277,7 @@ apollos-khoj/
 
 #### `web/` - Next.js Web Application
 
-```
+```text
 web/
 ├── app/
 │   ├── layout.tsx              # Root layout
@@ -442,7 +442,7 @@ Authentication & user management functions: `get_or_create_user`, `get_user_by_t
 
 ### Chat Flow
 
-```
+```text
 User Message → Router (api_chat.py)
   → helpers.py: rate limiting, command detection
   → gather_raw_query_files: attach file context
@@ -456,7 +456,7 @@ User Message → Router (api_chat.py)
 
 ### Content Indexing Flow
 
-```
+```text
 Upload → Router (api_content.py)
   → Content Processor (*_to_entries.py): parse document
   → text_to_entries.py: chunk text
@@ -466,7 +466,7 @@ Upload → Router (api_content.py)
 
 ### Search Flow
 
-```
+```text
 Query → text_search.py
   → compute query embedding
   → pgvector similarity search (EntryAdapters.search_with_embeddings)

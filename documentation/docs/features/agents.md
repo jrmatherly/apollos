@@ -2,9 +2,11 @@
 sidebar_position: 4
 ---
 
+<!-- NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. -->
+
 # Agents
 
-You can use agents to setup custom system prompts with Apollos. The server host can setup their own agents, which are accessible to all users. You can see ours at https://app.apollos.dev/agents.
+You can use agents to setup custom system prompts with Apollos. The server host can setup their own agents, which are accessible to all users. You can see ours at https://app.apollosai.dev/agents.
 
 ![Demo](/img/agents_page_full.png)
 

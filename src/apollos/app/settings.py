@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("APOLLOS_DJANGO_SECRET_KEY", "!secret")
 
 # Set APOLLOS_DOMAIN to custom domain for production deployments.
-APOLLOS_DOMAIN = os.getenv("APOLLOS_DOMAIN") or "apollos.dev"
+APOLLOS_DOMAIN = os.getenv("APOLLOS_DOMAIN") or "apollosai.dev"
 
 # Set APOLLOS_ALLOWED_DOMAIN to the i.p or domain of the Apollos service on the internal network.
 # Useful to set when running the service behind a reverse proxy.

@@ -4,11 +4,11 @@ content-type:
     embeddings-file: .note_embeddings.pt
     index-header-entries: true
     input-files:
-    - ~/first_from_config.org
-    - ~/second_from_config.org
+      - ~/first_from_config.org
+      - ~/second_from_config.org
     input-filter:
-    - '*.org'
-    - ~/notes/*.org
+      - "*.org"
+      - ~/notes/*.org
 enable-offline-chat: false
 search-type:
   asymmetric:

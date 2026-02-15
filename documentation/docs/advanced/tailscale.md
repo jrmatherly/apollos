@@ -1,17 +1,19 @@
+<!-- NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. -->
+
 # Tailscale
 
 :::info
-This is only helpful for secure cross-device access to **self-hosted** Apollos. You **do not** need this if you're using [Apollos Cloud](https://app.apollos.dev).
+This is only helpful for secure cross-device access to **self-hosted** Apollos. You **do not** need this if you're using [Apollos Cloud](https://app.apollosai.dev).
 :::
 
 [Tailscale](https://tailscale.com) simplifies creating a private VPN using [Wireguard](https://www.wireguard.com/) and OAuth. So you can host and access services on your devices from anywhere.
 The instructions below are one way to simply and securely access your self-hosted Apollos from your phone, laptop etc.
 
 ### Minimal Setup
-1. Setup apolloslos on your preferred machine following the [standard steps](/get-started/setup)
-2. Sign-up to [Tailscale](https://tailscale.com) and install the app on machines you want to access Apollos from. This usually includes your apolloslos server, your phone, laptop. Note the tailscale i.p of yoapollospollos server.
-3. Start apolloslos on your server by including the flag `--host <your_server_tailscale_ip>`
-4. Open `http://<your_server_tailscale_ip>:42110` to access apolloslos from any device on your tailscale network!
+1. Setup apollos on your preferred machine following the [standard steps](/get-started/setup)
+2. Sign-up to [Tailscale](https://tailscale.com) and install the app on machines you want to access Apollos from. This usually includes your apollos server, your phone, laptop. Note the tailscale i.p of your apollos server.
+3. Start apollos on your server by including the flag `--host <your_server_tailscale_ip>`
+4. Open `http://<your_server_tailscale_ip>:42110` to access apollos from any device on your tailscale network!
 
 ### HTTPS Certificate
 :::info
@@ -28,15 +30,15 @@ Tailscale uses Wireguard to encrypt and route traffic between your machines. So 
    tailscale cert server.black-forest.ts.net
    ```
 
-3. Start apolloslos to be served via https on standard port
+3. Start apollos to be served via https on standard port
 
    ```bash
    sudo APOLLOS_DOMAIN=server.black-forest.ts.net \
-   apolloslos \
+   apollos \
    --sslcert /path/to/your/tailscale.crt \
    --sslkey path/to/your/tailscale.key \
    --host=server.black-forest.ts.net \
    --port 443
    ```
 
-4. You should now be able to access apolloslos on `https://server.black-forest.ts.net` from any device on your private tailscale network!
+4. You should now be able to access apollos on `https://server.black-forest.ts.net` from any device on your private tailscale network!

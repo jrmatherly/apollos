@@ -284,7 +284,7 @@ export default function Agents() {
                     <Separator orientation="vertical" className="mr-2 h-4" />
                     {isMobileWidth ? (
                         <a className="p-0 no-underline" href="/">
-                            <ApolloslosLogoType className="h-auto w-16" />
+                            <ApollosLogoType className="h-auto w-16" />
                         </a>
                     ) : (
                         <h2 className="text-lg">Agents</h2>

@@ -1,10 +1,12 @@
+<!-- NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. -->
+
 # LM Studio
 :::warning[Unsupported]
 Apollos does not work with LM Studio anymore. Apollos leverages [json mode](https://platform.openai.com/docs/guides/structured-outputs#json-mode) extensively but LMStudio's API seems to have dropped support for json mode. [1](https://x.com/lmstudio/status/1770135858709975547), [2](https://lmstudio.ai/docs/api/structured-output)
 :::
 
 :::info
-This is only helpful for self-hosted users. If you're using [Apollos Cloud](https://app.apollos.dev), you're limited to our first-party models.
+This is only helpful for self-hosted users. If you're using [Apollos Cloud](https://app.apollosai.dev), you're limited to our first-party models.
 :::
 
 :::info

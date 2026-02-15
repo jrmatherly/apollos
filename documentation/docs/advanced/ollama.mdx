@@ -1,3 +1,7 @@
+---
+<!--  TODO: Verify apollosai.dev URLs once DNS is configured -- >
+---
+
 # Ollama
 
 ```mdx-code-block
@@ -6,7 +10,7 @@ import TabItem from '@theme/TabItem';
 ```
 
 :::info
-This is only helpful for self-hosted users. If you're using [Apollos Cloud](https://app.apollos.dev), you can use our first-party supported models.
+This is only helpful for self-hosted users. If you're using [Apollos Cloud](https://app.apollosai.dev), you can use our first-party supported models.
 :::
 
 :::info
@@ -19,6 +23,7 @@ For folks comfortable with the terminal, Ollama's terminal based flows can ease 
 Ollama exposes a local [OpenAI API compatible server](https://github.com/ollama/ollama/blob/main/docs/openai.md#models). This makes it possible to use chat models from Ollama with Apollos.
 
 ## Setup
+
 :::info
 Restart your Apollos server after first run or update to the settings below to ensure all settings are applied correctly.
 :::
@@ -32,7 +37,7 @@ Restart your Apollos server after first run or update to the settings below to e
          ```bash
          ollama pull llama3.1
          ```
-      3. Uncomment `OPENAI_BASE_URL` environment variable in your downloaded Apollos [docker-compose.yml](https://github.com/apolloslos-apollospollos/blob/master/docker-compose.yml#:~:text=OPENAI_BASE_URL)
+      3. Uncomment `OPENAI_BASE_URL` environment variable in your downloaded Apollos [docker-compose.yml](https://github.com/jrmatherly/apollos/blob/master/docker-compose.yml#:~:text=OPENAI_BASE_URL)
       4. Start Apollos docker for the first time to automatically integrate and load models from the Ollama running on your host machine
          ```bash
          # run below command in the directory where you downloaded the Apollos docker-compose.yml
@@ -49,9 +54,10 @@ Restart your Apollos server after first run or update to the settings below to e
       3. Set `OPENAI_BASE_URL` environment variable to `http://localhost:11434/v1/` in your shell before starting Apollos for the first time
          ```bash
          export OPENAI_BASE_URL="http://localhost:11434/v1/"
-         apolloslos --anonymous-mode
+         apollos --anonymous-mode
          ```
       </TabItem>
+
    </Tabs>
   </TabItem>
   <TabItem value="update" label="Update">
@@ -71,7 +77,8 @@ Restart your Apollos server after first run or update to the settings below to e
       - **Max prompt size**: `20000` (replace with the max prompt size of your model)
    5. Go to [your config](http://localhost:42110/settings) and select the model you just created in the chat model dropdown.
 
-   If you want to add additional models running on Ollama, repeat step 4 for each model.
+If you want to add additional models running on Ollama, repeat step 4 for each model.
+
   </TabItem>
 </Tabs>
 

@@ -1,3 +1,5 @@
+<!-- NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. -->
+
 # Github integration
 
 :::warning[Unmaintained]
@@ -8,11 +10,11 @@ The Github integration allows you to index as many repositories as you want. It'
 
 # Configure your settings
 
-1. Go to [https://app.apollos.dev/settings](https://app.apollos.dev/settings) and enter in settings for the data sources you want to index. You'll have to specify the file paths.
+1. Go to [https://app.apollosai.dev/settings](https://app.apollosai.dev/settings) and enter in settings for the data sources you want to index. You'll have to specify the file paths.
 
 ## Use the Github plugin
 
 1. Generate a [classic PAT (personal access token)](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) from [Github](https://github.com/settings/tokens) with `repo` and `admin:org` scopes at least.
-2. Navigate to [https://app.apolloslos.dev/settings#github](https://aapollospollos.dev/settings/content/github) to configure your Github settings. Enter in your PAT, along with details for each repository you want to index.
+2. Navigate to [https://app.apollosai.dev/settings#github](https://app.apollosai.dev/settings/content/github) to configure your Github settings. Enter in your PAT, along with details for each repository you want to index.
 3. Click `Save`. Go back to the settings page and click `Configure`.
-4. Go to [https://app.apolloslos.dev/](https://aapollospollos.dev/) and start searching!
+4. Go to [https://app.apollosai.dev/](https://app.apollosai.dev/) and start searching!

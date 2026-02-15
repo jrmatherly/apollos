@@ -559,8 +559,8 @@ async def test_websearch_apollos_website_for_info_about_apollos(chat_client, def
     responses = await generate_online_subqueries(user_query, [], None, default_user2)
 
     # Assert
-    assert any(["site:apollos.dev" in response for response in responses]), (
-        "Expected search query to include site:apollos.dev but got: " + str(responses)
+    assert any(["site:apollosai.dev" in response for response in responses]), (
+        "Expected search query to include site:apollosai.dev but got: " + str(responses)
     )
 
 
@@ -719,7 +719,7 @@ def test_infer_task_scheduling_request(
         (
             "Create a weather wallpaper every morning using the current weather",
             "Paint a weather wallpaper using the current weather",
-            "https://apollos-generated-wallpaper.apollos.dev/user110/weathervane.webp",
+            "https://apollos-generated-wallpaper.apollosai.dev/user110/weathervane.webp",
             True,
         ),
         (

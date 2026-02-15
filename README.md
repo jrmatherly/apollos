@@ -1,4 +1,4 @@
-<p align="center"><img src="https://assets.apollos.dev/apollos-logo-sideways-1200x540.png" width="230" alt="Apollos Logo"></p>
+<p align="center"><img src="https://assets.apollosai.dev/apollos-logo-sideways-1200x540.png" width="230" alt="Apollos Logo"></p>
 
 <div align="center">
 
@@ -15,34 +15,18 @@
 
 <br />
 
-<div align="center">
-
-[📑 Docs](https://docs.apollos.dev)
-<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-[🌐 Web](https://apollos.dev)
-<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-[🔥 App](https://app.apollos.dev)
-<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-[💬 Discord](https://discord.gg/BDgyabRM6e)
-<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-[✍🏽 Blog](https://blog.apollos.dev)
-
-<a href="https://trendshift.io/repositories/10318" target="_blank"><img src="https://trendshift.io/api/badge/repositories/10318" alt="apollos-ai%2Fapollos | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-
-</div>
-
 ***
 
 ### 🎁 New
 - Start any message with `/research` to try out the experimental research mode with Apollos.
-- Anyone can now [create custom agents](https://blog.apollos.dev/posts/create-agents-on-apollos/) with tunable personality, tools and knowledge bases.
-- [Read](https://blog.apollos.dev/posts/evaluate-apollos-quality/) about Apollos's excellent performance on modern retrieval and reasoning benchmarks.
+- Anyone can now [create custom agents](https://blog.apollosai.dev/posts/create-agents-on-apollos/) with tunable personality, tools and knowledge bases.
+- [Read](https://blog.apollosai.dev/posts/evaluate-apollos-quality/) about Apollos's excellent performance on modern retrieval and reasoning benchmarks.
 
 ***
 
 ## Overview
 
-[Apollos](https://apollos.dev) is a personal AI app to extend your capabilities. It smoothly scales up from an on-device personal AI to a cloud-scale enterprise AI.
+[Apollos](https://github.com/jrmatherly/apollos) is a personal AI app to extend your capabilities. It smoothly scales up from an on-device personal AI to a cloud-scale enterprise AI.
 
 - Chat with any local or online LLM (e.g llama3, qwen, gemma, mistral, gpt, claude, gemini, deepseek).
 - Get answers from the internet and your docs (including image, pdf, markdown, org-mode, word, notion files).
@@ -52,7 +36,7 @@
 - Find relevant docs quickly and easily using our advanced semantic search.
 - Generate images, talk out loud, play your messages.
 - Apollos is open-source, self-hostable. Always.
-- Run it privately on [your computer](https://docs.apollos.dev/get-started/setup) or try it on our [cloud app](https://app.apollos.dev).
+- Run it privately on [your computer](https://docs.apollosai.dev/get-started/setup) or try it on our [cloud app](https://app.apollosai.dev).
 
 ***
 
@@ -60,24 +44,24 @@
 
 ![demo_chat](https://github.com/jrmatherly/apollos/blob/master/documentation/assets/img/quadratic_equation_apollos_web.gif?raw=true)
 
-Go to https://app.apollos.dev to see Apollos live.
+Go to https://app.apollosai.dev to see Apollos live.
 
 ## Full feature list
-You can see the full feature list [here](https://docs.apollos.dev/category/features).
+You can see the full feature list [here](https://docs.apollosai.dev/category/features).
 
 ## Self-Host
 
-To get started with self-hosting Apollos, [read the docs](https://docs.apollos.dev/get-started/setup).
+To get started with self-hosting Apollos, [read the docs](https://docs.apollosai.dev/get-started/setup).
 
 ## Enterprise
 
-Apollos is available as a cloud service, on-premises, or as a hybrid solution. To learn more about Apollos Enterprise, [visit our website](https://apollos.dev/teams).
+Apollos is available as a cloud service, on-premises, or as a hybrid solution. To learn more about Apollos Enterprise, [visit our website](https://github.com/jrmatherly/apollos/teams).
 
 ## Frequently Asked Questions (FAQ)
 
 Q: Can I use Apollos without self-hosting?
 
-Yes! You can use Apollos right away at [https://app.apollos.dev](https://app.apollos.dev) — no setup required.
+Yes! You can use Apollos right away at [https://app.apollosai.dev](https://app.apollosai.dev) — no setup required.
 
 Q: What kinds of documents can Apollos read?
 
@@ -85,14 +69,14 @@ Apollos supports a wide variety: PDFs, Markdown, Notion, Word docs, org-mode fil
 
 Q: How can I make my own agent?
 
-Check out [this blog post](https://blog.apollos.dev/posts/create-agents-on-apollos/) for a step-by-step guide to custom agents.
+Check out [this blog post](https://blog.apollosai.dev/posts/create-agents-on-apollos/) for a step-by-step guide to custom agents.
 For more questions, head over to our [Discord](https://discord.gg/BDgyabRM6e)!
 
 ## Contributors
 Cheers to our awesome contributors! 🎉
 
 <a href="https://github.com/jrmatherly/apollos/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=apollos-ai/apollos" />
+  <img src="https://contrib.rocks/image?repo=jrmatherly/apollos" alt="Contributors" />
 </a>
 
 Made with [contrib.rocks](https://contrib.rocks).
@@ -104,4 +88,4 @@ Why Contribute?
 - Make an Impact: Help build, test and improve a tool used by thousands to boost productivity.
 - Learn & Grow: Work on cutting-edge AI, LLMs, and semantic search technologies.
 
-You can help us build new features, improve the project documentation, report issues and fix bugs. If you're a developer, please see our [Contributing Guidelines](https://docs.apollos.dev/contributing/development) and check out [good first issues](https://github.com/jrmatherly/apollos/contribute) to work on.
+You can help us build new features, improve the project documentation, report issues and fix bugs. If you're a developer, please see our [Contributing Guidelines](https://docs.apollosai.dev/contributing/development) and check out [good first issues](https://github.com/jrmatherly/apollos/contribute) to work on.

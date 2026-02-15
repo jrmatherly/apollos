@@ -2,19 +2,21 @@
 sidebar_position: 3
 ---
 
+<!-- NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. -->
+
 # Search
 
 Take advantage of super fast search to find relevant notes and documents from your Second Brain.
 
 ### Use
 1. Open Apollos Search
-- **On Web**: Open https://app.apollos.dev/ in your web browser
+- **On Web**: Open https://app.apollosai.dev/ in your web browser
 - **On Obsidian**: Click the *Apollos search* icon 🔎 on the [Ribbon](https://help.obsidian.md/User+interface/Workspace/Ribbon) or Search for *Apollos: Search* in the [Command Palette](https://help.obsidian.md/Plugins/Command+palette)
-- **On Emacs**: Run `M-x apolloslos <user-query>`
+- **On Emacs**: Run `M-x apollos <user-query>`
 2. Query using natural language to find relevant entries from your knowledge base. Use [query filters](/miscellaneous/query-filters) to limit entries to search
 
 ### Demo
-![](/img/search_agents_markdown.png ':size=400px')
+![Apollos Search](/img/search_agents_markdown.png ':size=400px')
 
 ### Implementation Overview
 A bi-encoder models is used to create meaning vectors (aka vector embeddings) of your documents and search queries.

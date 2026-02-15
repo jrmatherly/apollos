@@ -1,6 +1,8 @@
+<!-- NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. -->
+
 # Google Vertex AI
 :::info
-This is only helpful for self-hosted users. If you're using [Apollos Cloud](https://app.apollos.dev), you can directly use any of the pre-configured AI models.
+This is only helpful for self-hosted users. If you're using [Apollos Cloud](https://app.apollosai.dev), you can directly use any of the pre-configured AI models.
 :::
 
 Apollos can use Google's Gemini and Anthropic's Claude family of AI models from [Vertex AI](https://cloud.google.com/vertex-ai) on Google Cloud. Explore Anthropic and Gemini AI models available on Vertex AI's [Model Garden](https://console.cloud.google.com/vertex-ai/model-garden).
