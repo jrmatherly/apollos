@@ -6,7 +6,13 @@ import "intl-tel-input/styles";
 import { Suspense, useEffect, useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 
-import { useUserConfig, ModelOptions, UserConfig, SubscriptionStates } from "../common/auth";
+import {
+    useUserConfig,
+    useUserRole,
+    ModelOptions,
+    UserConfig,
+    SubscriptionStates,
+} from "../common/auth";
 import { SUPPORT_EMAIL } from "../common/config";
 import { toTitleCase, useIsMobileWidth } from "../common/utils";
 
@@ -79,6 +85,9 @@ import {
     Eye,
     Download,
     TrashSimple,
+    ShieldCheck,
+    Users,
+    BuildingOffice,
 } from "@phosphor-icons/react";
 
 import Loading from "../components/loading/loading";
@@ -345,6 +354,7 @@ export default function SettingsView() {
     const [totalConversations, setTotalConversations] = useState(0);
     const { toast } = useToast();
     const isMobileWidth = useIsMobileWidth();
+    const { isAdmin } = useUserRole();
 
     const title = "Settings";
 
@@ -1479,6 +1489,61 @@ export default function SettingsView() {
                                             </Card>
                                         </div>
                                     </div>
+                                    {isAdmin && (
+                                        <div id="admin" className="section grid gap-8">
+                                            <div className="text-2xl flex items-center gap-2">
+                                                <ShieldCheck className="h-7 w-7" />
+                                                Administration
+                                            </div>
+                                            <p className="text-gray-400">
+                                                Manage your organization, teams, and users. These
+                                                settings are only visible to organization
+                                                administrators.
+                                            </p>
+                                            <div className="cards flex flex-wrap gap-16">
+                                                <Card className={cardClassName}>
+                                                    <CardHeader className="text-xl flex flex-row">
+                                                        <Users className="h-7 w-7 mr-2" />
+                                                        Team Management
+                                                    </CardHeader>
+                                                    <CardContent className="overflow-hidden">
+                                                        <p className="pb-4 text-gray-400">
+                                                            Create and manage teams, assign members,
+                                                            and configure team-level permissions and
+                                                            model access.
+                                                        </p>
+                                                    </CardContent>
+                                                    <CardFooter className="flex flex-wrap gap-4">
+                                                        <p className="text-sm text-gray-400">
+                                                            Use the admin API at{" "}
+                                                            <code>/api/admin/teams</code> to manage
+                                                            teams programmatically.
+                                                        </p>
+                                                    </CardFooter>
+                                                </Card>
+                                                <Card className={cardClassName}>
+                                                    <CardHeader className="text-xl flex flex-row">
+                                                        <BuildingOffice className="h-7 w-7 mr-2" />
+                                                        Organization Settings
+                                                    </CardHeader>
+                                                    <CardContent className="overflow-hidden">
+                                                        <p className="pb-4 text-gray-400">
+                                                            Configure organization-wide settings,
+                                                            including allowed models and default
+                                                            configurations.
+                                                        </p>
+                                                    </CardContent>
+                                                    <CardFooter className="flex flex-wrap gap-4">
+                                                        <p className="text-sm text-gray-400">
+                                                            Use the admin API at{" "}
+                                                            <code>/api/admin/org</code> to manage
+                                                            organization settings.
+                                                        </p>
+                                                    </CardFooter>
+                                                </Card>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </Suspense>
                         </div>

@@ -27,10 +27,11 @@ from apollos.database.adapters import (
     get_user_github_config,
     get_user_notion_config,
 )
+from apollos.database.models import ApollosUser, GithubConfig, GithubRepoConfig, NotionConfig, Team, TeamMembership
 from apollos.database.models import Entry as DbEntry
-from apollos.database.models import GithubConfig, GithubRepoConfig, NotionConfig, Team, TeamMembership
 from apollos.processor.content.docx.docx_to_entries import DocxToEntries
 from apollos.processor.content.pdf.pdf_to_entries import PdfToEntries
+from apollos.routers.auth_helpers import ROLE_HIERARCHY, aget_user_role_in_team
 from apollos.routers.helpers import (
     ApiIndexedDataLimiter,
     CommonQueryParams,
@@ -71,6 +72,44 @@ class IndexerInput(BaseModel):
 async def run_in_executor(func, *args):
     loop = asyncio.get_event_loop()
     return await loop.run_in_executor(executor, func, *args)
+
+
+async def _check_delete_permission_for_entries(user: ApollosUser, entries_qs) -> None:
+    """Check that user has permission to delete the given entries queryset.
+
+    Permission rules:
+    - Private entries: only the owning user can delete (already filtered by user in adapters)
+    - Team entries: requires team_lead role (or org admin)
+    - Org entries: requires org admin
+
+    Raises HTTPException(403) if the user lacks permission for any entry visibility level.
+    """
+    is_admin = user.is_org_admin or user.is_staff
+
+    # Check for org-visible entries
+    has_org_entries = await entries_qs.filter(visibility=DbEntry.Visibility.ORGANIZATION).aexists()
+    if has_org_entries and not is_admin:
+        raise HTTPException(status_code=403, detail="Only admins can delete org-wide content")
+
+    # Check for team-visible entries
+    if not is_admin:
+        team_entries = entries_qs.filter(visibility=DbEntry.Visibility.TEAM)
+        if await team_entries.aexists():
+            # Get distinct teams for these entries
+            team_ids = await sync_to_async(list)(team_entries.values_list("team_id", flat=True).distinct())
+            for team_id in team_ids:
+                if team_id is None:
+                    continue
+                try:
+                    team = await sync_to_async(Team.objects.get)(id=team_id)
+                except Team.DoesNotExist:
+                    continue
+                role = await aget_user_role_in_team(user, team)
+                if role is None or ROLE_HIERARCHY.get(role, 0) < ROLE_HIERARCHY["team_lead"]:
+                    raise HTTPException(
+                        status_code=403,
+                        detail=f"Requires team_lead role or higher in team '{team.name}' to delete team content",
+                    )
 
 
 @api_content.put("")
@@ -246,6 +285,10 @@ async def delete_content_files(
 ):
     user = request.user.object
 
+    # RBAC: Check permission based on entry visibility before deleting
+    entries_qs = DbEntry.objects.filter(user=user, file_path=filename)
+    await _check_delete_permission_for_entries(user, entries_qs)
+
     update_telemetry_state(
         request=request,
         telemetry_type="api",
@@ -272,6 +315,10 @@ async def delete_content_file(
     client: Optional[str] = None,
 ):
     user = request.user.object
+
+    # RBAC: Check permission based on entry visibility before deleting
+    entries_qs = DbEntry.objects.filter(user=user, file_path__in=files.files)
+    await _check_delete_permission_for_entries(user, entries_qs)
 
     update_telemetry_state(
         request=request,
@@ -391,6 +438,14 @@ async def delete_content_type(
     user = request.user.object
     if content_type not in {s.value for s in SearchType}:
         raise ValueError(f"Unsupported content type: {content_type}")
+
+    # RBAC: Check permission based on entry visibility before deleting
+    if content_type == "all":
+        entries_qs = DbEntry.objects.filter(user=user)
+    else:
+        entries_qs = DbEntry.objects.filter(user=user, file_type=content_type)
+    await _check_delete_permission_for_entries(user, entries_qs)
+
     if content_type == "all":
         await EntryAdapters.adelete_all_entries(user)
     else:
@@ -438,6 +493,10 @@ async def delete_content_source(
     client: Optional[str] = None,
 ):
     user = request.user.object
+
+    # RBAC: Check permission based on entry visibility before deleting
+    entries_qs = DbEntry.objects.filter(user=user, file_source=content_source)
+    await _check_delete_permission_for_entries(user, entries_qs)
 
     content_object = map_config_to_object(content_source)
     if content_object is None:

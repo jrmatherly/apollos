@@ -341,6 +341,7 @@ def initialize_content(user: ApollosUser, regenerate: bool, search_type: Optiona
 def configure_routes(app):
     # Import APIs here to setup search types before while configuring server
     from apollos.routers.api import api
+    from apollos.routers.api_admin import api_admin
     from apollos.routers.api_agents import api_agents
     from apollos.routers.api_automation import api_automation
     from apollos.routers.api_chat import api_chat
@@ -351,6 +352,7 @@ def configure_routes(app):
     from apollos.routers.web_client import web_client
 
     app.include_router(api, prefix="/api")
+    app.include_router(api_admin, prefix="/api/admin")
     app.include_router(api_chat, prefix="/api/chat")
     app.include_router(api_agents, prefix="/api/agents")
     app.include_router(api_automation, prefix="/api/automation")

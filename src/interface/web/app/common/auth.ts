@@ -10,6 +10,13 @@ export interface UserProfile {
     has_documents: boolean;
     detail: string;
     apollos_version: string;
+    is_org_admin: boolean;
+    highest_role: "admin" | "team_lead" | "member";
+    teams: Array<{
+        team_slug: string;
+        team_name: string;
+        role: string;
+    }>;
 }
 
 const fetcher = (url: string) =>
@@ -28,6 +35,19 @@ export function useAuthenticatedData() {
     }
 
     return { data, error, isLoading };
+}
+
+export function useUserRole() {
+    const { data } = useAuthenticatedData();
+    return {
+        isAdmin: data?.is_org_admin ?? false,
+        highestRole: data?.highest_role ?? "member",
+        teams: data?.teams ?? [],
+        isTeamLead: (teamSlug: string) =>
+            data?.teams?.some(
+                (t) => t.team_slug === teamSlug && ["team_lead", "admin"].includes(t.role),
+            ) ?? false,
+    };
 }
 
 export interface ModelOptions {

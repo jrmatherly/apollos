@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useAuthenticatedData } from "@/app/common/auth";
+import { useAuthenticatedData, useUserRole } from "@/app/common/auth";
 import { useState, useEffect } from "react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
@@ -58,6 +58,7 @@ export default function FooterMenu({ sideBarIsOpen }: NavMenuProps) {
         error: authenticationError,
         isLoading: authenticationLoading,
     } = useAuthenticatedData();
+    const { isAdmin } = useUserRole();
     const [darkMode, setDarkMode] = useIsDarkMode();
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
     const isMobileWidth = useIsMobileWidth();
@@ -73,11 +74,15 @@ export default function FooterMenu({ sideBarIsOpen }: NavMenuProps) {
             icon: <Code className="w-6 h-6" />,
             link: "https://github.com/jrmatherly/apollos/releases",
         },
-        {
-            title: "Teams",
-            icon: <BuildingOffice className="w-6 h-6" />,
-            link: "https://github.com/jrmatherly/apollos/teams",
-        },
+        ...(isAdmin
+            ? [
+                  {
+                      title: "Teams",
+                      icon: <BuildingOffice className="w-6 h-6" />,
+                      link: "/settings#admin",
+                  },
+              ]
+            : []),
     ];
 
     return (

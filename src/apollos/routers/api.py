@@ -15,6 +15,7 @@ from apollos.database import adapters
 from apollos.database.adapters import ConversationAdapters, EntryAdapters, get_user_photo
 from apollos.database.models import ApollosUser, SpeechToTextModelOptions, UserConversationConfig
 from apollos.processor.conversation.openai.whisper import transcribe_audio
+from apollos.routers.auth_helpers import get_user_highest_role, get_user_teams
 from apollos.routers.helpers import (
     ApiUserRateLimiter,
     CommonQueryParams,
@@ -263,6 +264,11 @@ def user_info(request: Request) -> Response:
         "has_documents": has_documents,
         "apollos_version": state.apollos_version,
     }
+
+    # RBAC role information
+    user_info["is_org_admin"] = getattr(user, "is_org_admin", False)
+    user_info["highest_role"] = get_user_highest_role(user)
+    user_info["teams"] = get_user_teams(user)
 
     # Return user information as a JSON response
     return Response(content=json.dumps(user_info), media_type="application/json", status_code=200)

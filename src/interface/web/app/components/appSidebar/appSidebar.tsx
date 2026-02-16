@@ -17,14 +17,14 @@ import {
     ApollosLogoType,
     ApollosSearchLogo,
 } from "../logo/apollosLogo";
-import { Plus, Gear, HouseSimple } from "@phosphor-icons/react";
+import { Plus, Gear, HouseSimple, ShieldCheck } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import AllConversations from "../allConversations/allConversations";
 import FooterMenu from "../navMenu/navMenu";
 import { useSidebar } from "@/components/ui/sidebar";
 import { useIsDarkMode, useIsMobileWidth } from "@/app/common/utils";
 import { UserPlusIcon } from "lucide-react";
-import { useAuthenticatedData, UserProfile } from "@/app/common/auth";
+import { useAuthenticatedData, useUserRole, UserProfile } from "@/app/common/auth";
 import LoginPrompt from "../loginPrompt/loginPrompt";
 import { usePathname } from "next/navigation";
 
@@ -89,6 +89,7 @@ interface AppSidebarProps {
 export function AppSidebar(props: AppSidebarProps) {
     const isMobileWidth = useIsMobileWidth();
     const { data, isLoading, error } = useAuthenticatedData();
+    const { isAdmin } = useUserRole();
     const pathname = usePathname();
 
     const { state, open, setOpen, openMobile, setOpenMobile, isMobile, toggleSidebar } =
@@ -177,6 +178,19 @@ export function AppSidebar(props: AppSidebarProps) {
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
                             ))}
+                            {isAdmin && (
+                                <SidebarMenuItem className="p-0 list-none m-0">
+                                    <SidebarMenuButton asChild>
+                                        <a
+                                            href="/settings#admin"
+                                            className="flex items-center gap-2 no-underline"
+                                        >
+                                            <ShieldCheck />
+                                            <span>Admin</span>
+                                        </a>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            )}
                         </SidebarMenu>
                     </SidebarGroupContent>
                     <AllConversations
