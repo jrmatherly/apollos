@@ -58,6 +58,9 @@ data.json
 .local_docs/
 .drift/
 
+# Git worktrees
+.worktrees/
+
 # Claude Code — track shareable config, ignore personal/sensitive files
 # Tracked: settings.json, agents/, skills/ (project-wide AI tooling config)
 # Ignored: settings.local.json (personal permissions), projects/ (session data),
