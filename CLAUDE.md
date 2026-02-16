@@ -54,6 +54,8 @@ Run `mise tasks ls` for full list. Raw commands: `pytest`, `ruff check --fix src
 | `database/models/__init__.py` | All models: ApollosUser, Conversation, Agent, Entry, ChatModel, FileObject, UserMemory, Organization, Team, TeamMembership |
 | `database/adapters/__init__.py` | All data access adapters. `get_available_chat_models(user)` returns team-filtered models |
 | `processor/conversation/prompts.py` | All LLM prompt templates (~40+) |
+| `routers/auth_helpers.py` | RBAC utilities: role hierarchy, `require_team_role()`, `get_user_highest_role()`, `get_user_teams()` |
+| `routers/api_admin.py` | Admin endpoints: teams CRUD, team members, users, org settings. All `require_admin` gated |
 | `routers/helpers.py` | Core chat logic, rate limiters, tool dispatch (~2400 lines — surgical edits only) |
 | `utils/helpers.py` | ConversationCommand enum, LLM client factories, token counting |
 | `utils/constants.py` | Model lists per provider (env-var-driven, evaluated at import time) |
@@ -100,6 +102,8 @@ Full documentation in `.env.example` (root) and `src/interface/web/.env.example`
 6. **Admin API**: `GET/POST /api/model/chat/defaults`, `GET /api/model/embedding`. Auth: `@requires(["authenticated"])` + `require_admin(request)`.
 
 **Enterprise models**: Organization, Team, TeamMembership, `ApollosUser.is_org_admin`. Migration: `0101`. Auth: `require_admin()` checks `is_org_admin` or `is_staff`.
+
+**RBAC**: Three roles (`admin`, `team_lead`, `member`) via `TeamMembership.Role`. Centralized in `routers/auth_helpers.py`. Admin endpoints at `/api/admin/*` (teams, members, users, org). Agent/content endpoints enforce visibility-based permissions (private/team/org). Frontend uses `useUserRole()` hook from `auth.ts` for conditional UI.
 
 ## Docker
 
