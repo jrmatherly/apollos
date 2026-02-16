@@ -58,7 +58,7 @@ from apollos.utils.helpers import is_none_or_empty
 
 logger = logging.getLogger(__name__)
 
-APOLLOS_SUPPORT_EMAIL = os.environ.get("APOLLOS_SUPPORT_EMAIL", "placeholder@apollosai.dev")
+APOLLOS_SUPPORT_EMAIL = os.environ.get("APOLLOS_SUPPORT_EMAIL", "support@apollosai.dev")
 
 
 class AuthenticatedApollosUser(SimpleUser):
@@ -66,6 +66,23 @@ class AuthenticatedApollosUser(SimpleUser):
         self.object = user
         self.client_app = client_app
         super().__init__(user.username)
+
+
+def require_admin(request):
+    """Check that the authenticated user is an org admin.
+
+    Use as an inline check in admin-only endpoints:
+        user = request.user.object
+        require_admin(request)
+
+    Raises HTTPException(403) if user is not an admin.
+    """
+    if not request.user.is_authenticated:
+        raise HTTPException(status_code=401, detail="Authentication required")
+    user = request.user.object
+    if not (user.is_org_admin or user.is_staff):
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return user
 
 
 class AsyncCloseConnectionsMiddleware(BaseHTTPMiddleware):
@@ -276,6 +293,7 @@ def initialize_server():
                         query_encode_kwargs=model.bi_encoder_query_encode_config,
                         docs_encode_kwargs=model.bi_encoder_docs_encode_config,
                         model_kwargs=model.bi_encoder_model_config,
+                        embedding_dimensions=model.bi_encoder_dimensions,
                     )
                 }
             )

@@ -25,6 +25,7 @@ from apollos.database.models import (
     GithubConfig,
     McpServer,
     NotionConfig,
+    Organization,
     ProcessLock,
     RateLimitRecord,
     ReflectiveQuestion,
@@ -32,6 +33,8 @@ from apollos.database.models import (
     ServerChatSettings,
     SpeechToTextModelOptions,
     Subscription,
+    Team,
+    TeamMembership,
     TextToImageModelConfig,
     UserConversationConfig,
     UserMemory,
@@ -184,6 +187,9 @@ admin.site.register(VoiceModelOption, unfold_admin.ModelAdmin)
 admin.site.register(UserRequests, unfold_admin.ModelAdmin)
 admin.site.register(RateLimitRecord, unfold_admin.ModelAdmin)
 admin.site.register(UserMemory, unfold_admin.ModelAdmin)
+admin.site.register(Organization, unfold_admin.ModelAdmin)
+admin.site.register(Team, unfold_admin.ModelAdmin)
+admin.site.register(TeamMembership, unfold_admin.ModelAdmin)
 
 
 @admin.register(McpServer)

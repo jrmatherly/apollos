@@ -557,13 +557,61 @@ async def set_user_github_config(user: ApollosUser, pat_token: str, repos: list)
     return config
 
 
+def _search_model_defaults_from_env() -> dict:
+    """Build SearchModelConfig field defaults from environment variables.
+
+    Returns a dict of field overrides; only includes keys whose env vars are set.
+    """
+    defaults = {}
+    bi_encoder = os.getenv("APOLLOS_EMBEDDING_MODEL")
+    if bi_encoder:
+        defaults["bi_encoder"] = bi_encoder
+
+    dimensions = os.getenv("APOLLOS_EMBEDDING_DIMENSIONS")
+    if dimensions:
+        try:
+            parsed = int(dimensions)
+            if parsed <= 0:
+                logger.warning(f"APOLLOS_EMBEDDING_DIMENSIONS={dimensions!r} must be positive, ignoring.")
+            else:
+                defaults["bi_encoder_dimensions"] = parsed
+        except ValueError:
+            logger.warning(f"APOLLOS_EMBEDDING_DIMENSIONS={dimensions!r} is not a valid integer, ignoring.")
+
+    api_type = os.getenv("APOLLOS_EMBEDDING_API_TYPE")
+    if api_type:
+        api_type_upper = api_type.upper()
+        valid_types = {t.value.upper(): t.value for t in SearchModelConfig.ApiType}
+        if api_type_upper in valid_types:
+            defaults["embeddings_inference_endpoint_type"] = valid_types[api_type_upper]
+        else:
+            logger.warning(
+                f"APOLLOS_EMBEDDING_API_TYPE={api_type!r} is not valid. "
+                f"Must be one of: {', '.join(valid_types.keys())}. Ignoring."
+            )
+
+    api_key = os.getenv("APOLLOS_EMBEDDING_API_KEY")
+    if api_key:
+        defaults["embeddings_inference_endpoint_api_key"] = api_key
+
+    endpoint = os.getenv("APOLLOS_EMBEDDING_ENDPOINT")
+    if endpoint:
+        defaults["embeddings_inference_endpoint"] = endpoint
+
+    cross_encoder = os.getenv("APOLLOS_CROSS_ENCODER_MODEL")
+    if cross_encoder:
+        defaults["cross_encoder"] = cross_encoder
+
+    return defaults
+
+
 def get_default_search_model() -> SearchModelConfig:
     default_search_model = SearchModelConfig.objects.filter(name="default").first()
 
     if default_search_model:
         return default_search_model
     elif SearchModelConfig.objects.count() == 0:
-        SearchModelConfig.objects.create()
+        SearchModelConfig.objects.create(**_search_model_defaults_from_env())
     return SearchModelConfig.objects.first()
 
 
@@ -573,14 +621,14 @@ async def aget_default_search_model() -> SearchModelConfig:
     if default_search_model:
         return default_search_model
     elif await SearchModelConfig.objects.count() == 0:
-        await SearchModelConfig.objects.acreate()
+        await SearchModelConfig.objects.acreate(**_search_model_defaults_from_env())
     return await SearchModelConfig.objects.afirst()
 
 
 def get_or_create_search_models():
     search_models = SearchModelConfig.objects.all()
     if search_models.count() == 0:
-        SearchModelConfig.objects.create()
+        SearchModelConfig.objects.create(**_search_model_defaults_from_env())
         search_models = SearchModelConfig.objects.all()
 
     return search_models
@@ -1836,6 +1884,63 @@ class ConversationAdapters:
         conversation.conversation_log = clean_object_for_db(conversation.conversation_log)
         conversation.save()
         return True
+
+    @staticmethod
+    def get_available_chat_models(user):
+        """Return ChatModels the user can select from.
+
+        Combines global models (filtered by subscription tier) with
+        team-assigned models from all teams the user belongs to.
+        """
+        from apollos.database.models import Team
+
+        subscribed = is_user_subscribed(user)
+
+        if subscribed:
+            global_models = ChatModel.objects.all()
+        else:
+            global_models = ChatModel.objects.filter(price_tier=PriceTier.FREE)
+
+        # Team-assigned models
+        user_teams = Team.objects.filter(memberships__user=user)
+        team_model_ids = set()
+        for team in user_teams:
+            allowed = team.settings.get("allowed_models", [])
+            team_model_ids.update(allowed)
+
+        if team_model_ids:
+            team_models = ChatModel.objects.filter(id__in=team_model_ids)
+            if not subscribed:
+                team_models = team_models.filter(price_tier=PriceTier.FREE)
+            return (global_models | team_models).distinct()
+
+        return global_models
+
+    @staticmethod
+    async def aget_available_chat_models(user):
+        """Async version of get_available_chat_models."""
+        from apollos.database.models import Team
+
+        subscribed = await ais_user_subscribed(user)
+
+        if subscribed:
+            global_models = ChatModel.objects.all()
+        else:
+            global_models = ChatModel.objects.filter(price_tier=PriceTier.FREE)
+
+        user_teams = Team.objects.filter(memberships__user=user)
+        team_model_ids = set()
+        async for team in user_teams:
+            allowed = team.settings.get("allowed_models", [])
+            team_model_ids.update(allowed)
+
+        if team_model_ids:
+            team_models = ChatModel.objects.filter(id__in=team_model_ids)
+            if not subscribed:
+                team_models = team_models.filter(price_tier=PriceTier.FREE)
+            return (global_models | team_models).distinct()
+
+        return global_models
 
 
 class FileObjectAdapters:

@@ -62,11 +62,19 @@ src/interface/android/*.apk.idsig
 src/interface/android/*.keystore
 src/interface/android/local.properties
 
-# Docs
+# Docs & scratchpads
 .scratchpad/
 .local_docs/
 .drift/
-.claude/
+
+# Claude Code — track shareable config, ignore personal/sensitive files
+# Tracked: settings.json, agents/, skills/ (project-wide AI tooling config)
+# Ignored: settings.local.json (personal permissions), projects/ (session data),
+#          memory.db (local cache), *.jsonl (conversation logs)
+.claude/settings.local.json
+.claude/projects/
+.claude/memory.db
+.claude/*.jsonl
 
 # Claude-Flow runtime (don't commit)
 .claude-flow/data/
@@ -76,7 +84,9 @@ src/interface/android/local.properties
 .claude-flow/daemon.log
 .claude-flow/daemon-state.json
 .claude-flow/.trend-cache.json
-.claude/memory.db
-.claude/settings.local.json
 .swarm/
 .mcp.json
+
+# mise — local overrides (personal env vars, API keys)
+mise.local.toml
+mise.lock

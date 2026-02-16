@@ -1,10 +1,12 @@
 services:
   database:
-    image: docker.io/pgvector/pgvector:pg15
+    image: docker.io/pgvector/pgvector:pg17
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
+      POSTGRES_DB: apollos
     volumes:
       - apollos_db:/var/lib/postgresql/data/
     healthcheck:
@@ -29,10 +31,10 @@ services:
   # Set APOLLOS_OPERATOR_ENABLED=True in the server service environment variable to enable.
   computer:
     container_name: apollos-computer
-    image: ghcr.io/jrmatherly/apollos-computer:latest
-    # build:
-    #   context: .
-    #   dockerfile: computer.Dockerfile
+    # image: ghcr.io/jrmatherly/apollos-computer:latest
+    build:
+      context: .
+      dockerfile: computer.Dockerfile
     ports:
       - "5900:5900"
     volumes:
@@ -42,10 +44,10 @@ services:
       database:
         condition: service_healthy
     # Use the following line to use the latest version of apollos. Otherwise, it will build from source. Set this to ghcr.io/jrmatherly/apollos-cloud:latest if you want to use the prod image.
-    image: ghcr.io/jrmatherly/apollos:latest
+    # image: ghcr.io/jrmatherly/apollos:latest
     # Uncomment the following line to build from source. This will take a few minutes. Comment the next two lines out if you want to use the official image.
-    # build:
-    # context: .
+    build:
+    context: .
     ports:
       # If changing the local port (left hand side), no other changes required.
       # If changing the remote port (right hand side),
@@ -61,16 +63,18 @@ services:
       - apollos_models:/root/.cache/huggingface
       # uncomment line below to mount docker socket to allow apollos to use its computer.
       # - /var/run/docker.sock:/var/run/docker.sock
+      # uncomment line below to mount a bootstrap config file for model setup.
+      # - ./bootstrap.json:/app/bootstrap.json:ro
     # Use 0.0.0.0 to explicitly set the host ip for the service on the container. https://pythonspeed.com/articles/docker-connection-refused/
     environment:
-      - POSTGRES_DB=postgres
+      - POSTGRES_DB=apollos
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_HOST=database
       - POSTGRES_PORT=5432
       - APOLLOS_DJANGO_SECRET_KEY=secret
       - APOLLOS_DEBUG=False
-      - APOLLOS_ADMIN_EMAIL=username@example.com
+      - APOLLOS_ADMIN_EMAIL=admin@apollosai.dev
       - APOLLOS_ADMIN_PASSWORD=password
       # Default URL of Terrarium, the default Python sandbox used by Apollos to run code. Its container is specified above
       - APOLLOS_TERRARIUM_URL=http://sandbox:8080
@@ -89,6 +93,38 @@ services:
       # - OPENAI_API_KEY=your_openai_api_key
       # - GEMINI_API_KEY=your_gemini_api_key
       # - ANTHROPIC_API_KEY=your_anthropic_api_key
+      #
+      # Embedding Model Configuration
+      # Uncomment and configure to use a remote embedding model instead of the default local model (thenlper/gte-small).
+      # - APOLLOS_EMBEDDING_MODEL=text-embedding-3-small
+      # - APOLLOS_EMBEDDING_DIMENSIONS=1536
+      # - APOLLOS_EMBEDDING_API_TYPE=openai
+      # - APOLLOS_EMBEDDING_API_KEY=your_openai_api_key
+      # - APOLLOS_EMBEDDING_ENDPOINT=https://api.openai.com/v1
+      # - APOLLOS_CROSS_ENCODER_MODEL=mixedbread-ai/mxbai-rerank-xsmall-v1
+      #
+      # Chat Model List Configuration
+      # Override which chat models are created on first bootstrap. Comma-separated.
+      # Set to empty value to skip creating models for that provider.
+      # - APOLLOS_OPENAI_CHAT_MODELS=gpt-4o-mini,gpt-4.1,o3,o4-mini
+      # - APOLLOS_GEMINI_CHAT_MODELS=gemini-2.0-flash,gemini-2.5-flash,gemini-2.5-pro,gemini-2.5-flash-lite
+      # - APOLLOS_ANTHROPIC_CHAT_MODELS=claude-sonnet-4-0,claude-3-5-haiku-latest
+      #
+      # Server Chat Slot Configuration
+      # Assign specific models to ServerChatSettings slots. chat_default, think_free_fast,
+      # and think_free_deep require FREE price tier models.
+      # - APOLLOS_DEFAULT_CHAT_MODEL=gpt-4o-mini
+      # - APOLLOS_ADVANCED_CHAT_MODEL=gpt-4.1
+      # - APOLLOS_THINK_FREE_FAST_MODEL=gpt-4o-mini
+      # - APOLLOS_THINK_FREE_DEEP_MODEL=o3
+      # - APOLLOS_THINK_PAID_FAST_MODEL=gpt-4.1
+      # - APOLLOS_THINK_PAID_DEEP_MODEL=o3
+      #
+      # Bootstrap Configuration File
+      # Mount a JSON config file and set this env var to configure all models from a single file.
+      # Chat slot env vars (APOLLOS_*_CHAT_MODEL) override bootstrap slots.
+      # Embedding and chat-list env vars only apply when no bootstrap config exists.
+      # - APOLLOS_BOOTSTRAP_CONFIG=/app/bootstrap.json
       #
       # Uncomment line below to enable Apollos to use its computer.
       # - APOLLOS_OPERATOR_ENABLED=True

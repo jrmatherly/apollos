@@ -8,9 +8,26 @@ Apollos AI (forked from Khoj) is a personal assistant with semantic search capab
 
 ## Development Setup
 
+### Using mise (Recommended)
+
+The project uses [mise-en-place](https://mise.jdx.dev) for tool version management, virtual environment activation, and task automation. Install mise first: `curl https://mise.run | sh`
+
+```bash
+git clone https://github.com/jrmatherly/apollos && cd apollos
+mise install          # Installs Python 3.12, bun, uv (pinned versions)
+mise run setup        # Installs all deps, runs migrations, builds frontend
+mise run dev          # Starts server at port 42110
+```
+
+mise automatically activates the `.venv` virtual environment when you `cd` into the project — no manual `source .venv/bin/activate` needed. It also sets `DJANGO_SETTINGS_MODULE` and database defaults.
+
+Run `mise tasks ls` to see all available tasks, or `mise run` for an interactive picker.
+
+### Manual Setup (Without mise)
+
 ```bash
 # Install Python dependencies (requires Python 3.10-3.12)
-uv venv && uv sync --all-extras
+uv venv && uv pip install setuptools && uv sync --all-extras --no-build-isolation-package openai-whisper
 
 # Install web frontend (Next.js + Tailwind + shadcn/ui)
 cd src/interface/web && bun install && bun run export
@@ -22,37 +39,64 @@ pre-commit install -t pre-push -t pre-commit
 ./scripts/dev_setup.sh --full
 ```
 
-**Database**: Requires PostgreSQL with pgvector extension. Default connection: `localhost:5432`, user `postgres`, db `apollos`. Or use `docker compose up database` to start one. Set `USE_EMBEDDED_DB=True` for pgserver (embedded PostgreSQL for local dev).
+**Database**: Requires PostgreSQL with pgvector extension. Default connection: `localhost:5432`, user `postgres`, db `apollos`. Or use `docker compose up database` (or `mise run docker:db`) to start one. Set `USE_EMBEDDED_DB=True` for pgserver (embedded PostgreSQL for local dev).
 
 ## Common Commands
 
+All commands are available as mise tasks (`mise run <task>`). Raw commands shown for reference.
+
 ```bash
 # Run the server (default port 42110)
-apollos --host 0.0.0.0 --port 42110 -vv
+mise run dev                          # or: apollos --host 0.0.0.0 --port 42110 -vv
 
 # Run all tests (requires PostgreSQL)
-pytest
+mise run test                         # or: pytest
+mise run test:unit                    # skip chat quality tests
 
 # Run a single test file
 pytest tests/test_helpers.py
-
-# Run a single test
 pytest tests/test_helpers.py::test_function_name -v
 
-# Skip chat quality eval tests
-pytest -m "not chatquality"
-
 # Lint and format
-ruff check --fix src/apollos/
-ruff format src/apollos/
+mise run lint:fix                     # or: ruff check --fix src/apollos/
+mise run format                       # or: ruff format src/apollos/
 
 # Type check
-mypy --config-file=pyproject.toml
+mise run typecheck                    # or: mypy --config-file=pyproject.toml
 
 # Django management (migrations etc.)
-python src/apollos/manage.py migrate
-python src/apollos/manage.py makemigrations database
+mise run db:migrate                   # or: python src/apollos/manage.py migrate
+mise run db:makemigrations            # or: python src/apollos/manage.py makemigrations database
+mise run manage <command>             # any manage.py command
+
+# Docker
+mise run docker:up                    # start all services
+mise run docker:db                    # start only database
+mise run docker:logs                  # follow logs
+
+# Full CI pipeline
+mise run ci                           # lint + format check + unit tests
+
+# Apply bootstrap model configuration
+mise run manage bootstrap_models -- --config /path/to/bootstrap.json
 ```
+
+### mise Task Reference
+
+| Task | Description |
+|------|-------------|
+| `setup` | First-time setup: deps + migrate + frontend |
+| `deps` | Install Python deps (handles openai-whisper workaround) |
+| `dev` | Start backend server (port 42110) |
+| `dev:web` | Start frontend dev server (hot reload) |
+| `docker:up/down/logs/ps/db` | Docker Compose lifecycle |
+| `db:migrate/makemigrations/reset` | Django migration workflow |
+| `lint/lint:fix/format/typecheck` | Code quality tools |
+| `test/test:unit/test:chat/test:coverage` | Test runners |
+| `manage/shell/admin:create` | Django management |
+| `ci` | Full CI pipeline |
+| `env` | Show environment info |
+| `clean` | Remove build artifacts |
 
 ## Architecture
 
@@ -103,6 +147,9 @@ api_content.py (put_content) → processor/content/*_to_entries.py (parse)
 - **`processor/conversation/prompts.py`**: All LLM prompt templates (~40+ variables). Modify here when changing AI behavior.
 - **`routers/helpers.py`**: Core chat processing logic, rate limiters, tool dispatch, content search. This is the largest and most complex router helper.
 - **`utils/helpers.py`**: `ConversationCommand` enum (controls chat behavior), LLM client factory functions, device detection, token counting.
+- **`utils/constants.py`**: Default chat model lists per provider (read from env vars at import time), model-to-cost pricing dict, app paths.
+- **`utils/bootstrap.py`**: JSONC bootstrap config loader and applicator. Idempotently creates providers, chat models, embedding config, and server chat slots from a single config file.
+- **`utils/initialization.py`**: Server bootstrap sequence — admin user, bootstrap config, chat model setup, Ollama discovery, server chat slot configuration.
 - **`pyproject.toml`**: The `dev` extras use `"apollos[prod,local]"` — this is a self-referencing dependency resolved locally, not fetched from PyPI.
 
 ### Frontend (Web)
@@ -161,3 +208,35 @@ Domain and email addresses are configurable via environment variables. See `.env
 - `NEXT_PUBLIC_SUPPORT_EMAIL` — Support email. Used in error/contact messages across settings, automations, and chat pages.
 
 **Forking**: Files where env vars aren't practical (LLM prompts, documentation, desktop/Android configs) contain `NOTE` comments instructing forkers to search for `apollosai.dev` and replace with their domain.
+
+## Environment Variables (Model Configuration)
+
+Model providers, chat model lists, embedding config, and server chat slots are all configurable via environment variables. See `.env.example` for full documentation.
+
+**Embedding Model** (Phase 1):
+- `APOLLOS_EMBEDDING_MODEL` — Bi-encoder model name (default: `thenlper/gte-small`)
+- `APOLLOS_EMBEDDING_DIMENSIONS` — Embedding vector dimensions (OpenAI `text-embedding-3-*` only)
+- `APOLLOS_EMBEDDING_API_TYPE` — `local` | `openai` | `huggingface`
+- `APOLLOS_EMBEDDING_API_KEY` — API key for remote embedding inference
+- `APOLLOS_EMBEDDING_ENDPOINT` — Custom API URL for embedding inference
+- `APOLLOS_CROSS_ENCODER_MODEL` — Cross-encoder reranking model name
+
+**Chat Model Lists** (Phase 2) — evaluated at module import time in `utils/constants.py`:
+- `APOLLOS_OPENAI_CHAT_MODELS` — Comma-separated OpenAI models (default: `gpt-4o-mini,gpt-4.1,o3,o4-mini`)
+- `APOLLOS_GEMINI_CHAT_MODELS` — Comma-separated Gemini models
+- `APOLLOS_ANTHROPIC_CHAT_MODELS` — Comma-separated Anthropic models
+- Empty value (`VAR=`) means "no models for this provider" (NOT fallback to defaults)
+
+**Server Chat Slots** (Phase 3):
+- `APOLLOS_DEFAULT_CHAT_MODEL` — Sets `chat_default` + `chat_advanced` (unless advanced is set separately)
+- `APOLLOS_ADVANCED_CHAT_MODEL` — Sets `chat_advanced` slot
+- `APOLLOS_THINK_FREE_FAST_MODEL` / `APOLLOS_THINK_FREE_DEEP_MODEL` — Must be FREE tier
+- `APOLLOS_THINK_PAID_FAST_MODEL` / `APOLLOS_THINK_PAID_DEEP_MODEL` — Can be any tier
+- Invalid model names or PriceTier violations log a warning and skip (never crash)
+
+**Bootstrap Configuration File** (Phase 4):
+- `APOLLOS_BOOTSTRAP_CONFIG` — Path to a JSONC config file for complete model setup
+- Supports `${VAR_NAME}` env var interpolation, `//` and `/* */` comments, trailing commas
+- Idempotent: safe to run multiple times. See plan at `.scratchpad/litellm-models/plan.md`
+- Chat slot env vars (Phase 3) override bootstrap slots. Embedding/chat-list env vars only apply when no bootstrap config exists.
+- Django management command: `python manage.py bootstrap_models --config bootstrap.json`

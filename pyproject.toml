@@ -73,6 +73,7 @@ dependencies = [
     "lxml == 4.9.3",
     "tzdata == 2023.3",
     "rapidocr-onnxruntime == 1.4.4",
+    "setuptools >= 75.0.0",  # Required: openai-whisper uses pkg_resources at build time
     "openai-whisper >= 20231117",
     "django-phonenumber-field == 7.3.0",
     "phonenumbers == 8.13.27",
@@ -178,7 +179,13 @@ indent-style = "space"
 known-first-party = ["apollos"]
 
 [tool.uv]
-extra-build-dependencies = { openai-whisper = ["setuptools"] }
+# openai-whisper requires pkg_resources (from setuptools) at build time but doesn't declare it.
+# If the extra-build-dependencies below don't resolve it, run:
+#   uv pip install setuptools && uv sync --all-extras --no-build-isolation-package openai-whisper
+no-build-isolation-package = ["openai-whisper"]
+
+[tool.uv.extra-build-dependencies]
+openai-whisper = ["setuptools"]
 
 [tool.pytest.ini_options]
 addopts = "--strict-markers"

@@ -9,6 +9,8 @@ from apollos.database.models import (
     AiModelApi,
     ApollosUser,
     ChatModel,
+    PriceTier,
+    ServerChatSettings,
     SpeechToTextModelOptions,
     TextToImageModelConfig,
 )
@@ -261,6 +263,21 @@ def initialization(interactive: bool = True):
             except Exception as e:
                 logger.error(f"🚨 Failed to create admin user: {e}", exc_info=True)
 
+    # Apply bootstrap configuration if available (runs before standard setup).
+    # Note: Phase 1 embedding env vars only apply when creating NEW SearchModelConfig
+    # records, so they do NOT override bootstrap's embedding config. Phase 3 slot env
+    # vars (APOLLOS_*_CHAT_MODEL) DO override bootstrap's slot assignments.
+    bootstrap_config_path = os.getenv("APOLLOS_BOOTSTRAP_CONFIG")
+    if bootstrap_config_path:
+        try:
+            from apollos.utils.bootstrap import apply_bootstrap_config, load_bootstrap_config
+
+            config = load_bootstrap_config(bootstrap_config_path)
+            apply_bootstrap_config(config)
+            logger.info("📦 Bootstrap configuration applied successfully")
+        except Exception as e:
+            logger.error(f"🚨 Failed to apply bootstrap config: {e}", exc_info=True)
+
     chat_config = ConversationAdapters.get_default_chat_model()
     if admin_user is None and chat_config is None:
         while True:
@@ -277,17 +294,68 @@ def initialization(interactive: bool = True):
         _update_chat_model_options()
         logger.info("🗣️ Chat model options updated")
 
-    # Update the default chat model if it doesn't match
-    chat_config = ConversationAdapters.get_default_chat_model()
-    env_default_chat_model = os.getenv("APOLLOS_DEFAULT_CHAT_MODEL")
-    if not chat_config or not env_default_chat_model:
-        return
-    if chat_config.name != env_default_chat_model:
-        chat_model = ConversationAdapters.get_chat_model_by_name(env_default_chat_model)
+    # Configure server chat model slots from environment variables
+    _configure_server_chat_slots()
+
+
+def _configure_server_chat_slots():
+    """Configure ServerChatSettings slots from environment variables.
+
+    Handles all 6 slots: chat_default, chat_advanced, think_free_fast,
+    think_free_deep, think_paid_fast, think_paid_deep.
+
+    For backward compatibility, APOLLOS_DEFAULT_CHAT_MODEL sets both
+    chat_default and chat_advanced (matching set_default_chat_model behavior)
+    unless APOLLOS_ADVANCED_CHAT_MODEL is explicitly set.
+
+    Note: PriceTier enforcement depends on the Subscription model. If enterprise
+    repurposes Subscription, the free-slot validation may need updating.
+    """
+    slot_env_mapping = {
+        "APOLLOS_DEFAULT_CHAT_MODEL": "chat_default",
+        "APOLLOS_ADVANCED_CHAT_MODEL": "chat_advanced",
+        "APOLLOS_THINK_FREE_FAST_MODEL": "think_free_fast",
+        "APOLLOS_THINK_FREE_DEEP_MODEL": "think_free_deep",
+        "APOLLOS_THINK_PAID_FAST_MODEL": "think_paid_fast",
+        "APOLLOS_THINK_PAID_DEEP_MODEL": "think_paid_deep",
+    }
+    # Slots where ServerChatSettings.clean() enforces PriceTier.FREE
+    free_tier_slots = {"chat_default", "think_free_fast", "think_free_deep"}
+
+    assignments = {}
+    for env_var, slot_name in slot_env_mapping.items():
+        model_name = os.getenv(env_var)
+        if not model_name:
+            continue
+        chat_model = ConversationAdapters.get_chat_model_by_name(model_name)
         if not chat_model:
-            logger.error(
-                f"🚨 Not setting default chat model. Chat model {env_default_chat_model} not found in existing chat model options."
+            logger.error(f"🚨 {env_var}={model_name!r}: chat model not found, skipping slot '{slot_name}'.")
+            continue
+        if slot_name in free_tier_slots and chat_model.price_tier != PriceTier.FREE:
+            logger.warning(
+                f"⚠️ {env_var}={model_name!r}: model price tier is '{chat_model.price_tier}' but slot "
+                f"'{slot_name}' requires FREE tier. Skipping assignment."
             )
-            return
-        ConversationAdapters.set_default_chat_model(chat_model)
-        logger.info(f"🗣️ Default chat model set to {chat_model.name} served by {chat_model.ai_model_api}")
+            continue
+        assignments[slot_name] = chat_model
+
+    if not assignments:
+        return
+
+    # Backward compatibility: APOLLOS_DEFAULT_CHAT_MODEL sets both chat_default
+    # and chat_advanced unless chat_advanced is explicitly overridden.
+    if "chat_default" in assignments and "chat_advanced" not in assignments:
+        assignments["chat_advanced"] = assignments["chat_default"]
+
+    server_settings = ServerChatSettings.objects.first()
+    if not server_settings:
+        server_settings = ServerChatSettings()
+
+    for slot_name, chat_model in assignments.items():
+        setattr(server_settings, slot_name, chat_model)
+        logger.info(f"🗣️ Server chat slot '{slot_name}' set to {chat_model.name}")
+
+    try:
+        server_settings.save()
+    except Exception as e:
+        logger.error(f"🚨 Failed to save ServerChatSettings: {e}. Slot assignments from env vars were not applied.")

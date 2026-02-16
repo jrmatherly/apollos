@@ -52,6 +52,10 @@
 - Core helpers: `src/apollos/utils/helpers.py` (ConversationCommand enum, LLM clients)
 - Pydantic configs: `src/apollos/utils/rawconfig.py`
 - Django settings: `src/apollos/app/settings.py`
+- Model constants: `src/apollos/utils/constants.py` (env-var-driven model lists, evaluated at import time)
+- Bootstrap config: `src/apollos/utils/bootstrap.py` (JSONC loader, idempotent model/provider/slot setup)
+- Server initialization: `src/apollos/utils/initialization.py` (admin user, bootstrap, chat setup, slot config)
+- Bootstrap management command: `python manage.py bootstrap_models --config path/to/bootstrap.json`
 
 ### Testing
 - All tests: `tests/` directory

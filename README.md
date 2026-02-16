@@ -53,6 +53,19 @@ You can see the full feature list [here](https://docs.apollosai.dev/category/fea
 
 To get started with self-hosting Apollos, [read the docs](https://docs.apollosai.dev/get-started/setup).
 
+## Development
+
+The project uses [mise-en-place](https://mise.jdx.dev) for tool management and task automation:
+
+```bash
+git clone https://github.com/jrmatherly/apollos && cd apollos
+mise install          # Python 3.12, bun, uv — pinned versions
+mise run setup        # Install deps, migrate DB, build frontend
+mise run dev          # Server at http://localhost:42110
+```
+
+Run `mise tasks ls` to see all available tasks. See [CLAUDE.md](CLAUDE.md) for full development docs.
+
 ## Enterprise
 
 Apollos is available as a cloud service, on-premises, or as a hybrid solution. To learn more about Apollos Enterprise, [visit our website](https://github.com/jrmatherly/apollos/teams).

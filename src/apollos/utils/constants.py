@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 from typing import Dict
 
@@ -11,9 +12,24 @@ empty_escape_sequences = "\n|\r|\t| "
 app_env_filepath = "~/.apollos/env"
 telemetry_server = "https://apollos.beta.haletic.com/v1/telemetry"
 content_directory = "~/.apollos/content/"
-default_openai_chat_models = ["gpt-4o-mini", "gpt-4.1", "o3", "o4-mini"]
-default_gemini_chat_models = ["gemini-2.0-flash", "gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.5-flash-lite"]
-default_anthropic_chat_models = ["claude-sonnet-4-0", "claude-3-5-haiku-latest"]
+# NOTE: These lists are evaluated at module import time. In tests, mock the list
+# variables directly (e.g. patch("apollos.utils.constants.default_openai_chat_models"))
+# rather than patching the environment variable, which has no effect after import.
+default_openai_chat_models = [
+    m.strip() for m in os.getenv("APOLLOS_OPENAI_CHAT_MODELS", "gpt-4o-mini,gpt-4.1,o3,o4-mini").split(",") if m.strip()
+]
+default_gemini_chat_models = [
+    m.strip()
+    for m in os.getenv(
+        "APOLLOS_GEMINI_CHAT_MODELS", "gemini-2.0-flash,gemini-2.5-flash,gemini-2.5-pro,gemini-2.5-flash-lite"
+    ).split(",")
+    if m.strip()
+]
+default_anthropic_chat_models = [
+    m.strip()
+    for m in os.getenv("APOLLOS_ANTHROPIC_CHAT_MODELS", "claude-sonnet-4-0,claude-3-5-haiku-latest").split(",")
+    if m.strip()
+]
 
 empty_config = {
     "search-type": {

@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Optional
 
 import requests
 import tqdm
@@ -36,6 +36,7 @@ class EmbeddingsModel:
         query_encode_kwargs: dict = {},
         docs_encode_kwargs: dict = {},
         model_kwargs: dict = {},
+        embedding_dimensions: Optional[int] = None,
     ):
         default_query_encode_kwargs = {"show_progress_bar": False, "normalize_embeddings": True}
         default_docs_encode_kwargs = {"show_progress_bar": True, "normalize_embeddings": True}
@@ -46,6 +47,12 @@ class EmbeddingsModel:
         self.inference_endpoint = embeddings_inference_endpoint
         self.api_key = embeddings_inference_endpoint_api_key
         self.inference_endpoint_type = embeddings_inference_endpoint_type
+        self.embedding_dimensions = embedding_dimensions
+        if self.embedding_dimensions is not None and self.inference_endpoint_type != SearchModelConfig.ApiType.OPENAI:
+            logger.warning(
+                f"embedding_dimensions={self.embedding_dimensions} is configured but API type is "
+                f"{self.inference_endpoint_type}. Dimensions parameter is only used with OpenAI API type."
+            )
         if self.inference_endpoint_type == SearchModelConfig.ApiType.LOCAL:
             with timer(f"Loaded embedding model {self.model_name}", logger):
                 self.embeddings_model = SentenceTransformer(self.model_name, **self.model_kwargs)
@@ -88,7 +95,10 @@ class EmbeddingsModel:
     )
     def embed_with_openai(self, docs):
         client = get_openai_client(self.api_key, self.inference_endpoint)
-        response = client.embeddings.create(input=docs, model=self.model_name, encoding_format="float")
+        kwargs = dict(input=docs, model=self.model_name, encoding_format="float")
+        if self.embedding_dimensions is not None:
+            kwargs["dimensions"] = self.embedding_dimensions
+        response = client.embeddings.create(**kwargs)
         return [item.embedding for item in response.data]
 
     def embed_documents(self, docs):

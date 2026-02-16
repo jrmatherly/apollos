@@ -157,6 +157,7 @@ class ApollosUser(AbstractUser):
     verified_email = models.BooleanField(default=False)
     email_verification_code = models.CharField(max_length=200, null=True, default=None, blank=True)
     email_verification_code_expiry = models.DateTimeField(null=True, default=None, blank=True)
+    is_org_admin = models.BooleanField(default=False)  # Enterprise RBAC
 
     def save(self, *args, **kwargs):
         if not self.uuid:
@@ -201,6 +202,49 @@ class Subscription(DbBaseModel):
     is_recurring = models.BooleanField(default=False)
     renewal_date = models.DateTimeField(null=True, default=None, blank=True)
     enabled_trial_at = models.DateTimeField(null=True, default=None, blank=True)
+
+
+class Organization(DbBaseModel):
+    """Single organization that owns this Apollos instance."""
+
+    name = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=100, unique=True)
+    settings = models.JSONField(default=dict, blank=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Team(DbBaseModel):
+    """A team within the organization."""
+
+    name = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=100, unique=True)
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="teams")
+    settings = models.JSONField(default=dict, blank=True)
+    description = models.TextField(blank=True, default="")
+
+    def __str__(self):
+        return self.name
+
+
+class TeamMembership(DbBaseModel):
+    """Maps users to teams with roles."""
+
+    class Role(models.TextChoices):
+        ADMIN = "admin"
+        TEAM_LEAD = "team_lead"
+        MEMBER = "member"
+
+    user = models.ForeignKey(ApollosUser, on_delete=models.CASCADE, related_name="team_memberships")
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name="memberships")
+    role = models.CharField(max_length=20, choices=Role.choices, default=Role.MEMBER)
+
+    class Meta:
+        unique_together = ("user", "team")
+
+    def __str__(self):
+        return f"{self.user} - {self.team} ({self.role})"
 
 
 class AiModelApi(DbBaseModel):
@@ -578,6 +622,9 @@ class SearchModelConfig(DbBaseModel):
     cross_encoder_inference_endpoint = models.CharField(max_length=200, default=None, null=True, blank=True)
     # Inference server API Key to use for embeddings inference. Cross-encoder model should be hosted on this server
     cross_encoder_inference_endpoint_api_key = models.CharField(max_length=200, default=None, null=True, blank=True)
+    # Configured embedding dimensions. Required for OpenAI models that support dimension reduction.
+    # None means auto-detect from model output.
+    bi_encoder_dimensions = models.IntegerField(default=None, null=True, blank=True)
     # The confidence threshold of the bi_encoder model to consider the embeddings as relevant
     bi_encoder_confidence_threshold = models.FloatField(default=0.18)
 

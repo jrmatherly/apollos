@@ -65,11 +65,31 @@
 
 | Tool | Purpose |
 |------|---------|
+| **mise** | Tool version management, venv activation, task runner (see `mise.toml`) |
+| uv | Fast Python package manager (deps, venv, lockfile) |
 | pytest | Testing (+ pytest-django, pytest-asyncio, pytest-xdist) |
 | mypy | Type checking |
 | ruff | Linting & formatting (line-length=120, double quotes) |
 | pre-commit | Git hooks |
 | hatchling + hatch-vcs | Build system with VCS versioning |
+
+### mise Configuration (`mise.toml`)
+
+The project uses mise-en-place for reproducible development environments:
+
+| Tool | Version | Notes |
+|------|---------|-------|
+| python | 3.12 | Pinned; pyproject.toml allows 3.10-3.12 |
+| bun | 1 | Major-pinned; Next.js frontend |
+| uv | latest | Python package manager |
+
+**Auto-configured environment:**
+- `.venv` auto-created and activated on `cd`
+- `DJANGO_SETTINGS_MODULE=apollos.app.settings` set automatically
+- Database defaults match `docker-compose.yml`
+
+**Quick start:** `mise install && mise run setup && mise run dev`
+**All tasks:** `mise tasks ls` (40 tasks across 9 categories)
 
 ---
 

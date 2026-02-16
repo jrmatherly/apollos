@@ -1,0 +1,265 @@
+# mise.toml — Apollos AI Development Environment
+# https://mise.jdx.dev
+#
+# This file defines the project's tool versions, environment variables, and tasks.
+# Commit this file to version control. Use `mise.local.toml` for personal overrides.
+#
+# Quick start:
+#   mise install        # Install all tools
+#   mise run setup      # First-time project setup (deps + db + frontend)
+#   mise run dev        # Start development server
+#   mise run test       # Run tests
+
+min_version = "2025.1.0"
+
+# ─── Tools ────────────────────────────────────────────────────────────────────
+[tools]
+# Python — pinned to 3.12 (pyproject.toml requires >=3.10, <3.13)
+# We use 3.12 for precompiled binary support and best compatibility.
+python = "3.12"
+
+# Bun — JavaScript runtime for the Next.js frontend (src/interface/web/)
+bun = "1"
+
+# uv — fast Python package manager (handles venv, deps, lockfile)
+uv = "latest"
+
+# ─── Settings ─────────────────────────────────────────────────────────────────
+[settings]
+experimental = true
+# Let uv manage the venv lifecycle — mise detects .venv created by uv
+python.uv_venv_auto = true
+
+# ─── Environment ──────────────────────────────────────────────────────────────
+[env]
+# Activate the project venv automatically
+_.python.venv = { path = ".venv", create = true }
+
+# Django settings module (required for manage.py and server startup)
+DJANGO_SETTINGS_MODULE = "apollos.app.settings"
+
+# Default dev database (override in mise.local.toml or .env for production)
+POSTGRES_DB = "apollos"
+POSTGRES_USER = "postgres"
+POSTGRES_PASSWORD = "postgres"
+POSTGRES_HOST = "localhost"
+POSTGRES_PORT = "5432"
+
+# ─── First-Time Setup ────────────────────────────────────────────────────────
+
+[tasks.setup]
+description = "First-time project setup: install all deps, init DB, build frontend"
+depends = ["deps", "db:migrate", "web:install", "web:build"]
+run = 'echo "✅ Setup complete. Run: mise run dev"'
+
+[tasks.deps]
+description = "Install Python dependencies (all extras)"
+alias = "i"
+run = """
+uv pip install setuptools
+uv sync --all-extras --no-build-isolation-package openai-whisper
+"""
+
+[tasks."deps:dev"]
+description = "Install Python dev dependencies only"
+run = "uv sync --extra dev"
+
+[tasks."deps:add"]
+description = "Add a Python dependency (usage: mise run deps:add <package>)"
+run = 'uv add "$@"'
+
+# ─── Development Server ──────────────────────────────────────────────────────
+
+[tasks.dev]
+description = "Start Apollos dev server (port 42110)"
+run = "uv run apollos --host 0.0.0.0 --port 42110 -vv"
+
+[tasks."dev:web"]
+description = "Start Next.js frontend dev server (hot reload)"
+dir = "src/interface/web"
+run = "bun run dev"
+
+[tasks."dev:watch"]
+description = "Watch frontend and auto-export on changes"
+dir = "src/interface/web"
+run = "bun run watch"
+
+# ─── Docker ───────────────────────────────────────────────────────────────────
+
+[tasks."docker:up"]
+description = "Start all Docker services (DB, search, sandbox)"
+run = "docker compose up -d"
+
+[tasks."docker:down"]
+description = "Stop all Docker services"
+run = "docker compose down"
+
+[tasks."docker:logs"]
+description = "Follow Docker service logs"
+run = "docker compose logs -f"
+
+[tasks."docker:ps"]
+description = "Show Docker service status"
+run = "docker compose ps"
+
+[tasks."docker:db"]
+description = "Start only the database service"
+run = "docker compose up -d database"
+
+[tasks."docker:build"]
+description = "Build Docker images from source"
+run = "docker compose build"
+
+# ─── Database ─────────────────────────────────────────────────────────────────
+
+[tasks."db:migrate"]
+description = "Run Django database migrations"
+run = "uv run python src/apollos/manage.py migrate"
+
+[tasks."db:makemigrations"]
+description = "Create new Django migrations (usage: mise run db:makemigrations [app_label])"
+run = 'uv run python src/apollos/manage.py makemigrations "$@"'
+
+[tasks."db:showmigrations"]
+description = "Show migration status"
+run = "uv run python src/apollos/manage.py showmigrations"
+
+[tasks."db:shell"]
+description = "Open Django DB shell"
+run = "uv run python src/apollos/manage.py dbshell"
+
+[tasks."db:reset"]
+description = "Reset database (destructive!)"
+confirm = "This will destroy all data. Are you sure?"
+run = """
+docker compose down database
+docker volume rm apollos_apollos_db 2>/dev/null || true
+docker compose up -d database
+sleep 3
+uv run python src/apollos/manage.py migrate
+echo "✅ Database reset complete"
+"""
+
+# ─── Frontend (Next.js) ──────────────────────────────────────────────────────
+
+[tasks."web:install"]
+description = "Install frontend dependencies"
+dir = "src/interface/web"
+run = "bun install"
+
+[tasks."web:build"]
+description = "Build and export frontend (static export + collectstatic)"
+dir = "src/interface/web"
+run = "bun run export"
+
+[tasks."web:dev"]
+description = "Start frontend dev server"
+alias = "webdev"
+dir = "src/interface/web"
+run = "bun run dev"
+
+# ─── Linting & Formatting ────────────────────────────────────────────────────
+
+[tasks.lint]
+description = "Run all linters (ruff check + mypy)"
+depends = ["lint:python"]
+
+[tasks."lint:python"]
+description = "Lint Python code with ruff"
+run = "uv run ruff check src/apollos/"
+
+[tasks."lint:fix"]
+description = "Auto-fix Python lint issues"
+run = "uv run ruff check --fix src/apollos/"
+
+[tasks.format]
+description = "Format Python code with ruff"
+run = "uv run ruff format src/apollos/"
+
+[tasks."format:check"]
+description = "Check Python formatting (CI mode)"
+run = "uv run ruff format --check src/apollos/"
+
+[tasks.typecheck]
+description = "Run mypy type checking"
+run = "uv run mypy src/apollos/ --config-file pyproject.toml"
+
+# ─── Testing ──────────────────────────────────────────────────────────────────
+
+[tasks.test]
+description = "Run all tests"
+run = "uv run pytest src/tests/ -x"
+
+[tasks."test:unit"]
+description = "Run unit tests only (exclude chatquality)"
+run = "uv run pytest src/tests/ -x -m 'not chatquality'"
+
+[tasks."test:chat"]
+description = "Run chat quality tests"
+run = "uv run pytest src/tests/ -m chatquality"
+
+[tasks."test:verbose"]
+description = "Run tests with verbose output"
+run = "uv run pytest src/tests/ -x -v"
+
+[tasks."test:coverage"]
+description = "Run tests with coverage report"
+run = "uv run pytest src/tests/ --cov=src/apollos --cov-report=term-missing"
+
+# ─── Django Management ────────────────────────────────────────────────────────
+
+[tasks.manage]
+description = "Run Django manage.py command (usage: mise run manage <command>)"
+run = 'uv run python src/apollos/manage.py "$@"'
+
+[tasks.shell]
+description = "Open Django interactive shell"
+run = "uv run python src/apollos/manage.py shell"
+
+[tasks."admin:create"]
+description = "Create a Django superuser"
+run = "uv run python src/apollos/manage.py createsuperuser"
+
+[tasks.collectstatic]
+description = "Collect static files for production"
+run = "uv run python src/apollos/manage.py collectstatic --noinput"
+
+# ─── Code Quality ─────────────────────────────────────────────────────────────
+
+[tasks.ci]
+description = "Run full CI pipeline (lint + format check + test)"
+depends = ["lint", "format:check", "test:unit"]
+
+[tasks."pre-commit"]
+description = "Install pre-commit hooks"
+run = "uv run pre-commit install -t pre-push -t pre-commit"
+
+[tasks."pre-commit:run"]
+description = "Run pre-commit on all files"
+run = "uv run pre-commit run --all-files"
+
+# ─── Utilities ────────────────────────────────────────────────────────────────
+
+[tasks.clean]
+description = "Clean build artifacts and caches"
+run = """
+rm -rf .pytest_cache .mypy_cache .ruff_cache
+rm -rf src/interface/web/.next src/interface/web/out
+rm -rf src/apollos/interface/built
+echo "✅ Cleaned build artifacts"
+"""
+
+[tasks.env]
+description = "Show current environment info"
+run = """
+echo "=== Apollos AI Development Environment ==="
+echo "Python:  $(python --version)"
+echo "Bun:     $(bun --version)"
+echo "uv:      $(uv --version)"
+echo "Venv:    $VIRTUAL_ENV"
+echo "Django:  $DJANGO_SETTINGS_MODULE"
+echo "DB:      $POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB"
+echo ""
+echo "=== Docker Services ==="
+docker compose ps 2>/dev/null || echo "(Docker not running)"
+"""

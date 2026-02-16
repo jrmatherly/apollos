@@ -1,0 +1,77 @@
+{
+  // Bootstrap Configuration for Apollos AI
+  // Copy this file, customize it, and set APOLLOS_BOOTSTRAP_CONFIG=/path/to/your/config.json
+  //
+  // Supports:
+  //   - JSONC: // line comments, /* block comments */, trailing commas
+  //   - Environment variable interpolation: ${VAR_NAME}
+  //
+  // This file is idempotent — safe to re-apply on every server start.
+
+  // --- LLM Providers and Chat Models ---
+  "providers": {
+    "openai": {
+      "api_key": "${OPENAI_API_KEY}",
+      // "base_url": "http://host.docker.internal:11434/v1/",  // Uncomment for Ollama/VLLM
+      "chat_models": ["gpt-4o-mini", "gpt-4.1", "o3", "o4-mini"],
+      "vision_models": ["gpt-4o-mini", "gpt-4.1"]
+    },
+    "anthropic": {
+      "api_key": "${ANTHROPIC_API_KEY}",
+      "chat_models": ["claude-sonnet-4-0", "claude-3-5-haiku-latest"]
+    },
+    "google": {
+      "api_key": "${GEMINI_API_KEY}",
+      "chat_models": ["gemini-2.0-flash", "gemini-2.5-flash", "gemini-2.5-pro"]
+    }
+  },
+
+  // --- Price Tiers ---
+  // Models not listed here default to "free".
+  // Valid values: "free", "standard"
+  "model_tiers": {
+    "gpt-4.1": "standard",
+    "o3": "standard",
+    "claude-sonnet-4-0": "standard",
+    "gemini-2.5-pro": "standard"
+  },
+
+  // --- Embedding Model ---
+  "embedding": {
+    "model": "thenlper/gte-small",
+    "api_type": "local",
+    // For OpenAI embeddings, uncomment:
+    // "model": "text-embedding-3-small",
+    // "api_type": "openai",
+    // "api_key": "${OPENAI_API_KEY}",
+    // "endpoint": "https://api.openai.com/v1",
+    // "dimensions": 1536,
+    "cross_encoder": "mixedbread-ai/mxbai-rerank-xsmall-v1"
+  },
+
+  // --- Server Chat Slot Defaults ---
+  // Slots: chat_default, chat_advanced, think_free_fast, think_free_deep, think_paid_fast, think_paid_deep
+  // chat_default, think_free_fast, think_free_deep require FREE tier models.
+  // NOTE: Env vars (APOLLOS_DEFAULT_CHAT_MODEL etc.) override these slots.
+  "defaults": {
+    "chat_default": "gpt-4o-mini",
+    "chat_advanced": "gpt-4.1",
+    "think_free_fast": "gpt-4o-mini",
+    "think_free_deep": "gemini-2.5-flash",
+    "think_paid_fast": "gpt-4.1",
+    "think_paid_deep": "o3"
+  },
+
+  // --- Team Model Assignments (optional) ---
+  // Teams must already exist in the database (create via admin panel or API).
+  // Models are resolved by name — they must exist in the providers section above.
+  "team_models": {
+    // "engineering": {
+    //     "allowed_models": ["gpt-4.1", "o3", "claude-sonnet-4-0"],
+    //     "chat_default": "gpt-4.1"
+    // },
+    // "marketing": {
+    //     "allowed_models": ["gpt-4o-mini", "gemini-2.5-flash"]
+    // }
+  }
+}

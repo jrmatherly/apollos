@@ -11,15 +11,18 @@ from apollos.database.adapters import AgentAdapters
 from apollos.database.models import (
     Agent,
     AiModelApi,
+    ApollosApiUser,
+    ApollosUser,
     ChatMessageModel,
     ChatModel,
     Conversation,
-    ApollosApiUser,
-    ApollosUser,
+    Organization,
     ProcessLock,
     SearchModelConfig,
     ServerChatSettings,
     Subscription,
+    Team,
+    TeamMembership,
     UserConversationConfig,
     UserMemory,
 )
@@ -291,6 +294,32 @@ class ServerChatSettingsFactory(factory.django.DjangoModelFactory):
     memory_mode = ServerChatSettings.MemoryMode.ENABLED_DEFAULT_ON
 
 
+class OrganizationFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Organization
+
+    name = "Test Organization"
+    slug = factory.Sequence(lambda n: f"test-org-{n}")
+
+
+class TeamFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Team
+
+    name = factory.Sequence(lambda n: f"Test Team {n}")
+    slug = factory.Sequence(lambda n: f"test-team-{n}")
+    organization = factory.SubFactory(OrganizationFactory)
+
+
+class TeamMembershipFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = TeamMembership
+
+    user = factory.SubFactory(UserFactory)
+    team = factory.SubFactory(TeamFactory)
+    role = TeamMembership.Role.MEMBER
+
+
 # Async-safe wrappers for factories and ORM operations
 async def acreate_user():
     return await sync_to_async(UserFactory)()
@@ -324,3 +353,15 @@ async def acreate_test_memory(user, agent=None, raw_text="test memory"):
         raw=raw_text,
         embeddings=[0.1] * 384,  # Dummy embeddings
     )
+
+
+async def acreate_organization(name="Test Org", slug="test-org"):
+    return await Organization.objects.acreate(name=name, slug=slug)
+
+
+async def acreate_team(organization, name="Test Team", slug="test-team"):
+    return await Team.objects.acreate(name=name, slug=slug, organization=organization)
+
+
+async def acreate_team_membership(user, team, role=TeamMembership.Role.MEMBER):
+    return await TeamMembership.objects.acreate(user=user, team=team, role=role)

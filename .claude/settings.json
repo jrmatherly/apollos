@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "file=$(echo \"$TOOL_INPUT\" | jq -r '.file_path // empty'); if [ -z \"$file\" ]; then exit 0; fi; if echo \"$file\" | grep -qE '(\\.env$|\\.lock$|bun\\.lock$)'; then echo 'BLOCK: Cannot edit lock files or .env files directly' >&2; exit 1; fi; if echo \"$file\" | grep -qE 'routers/helpers\\.py$'; then echo 'WARNING: helpers.py is ~2400 lines. Use surgical edits only. Never broad find-replace.' >&2; fi; if echo \"$file\" | grep -qE 'database/migrations/[0-9].*\\.py$'; then echo 'WARNING: Editing a Django migration file directly. Prefer regenerating via: python src/apollos/manage.py makemigrations database' >&2; fi",
+            "timeout": 5000
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "file=$(echo \"$TOOL_INPUT\" | jq -r '.file_path // empty'); if [ -n \"$file\" ] && echo \"$file\" | grep -q '\\.py$'; then uv run ruff check --fix \"$file\" 2>/dev/null; uv run ruff format \"$file\" 2>/dev/null; fi",
+            "timeout": 10000
+          }
+        ]
+      }
+    ]
+  }
+}
