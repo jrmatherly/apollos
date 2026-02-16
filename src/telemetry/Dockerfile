@@ -1,5 +1,5 @@
 # Get Base Image
-FROM tiangolo/uvicorn-gunicorn:python3.11-slim
+FROM tiangolo/uvicorn-gunicorn:python3.12-slim
 LABEL org.opencontainers.image.source="https://github.com/jrmatherly/apollos"
 
 # Install Telemetry Server Dependencies

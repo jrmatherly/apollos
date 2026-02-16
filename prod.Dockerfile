@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM ubuntu:jammy AS base
+FROM ubuntu:noble AS base
 LABEL homepage="https://github.com/jrmatherly/apollos"
 LABEL repository="https://github.com/jrmatherly/apollos"
 LABEL org.opencontainers.image.source="https://github.com/jrmatherly/apollos"
@@ -31,7 +31,7 @@ ENV PIP_EXTRA_INDEX_URL="https://download.pytorch.org/whl/cpu https://abetlen.gi
 # avoid downloading unused cuda specific python packages
 ENV CUDA_VISIBLE_DEVICES=""
 RUN sed -i "s/dynamic = \\[\"version\"\\]/version = \"$VERSION\"/" pyproject.toml && \
-    pip install --no-cache-dir -e .[prod]
+    pip install --no-cache-dir --break-system-packages -e .[prod]
 
 # Build Web App
 FROM oven/bun:1-alpine AS web-app
@@ -50,7 +50,7 @@ RUN bun run build
 FROM base
 ENV PYTHONPATH=/app/src
 WORKDIR /app
-COPY --from=server-deps /usr/local/lib/python3.10/dist-packages /usr/local/lib/python3.10/dist-packages
+COPY --from=server-deps /usr/local/lib/python3.12/dist-packages /usr/local/lib/python3.12/dist-packages
 COPY --from=server-deps /usr/local/bin /usr/local/bin
 COPY --from=web-app /app/src/interface/web/out ./src/apollos/interface/built
 COPY . .

@@ -1,6 +1,7 @@
 # Apollos artifacts
 *.gz
 *.pt
+.coverage
 tests/data/models
 tests/data/embeddings
 tests/evals/**.txt
