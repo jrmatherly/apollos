@@ -56,9 +56,15 @@ Run `mise tasks ls` for full list. Raw commands: `pytest`, `ruff check --fix src
 | `processor/conversation/prompts.py` | All LLM prompt templates (~40+) |
 | `routers/auth_helpers.py` | RBAC utilities: role hierarchy, `require_team_role()`, `get_user_highest_role()`, `get_user_teams()` |
 | `routers/api_admin.py` | Admin endpoints: teams CRUD, team members, users, org settings. All `require_admin` gated |
+| `routers/auth_entra.py` | Entra ID SSO: OIDC login, callback, group-to-team mapping via MSAL |
+| `routers/api_mcp.py` | MCP service registry endpoints: list/connect/disconnect external services |
+| `routers/api_mcp_server.py` | Inbound MCP server: JWT-validated endpoints for external MCP clients |
 | `routers/helpers.py` | Core chat logic, rate limiters, tool dispatch (~2400 lines — surgical edits only) |
 | `utils/helpers.py` | ConversationCommand enum, LLM client factories, token counting |
 | `utils/constants.py` | Model lists per provider (env-var-driven, evaluated at import time) |
+| `utils/crypto.py` | AES-256-GCM encryption for OAuth tokens (`encrypt_token`/`decrypt_token`) |
+| `utils/mcp_jwt.py` | JWT validation for inbound MCP server (Entra ID bearer tokens) |
+| `utils/audit.py` | Structured audit logging for security events (auth, sharing, admin actions) |
 | `utils/bootstrap.py` | JSONC config loader, idempotent model/provider/slot/team setup |
 | `utils/initialization.py` | Server bootstrap sequence |
 
@@ -101,9 +107,14 @@ Full documentation in `.env.example` (root) and `src/interface/web/.env.example`
 5. **Teams**: `Team.settings["allowed_models"]` (ChatModel PKs). User models = global + team union.
 6. **Admin API**: `GET/POST /api/model/chat/defaults`, `GET /api/model/embedding`. Auth: `@requires(["authenticated"])` + `require_admin(request)`.
 
-**Enterprise models**: Organization, Team, TeamMembership, `ApollosUser.is_org_admin`. Migration: `0101`. Auth: `require_admin()` checks `is_org_admin` or `is_staff`.
-
-**RBAC**: Three roles (`admin`, `team_lead`, `member`) via `TeamMembership.Role`. Centralized in `routers/auth_helpers.py`. Admin endpoints at `/api/admin/*` (teams, members, users, org). Agent/content endpoints enforce visibility-based permissions (private/team/org). Frontend uses `useUserRole()` hook from `auth.ts` for conditional UI.
+**Enterprise Multi-Tenant** (Phases 1-8):
+- **Models**: Organization, Team, TeamMembership, McpServiceRegistry, McpUserConnection. `ApollosUser` extended with `is_org_admin`, `entra_oid`, `entra_upn`, `display_name`. `Entry` extended with `visibility` (private/team/org), `team`, `shared_by`. Migration: `0102`.
+- **Auth**: Entra ID SSO via MSAL (`routers/auth_entra.py`). Local admin fallback always available. Group-to-team auto-mapping.
+- **RBAC**: Three roles (`admin`, `team_lead`, `member`) via `TeamMembership.Role`. Centralized in `routers/auth_helpers.py`. Admin endpoints at `/api/admin/*` (teams, members, users, org). Agent/content endpoints enforce visibility-based permissions (private/team/org).
+- **Data Isolation**: `build_entry_access_filter()` enforces tiered knowledge access. `get_user_team_ids()` cached per-request on user object. Content sharing via `POST /api/content/share`.
+- **MCP Registry**: External MCP service connections with OAuth token storage (AES-256-GCM encrypted via `utils/crypto.py`). Endpoints at `/api/mcp/*`.
+- **MCP Server**: Inbound MCP endpoints at `/mcp/v1/*` with JWT bearer validation via Entra ID (`utils/mcp_jwt.py`).
+- **Audit**: Structured audit logging (`utils/audit.py`) for auth events, content sharing, admin actions, and MCP connections.
 
 ## Docker
 

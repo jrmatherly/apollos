@@ -72,3 +72,58 @@ To implement this, you'll need to:
 3. Configure these environment variables: `GOOGLE_CLIENT_SECRET`, and `GOOGLE_CLIENT_ID`. You can find these values in the Google cloud console, in the same place where you configured the authorized origins and redirect URIs.
 
 That's it! That should be all you have to do. Now, when you reload Apollos without `--anonymous-mode`, you should be able to use your Google account to sign in.
+
+## Using Microsoft Entra ID (Enterprise SSO)
+
+For enterprise deployments, Apollos supports single sign-on via [Microsoft Entra ID](https://learn.microsoft.com/en-us/entra/identity-platform/) (formerly Azure Active Directory). This enables users to log in with their organizational Microsoft accounts and be automatically assigned to teams based on their Entra ID group memberships.
+
+### Prerequisites
+
+- A Microsoft Entra ID tenant (Azure AD)
+- An Azure subscription with permissions to create App Registrations
+- Apollos deployed with HTTPS (required for OAuth redirect URIs)
+
+### Setup
+
+1. **Create an App Registration** in the [Azure Portal](https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade):
+   - Name: `Apollos AI` (or your preferred name)
+   - Supported account types: **Accounts in this organizational directory only** (single tenant)
+   - Redirect URI: **Web** — `https://your-apollos-domain.com/auth/callback`
+
+2. **Configure API permissions** for the App Registration:
+   - `openid` (Sign users in)
+   - `profile` (View users' basic profile)
+   - `email` (View users' email address)
+   - `GroupMember.Read.All` (Read group memberships) — required for automatic team assignment
+
+3. **Create a client secret**:
+   - Go to **Certificates & secrets** → **New client secret**
+   - Copy the secret value (you won't be able to see it again)
+
+4. **Set the environment variables**:
+
+```shell
+APOLLOS_ENTRA_TENANT_ID=your-tenant-id        # Found on the App Registration overview page
+APOLLOS_ENTRA_CLIENT_ID=your-client-id          # Application (client) ID
+APOLLOS_ENTRA_CLIENT_SECRET=your-secret-value   # The client secret you created
+APOLLOS_ENTRA_REDIRECT_URI=https://your-apollos-domain.com/auth/callback
+```
+
+5. **Restart Apollos**. The Entra ID login option will appear automatically on the login page.
+
+### How It Works
+
+When a user signs in via Entra ID:
+1. They are redirected to Microsoft's login page
+2. After authentication, Microsoft sends an ID token back to Apollos
+3. Apollos creates or updates the user account with their Entra ID profile (name, email, OID)
+4. If group claims are present, Apollos maps Entra ID groups to teams via the `Team.entra_group_id` field
+5. The user is assigned to matching teams automatically
+
+### Local Admin Fallback
+
+Even with Entra ID enabled, local admin login remains available at `/auth/login`. This ensures administrators can always access the system, even if the SSO provider is unavailable. The local admin account is configured via `APOLLOS_ADMIN_EMAIL` and `APOLLOS_ADMIN_PASSWORD`.
+
+:::tip[Combining Authentication Methods]
+Entra ID SSO works alongside Google OAuth and Magic Links. Users can sign in with any configured method. This is useful for organizations that need to support both internal (SSO) and external (Google/Magic Link) users.
+:::
