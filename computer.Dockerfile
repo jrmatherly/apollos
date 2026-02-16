@@ -4,6 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install System Dependencies
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+    at-spi2-core \
     ca-certificates \
     gnupg \
     xfce4 \
@@ -70,9 +71,6 @@ RUN apt-get update \
     && apt-get clean && rm -rf /var/lib/apt/lists/* \
     # remove screen locks, power managers
     && apt-get remove -y light-locker xfce4-screensaver xfce4-power-manager || true
-
-# Suppress AT-SPI accessibility bus warnings in headless container
-ENV NO_AT_BRIDGE=1
 
 # Create Computer User
 ENV USERNAME=apollos
