@@ -127,12 +127,13 @@ def build_entry_access_filter(user: ApollosUser, agent: Agent = None) -> Q:
     filters = Q()
 
     if user is not None:
-        user_teams = get_user_team_ids(user)
+        # Use a lazy queryset for team IDs to avoid sync ORM evaluation in async contexts.
+        # The subquery is compiled into SQL when the parent queryset executes.
+        team_ids_qs = Team.objects.filter(memberships__user=user).values("id")
         filters = Q(user=user, visibility=Entry.Visibility.PRIVATE) | Q(  # Personal
             visibility=Entry.Visibility.ORGANIZATION
         )  # Org-wide
-        if user_teams:
-            filters |= Q(team_id__in=user_teams, visibility=Entry.Visibility.TEAM)  # Team
+        filters |= Q(team_id__in=team_ids_qs, visibility=Entry.Visibility.TEAM)  # Team
 
     if agent is not None:
         filters |= Q(agent=agent)  # Agent-owned entries (no visibility check)

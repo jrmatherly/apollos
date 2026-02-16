@@ -245,7 +245,7 @@ async def add_team_member(request: Request, slug: str, body: AddMemberBody) -> R
             status_code=409,
         )
 
-    valid_roles = [r.value for r in TeamMembership.Role]
+    valid_roles = [r.value for r in TeamMembership.Role]  # type: ignore[attr-defined]
     if body.role not in valid_roles:
         return Response(
             content=json.dumps({"error": f"Invalid role. Must be one of: {valid_roles}"}),
