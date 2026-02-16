@@ -74,7 +74,7 @@ dependencies = [
     "lxml == 4.9.3",
     "tzdata >= 2023.3",
     "rapidocr-onnxruntime == 1.4.4",
-    "setuptools >= 75.0.0",  # Required: openai-whisper uses pkg_resources at build time
+    "setuptools >= 75.0.0, < 81",  # Required: openai-whisper uses pkg_resources (removed in setuptools 81+)
     "openai-whisper >= 20231117",
     "django-phonenumber-field == 7.3.0",
     "phonenumbers == 8.13.27",
@@ -196,12 +196,13 @@ known-first-party = ["apollos"]
 
 [tool.uv]
 # openai-whisper requires pkg_resources (from setuptools) at build time but doesn't declare it.
+# setuptools 81+ removed pkg_resources, so we pin <81 everywhere.
 # If the extra-build-dependencies below don't resolve it, run:
-#   uv pip install setuptools && uv sync --all-extras --group dev --no-build-isolation-package openai-whisper
+#   uv pip install "setuptools<81" && uv sync --all-extras --group dev --no-build-isolation-package openai-whisper
 no-build-isolation-package = ["openai-whisper"]
 
 [tool.uv.extra-build-dependencies]
-openai-whisper = ["setuptools"]
+openai-whisper = ["setuptools<81"]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "apollos.app.settings"

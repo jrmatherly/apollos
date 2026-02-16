@@ -67,7 +67,7 @@ jobs:
           CUDA_VISIBLE_DEVICES: ""
         run: |
           uv venv
-          uv pip install setuptools
+          uv pip install "setuptools<81"
           uv sync --all-extras --group dev --no-build-isolation-package openai-whisper
 
       - name: Validate Application

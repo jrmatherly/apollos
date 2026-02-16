@@ -91,7 +91,7 @@ jobs:
         run: |
           sed -i 's/dynamic = \["version"\]/version = "0.0.0"/' pyproject.toml
           uv venv
-          uv pip install setuptools
+          uv pip install "setuptools<81"
           uv sync --all-extras --group dev --no-build-isolation-package openai-whisper
 
       - name: Test Application
