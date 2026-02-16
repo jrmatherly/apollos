@@ -71,6 +71,9 @@ RUN apt-get update \
     # remove screen locks, power managers
     && apt-get remove -y light-locker xfce4-screensaver xfce4-power-manager || true
 
+# Suppress AT-SPI accessibility bus warnings in headless container
+ENV NO_AT_BRIDGE=1
+
 # Create Computer User
 ENV USERNAME=apollos
 ENV HOME=/home/$USERNAME
