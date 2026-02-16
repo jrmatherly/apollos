@@ -302,6 +302,42 @@ async def logout(request: Request):
     return RedirectResponse(url="/")
 
 
+@auth_router.post("/local/login")
+async def local_admin_login(
+    request: Request,
+    rate_limiter=Depends(EmailAttemptRateLimiter(requests=5, window=60 * 15, slug="local_admin_login")),
+):
+    """Emergency local admin login (username/password).
+
+    Only works for users with is_org_admin=True or is_staff=True.
+    """
+    from asgiref.sync import sync_to_async
+    from django.contrib.auth.hashers import check_password
+
+    from apollos.database.models import ApollosUser
+
+    form = await request.form()
+    email = form.get("email", "")
+    password = form.get("password", "")
+
+    if not email or not password:
+        return RedirectResponse(url="/login?error=missing_credentials", status_code=302)
+
+    user = await sync_to_async(ApollosUser.objects.filter(email=email, is_org_admin=True).first)()
+    if not user:
+        user = await sync_to_async(ApollosUser.objects.filter(email=email, is_staff=True).first)()
+
+    if not user or not user.password:
+        return RedirectResponse(url="/login?error=invalid_credentials", status_code=302)
+
+    # Verify password (Django's check_password supports multiple hashers including Argon2)
+    if not await sync_to_async(check_password)(password, user.password):
+        return RedirectResponse(url="/login?error=invalid_credentials", status_code=302)
+
+    request.session["user"] = {"email": user.email}
+    return RedirectResponse(url="/", status_code=302)
+
+
 @auth_router.get("/oauth/metadata")
 async def oauth_metadata(request: Request):
     redirect_uri = str(request.app.url_path_for("auth"))

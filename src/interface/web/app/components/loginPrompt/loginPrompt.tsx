@@ -49,6 +49,8 @@ interface CredentialsData {
 
 export default function LoginPrompt(props: LoginPromptProps) {
     const { data, error, isLoading } = useSWR<CredentialsData>("/auth/oauth/metadata", fetcher);
+    const { data: entraData } = useSWR("/auth/entra/metadata", fetcher);
+    const entraConfigured = entraData?.entra?.configured ?? false;
 
     const [useEmailSignIn, setUseEmailSignIn] = useState(false);
 
@@ -129,6 +131,7 @@ export default function LoginPrompt(props: LoginPromptProps) {
                                 data={data}
                                 setUseEmailSignIn={setUseEmailSignIn}
                                 isMobileWidth={props.isMobileWidth}
+                                entraConfigured={entraConfigured}
                             />
                         )}
                     </div>
@@ -156,6 +159,7 @@ export default function LoginPrompt(props: LoginPromptProps) {
                             data={data}
                             setUseEmailSignIn={setUseEmailSignIn}
                             isMobileWidth={props.isMobileWidth ?? false}
+                            entraConfigured={entraConfigured}
                         />
                     )}
                 </div>
@@ -366,6 +370,7 @@ function MainSignInContext({
     data,
     setUseEmailSignIn,
     isMobileWidth,
+    entraConfigured,
 }: {
     handleGoogleScriptLoad: () => void;
     handleGoogleSignIn: () => void;
@@ -373,6 +378,7 @@ function MainSignInContext({
     data: CredentialsData | undefined;
     setUseEmailSignIn: (useEmailSignIn: boolean) => void;
     isMobileWidth: boolean;
+    entraConfigured: boolean;
 }) {
     const plugin = useRef(Autoplay({ delay: 4000, stopOnInteraction: true }));
     const [showArrows, setShowArrows] = useState(false);
@@ -496,6 +502,24 @@ function MainSignInContext({
                     )}
                     Continue with Google
                 </Button>
+
+                {entraConfigured && (
+                    <Button
+                        variant="outline"
+                        className="w-[300px] p-8 flex gap-2 items-center justify-center rounded-lg font-bold"
+                        onClick={() => {
+                            window.location.href = "/auth/entra/login?next=" + encodeURIComponent(window.location.pathname);
+                        }}
+                    >
+                        <svg className="w-5 h-5 mr-2" viewBox="0 0 21 21">
+                            <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
+                            <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
+                            <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
+                            <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+                        </svg>
+                        Continue with Microsoft
+                    </Button>
+                )}
 
                 <Button
                     variant="outline"

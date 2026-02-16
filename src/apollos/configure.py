@@ -366,6 +366,11 @@ def configure_routes(app):
         app.include_router(auth_router, prefix="/auth")
         logger.info("🔑 Enabled Authentication")
 
+        # Entra ID SSO router (always registered; endpoints self-guard when unconfigured)
+        from apollos.routers.auth_entra import entra_router
+
+        app.include_router(entra_router)
+
     if state.billing_enabled:
         from apollos.routers.api_subscription import subscription_router
 
