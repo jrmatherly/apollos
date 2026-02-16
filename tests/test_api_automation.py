@@ -32,6 +32,7 @@ def create_test_automation(client: TestClient) -> str:
 
 
 @pytest.mark.django_db(transaction=True)
+@pytest.mark.skipif(get_chat_api_key("openai") is None, reason="Requires OPENAI_API_KEY to be set")
 def test_create_automation(client: TestClient):
     """Test that creating an automation works as expected."""
     # Arrange

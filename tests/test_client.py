@@ -294,6 +294,7 @@ def test_get_configured_types_with_no_content_config(fastapi_app: FastAPI):
 
 # ----------------------------------------------------------------------------------------------------
 @pytest.mark.django_db(transaction=True)
+@pytest.mark.chatquality
 def test_notes_search(client, search_config, sample_org_data, default_user: ApollosUser):
     # Arrange
     headers = {"Authorization": "Bearer kk-secret"}

@@ -18,6 +18,7 @@ from unittest.mock import patch
 import pytest
 
 from apollos.database.adapters import ConversationAdapters
+from apollos.utils import state
 from apollos.database.models import (
     AiModelApi,
     ChatModel,
@@ -378,17 +379,22 @@ class TestTeamModelFiltering:
 
     def test_free_user_sees_only_free_models(self):
         """Free user (no subscription) sees only FREE tier models."""
-        user = UserFactory()
-        # No subscription
+        original = state.billing_enabled
+        try:
+            state.billing_enabled = True
+            user = UserFactory()
+            # No subscription
 
-        free_model = ChatModelFactory(name="filter-free", price_tier=PriceTier.FREE)
-        standard_model = ChatModelFactory(name="filter-standard", price_tier=PriceTier.STANDARD)
+            free_model = ChatModelFactory(name="filter-free", price_tier=PriceTier.FREE)
+            standard_model = ChatModelFactory(name="filter-standard", price_tier=PriceTier.STANDARD)
 
-        available = ConversationAdapters.get_available_chat_models(user)
-        available_ids = set(available.values_list("id", flat=True))
+            available = ConversationAdapters.get_available_chat_models(user)
+            available_ids = set(available.values_list("id", flat=True))
 
-        assert free_model.id in available_ids
-        assert standard_model.id not in available_ids
+            assert free_model.id in available_ids
+            assert standard_model.id not in available_ids
+        finally:
+            state.billing_enabled = original
 
     def test_user_with_single_team_sees_team_models(self):
         """User on a team sees global + team-assigned models."""
@@ -435,20 +441,25 @@ class TestTeamModelFiltering:
 
     def test_free_user_with_team_standard_model_cannot_see_it(self):
         """Free user on team with STANDARD model should NOT see it."""
-        user = UserFactory()
-        # No subscription — free user
+        original = state.billing_enabled
+        try:
+            state.billing_enabled = True
+            user = UserFactory()
+            # No subscription — free user
 
-        standard_model = ChatModelFactory(name="team-std-hidden", price_tier=PriceTier.STANDARD)
-        org = OrganizationFactory()
-        team = TeamFactory(organization=org, slug="team-std-filter")
-        team.settings["allowed_models"] = [standard_model.id]
-        team.save()
-        TeamMembershipFactory(user=user, team=team)
+            standard_model = ChatModelFactory(name="team-std-hidden", price_tier=PriceTier.STANDARD)
+            org = OrganizationFactory()
+            team = TeamFactory(organization=org, slug="team-std-filter")
+            team.settings["allowed_models"] = [standard_model.id]
+            team.save()
+            TeamMembershipFactory(user=user, team=team)
 
-        available = ConversationAdapters.get_available_chat_models(user)
-        available_ids = set(available.values_list("id", flat=True))
+            available = ConversationAdapters.get_available_chat_models(user)
+            available_ids = set(available.values_list("id", flat=True))
 
-        assert standard_model.id not in available_ids
+            assert standard_model.id not in available_ids
+        finally:
+            state.billing_enabled = original
 
 
 # ---------------------------------------------------------------------------
