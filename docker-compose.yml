@@ -47,7 +47,8 @@ services:
     # image: ghcr.io/jrmatherly/apollos:latest
     # Uncomment the following line to build from source. This will take a few minutes. Comment the next two lines out if you want to use the official image.
     build:
-    context: .
+      context: .
+      dockerfile: Dockerfile
     ports:
       # If changing the local port (left hand side), no other changes required.
       # If changing the remote port (right hand side),
