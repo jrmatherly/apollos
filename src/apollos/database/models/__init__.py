@@ -158,6 +158,30 @@ class ApollosUser(AbstractUser):
     email_verification_code = models.CharField(max_length=200, null=True, default=None, blank=True)
     email_verification_code_expiry = models.DateTimeField(null=True, default=None, blank=True)
     is_org_admin = models.BooleanField(default=False)  # Enterprise RBAC
+    entra_oid = models.CharField(
+        max_length=100,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text="Microsoft Entra ID Object ID (stable across app registrations)",
+    )
+    entra_upn = models.CharField(
+        max_length=200,
+        null=True,
+        blank=True,
+        help_text="Microsoft Entra ID User Principal Name",
+    )
+    display_name = models.CharField(
+        max_length=200,
+        null=True,
+        blank=True,
+        help_text="Display name from identity provider",
+    )
+    last_synced_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Last time Entra ID group memberships were synced",
+    )
 
     def save(self, *args, **kwargs):
         if not self.uuid:
@@ -210,6 +234,13 @@ class Organization(DbBaseModel):
     name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=100, unique=True)
     settings = models.JSONField(default=dict, blank=True)
+    entra_tenant_id = models.CharField(
+        max_length=100,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text="Microsoft Entra ID Tenant ID for SSO",
+    )
 
     def __str__(self):
         return self.name
@@ -223,6 +254,13 @@ class Team(DbBaseModel):
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name="teams")
     settings = models.JSONField(default=dict, blank=True)
     description = models.TextField(blank=True, default="")
+    entra_group_id = models.CharField(
+        max_length=100,
+        unique=True,
+        null=True,
+        blank=True,
+        help_text="Microsoft Entra ID Security Group ID for team sync",
+    )
 
     def __str__(self):
         return self.name
@@ -339,9 +377,11 @@ class Agent(DbBaseModel):
         BROADCAST = "Broadcast"
 
     class PrivacyLevel(models.TextChoices):
-        PUBLIC = "public"
-        PRIVATE = "private"
-        PROTECTED = "protected"
+        PRIVATE = "private"  # Only creator
+        TEAM = "team"  # Creator's team(s)
+        ORGANIZATION = "org"  # Entire organization
+        PUBLIC = "public"  # DEPRECATED — kept for backward compatibility
+        PROTECTED = "protected"  # DEPRECATED — kept for backward compatibility
 
     class InputToolOptions(models.TextChoices):
         # These map to various ConversationCommand types
@@ -373,6 +413,14 @@ class Agent(DbBaseModel):
     style_color = models.CharField(max_length=200, choices=StyleColorTypes.choices, default=StyleColorTypes.ORANGE)
     style_icon = models.CharField(max_length=200, choices=StyleIconTypes.choices, default=StyleIconTypes.LIGHTBULB)
     privacy_level = models.CharField(max_length=30, choices=PrivacyLevel.choices, default=PrivacyLevel.PRIVATE)
+    team = models.ForeignKey(
+        "Team",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="agents",
+        help_text="Team this agent belongs to (for team-scoped agents)",
+    )
     is_hidden = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
@@ -813,6 +861,11 @@ class FileObject(DbBaseModel):
 
 
 class Entry(DbBaseModel):
+    class Visibility(models.TextChoices):
+        PRIVATE = "private"  # Only the owning user
+        TEAM = "team"  # Visible to team members
+        ORGANIZATION = "org"  # Visible to entire organization
+
     class EntryType(models.TextChoices):
         IMAGE = "image"
         PDF = "pdf"
@@ -844,10 +897,43 @@ class Entry(DbBaseModel):
     corpus_id = models.UUIDField(default=uuid.uuid4, editable=False)
     search_model = models.ForeignKey(SearchModelConfig, on_delete=models.SET_NULL, default=None, null=True, blank=True)
     file_object = models.ForeignKey(FileObject, on_delete=models.CASCADE, default=None, null=True, blank=True)
+    visibility = models.CharField(
+        max_length=10,
+        choices=Visibility.choices,
+        default=Visibility.PRIVATE,
+        db_index=True,
+        help_text="Access level: private (owner only), team, or org-wide",
+    )
+    team = models.ForeignKey(
+        "Team",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="entries",
+        help_text="Team this entry belongs to (required when visibility=team)",
+    )
+    shared_by = models.ForeignKey(
+        "ApollosUser",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="shared_entries",
+        help_text="User who shared this entry (if promoted from personal)",
+    )
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["visibility", "team"], name="idx_entry_visibility_team"),
+        ]
 
     def save(self, *args, **kwargs):
         if self.user and self.agent:
             raise ValidationError("An Entry cannot be associated with both a user and an agent.")
+        if self.visibility == self.Visibility.TEAM and not self.team:
+            raise ValidationError("Team-visible entries must have a team assigned.")
+        # Note: super().save() was missing in the original code (validation-only save).
+        # Entry creation primarily uses bulk_create() which bypasses save(), so this is safe.
+        super().save(*args, **kwargs)
 
 
 class EntryDates(DbBaseModel):
@@ -897,6 +983,65 @@ class McpServer(DbBaseModel):
 
     def __str__(self):
         return self.name
+
+
+class McpServiceRegistry(DbBaseModel):
+    """Admin-managed registry of available MCP services with OAuth support."""
+
+    class ServiceType(models.TextChoices):
+        INTERNAL = "internal"  # Self-hosted MCP server
+        EXTERNAL = "external"  # Third-party (Slack, Jira, GitHub, etc.)
+
+    name = models.CharField(max_length=200, unique=True)
+    description = models.TextField(blank=True, default="")
+    server_url = models.URLField(max_length=500)
+    service_type = models.CharField(max_length=20, choices=ServiceType.choices)
+
+    # OAuth configuration (for external services)
+    oauth_discovery_url = models.URLField(max_length=500, null=True, blank=True)
+    oauth_client_id = models.CharField(max_length=500, null=True, blank=True)
+    oauth_client_secret = models.TextField(null=True, blank=True)  # Encrypted via utils/crypto.py
+    oauth_scopes = models.CharField(max_length=1000, null=True, blank=True)
+    supports_dcr = models.BooleanField(default=False, help_text="Dynamic Client Registration")
+
+    # Access control
+    requires_admin_approval = models.BooleanField(default=True)
+    allowed_teams = models.ManyToManyField("Team", blank=True, related_name="allowed_mcp_services")
+    enabled = models.BooleanField(default=True)
+    icon_url = models.URLField(max_length=500, null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+
+class McpUserConnection(DbBaseModel):
+    """Per-user OAuth connection to an MCP service."""
+
+    class Status(models.TextChoices):
+        CONNECTED = "connected"
+        EXPIRED = "expired"
+        REVOKED = "revoked"
+        PENDING = "pending"
+        ERROR = "error"
+
+    user = models.ForeignKey("ApollosUser", on_delete=models.CASCADE, related_name="mcp_connections")
+    service = models.ForeignKey(McpServiceRegistry, on_delete=models.CASCADE, related_name="user_connections")
+
+    # OAuth tokens (encrypted via utils/crypto.py)
+    access_token = models.TextField(null=True, blank=True)
+    refresh_token = models.TextField(null=True, blank=True)
+    token_expires_at = models.DateTimeField(null=True, blank=True)
+    scopes_granted = models.CharField(max_length=1000, null=True, blank=True)
+
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    last_used_at = models.DateTimeField(null=True, blank=True)
+    error_message = models.TextField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ("user", "service")
+
+    def __str__(self):
+        return f"{self.user.username} -> {self.service.name}"
 
 
 class UserMemory(DbBaseModel):
