@@ -177,12 +177,6 @@ const config = {
         theme: prismThemes.github,
         darkTheme: prismThemes.dracula,
       },
-      algolia: {
-        appId: "",
-        apiKey: "",
-        indexName: "apollos",
-        contextualSearch: false,
-      },
     }),
 };
 
