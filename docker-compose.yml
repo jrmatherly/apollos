@@ -24,9 +24,11 @@ services:
   search:
     image: docker.io/searxng/searxng:latest
     volumes:
-      - apollos_search:/etc/searxng
+      - ./searxng:/etc/searxng:rw
     environment:
-      - SEARXNG_BASE_URL=http://localhost:8080/
+      - SEARXNG_BASE_URL=${APOLLOS_SEARXNG_URL:-http://localhost:8080/}
+      # Uncomment and set a unique secret for production. Overrides secret_key in searxng/settings.yml.
+      - SEARXNG_SECRET=${APOLLOS_SEARXNG_SECRET:-change-this-to-a-random-secret}
   # Creates Computer for Apollos to use.
   # Set APOLLOS_OPERATOR_ENABLED=True in the server service environment variable to enable.
   computer:
@@ -165,5 +167,4 @@ volumes:
   apollos_config:
   apollos_db:
   apollos_models:
-  apollos_search:
   apollos_computer:

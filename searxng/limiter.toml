@@ -1,0 +1,8 @@
+# SearXNG bot detection / rate limiter configuration
+# See https://docs.searxng.org/admin/searx.limiter.html
+# This file updates the default: https://github.com/searxng/searxng/blob/master/searx/limiter.toml
+
+[botdetection.ip_limit]
+# Activate advanced bot protection.
+# Enable this when running the instance for public usage on the internet.
+link_token = false

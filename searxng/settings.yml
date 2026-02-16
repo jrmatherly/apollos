@@ -1,0 +1,46 @@
+# SearXNG settings for Apollos Docker deployment
+# See https://docs.searxng.org/admin/settings/settings.html#settings-use-default-settings
+
+use_default_settings:
+  engines:
+    remove:
+      - radio browser
+
+general:
+  debug: false
+  instance_name: "SearXNG"
+
+search:
+  safe_search: 0
+  formats:
+    - json
+
+server:
+  # Is overwritten by ${SEARXNG_SECRET}
+  secret_key: "change-this-secret-key"
+  limiter: false
+  image_proxy: false
+
+ui:
+  static_use_hash: true
+
+enabled_plugins:
+  - "Hash plugin"
+  - "Self Informations"
+  - "Tracker URL remover"
+
+# Disable Tor-dependent engines (ahmia, torch) to prevent load errors.
+# These engines require a Tor SOCKS proxy which is not available in this deployment.
+engines:
+  - name: radio browser
+    engine: radio_browser
+    disabled: true
+    inactive: true
+
+  - name: ahmia
+    disabled: true
+    inactive: true
+
+  - name: torch
+    disabled: true
+    inactive: true

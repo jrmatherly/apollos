@@ -150,6 +150,7 @@ At least one search provider enables the `/search` tool in chat. SearXNG is incl
 | Variable | Default | Required | Description |
 |----------|---------|----------|-------------|
 | `APOLLOS_SEARXNG_URL` | *(none)* | Optional | SearXNG instance URL. Set automatically in Docker Compose. |
+| `APOLLOS_SEARXNG_SECRET` | `change-this-to-a-random-secret` | Recommended (production) | Secret key used by the SearXNG container for cryptographic signing. Generate with `openssl rand -base64 32`. |
 | `GOOGLE_SEARCH_API_KEY` | *(none)* | Optional | Google Custom Search JSON API key. |
 | `GOOGLE_SEARCH_ENGINE_ID` | *(none)* | Optional | Google Custom Search Engine (CSE) ID. |
 | `SERPER_DEV_API_KEY` | *(none)* | Optional | Serper.dev API key for Google search results. |
@@ -255,7 +256,8 @@ These variables are pre-configured in `docker-compose.yml` and generally don't n
 |----------|--------|-------|
 | `POSTGRES_HOST` | `database` | Points to the database service |
 | `APOLLOS_TERRARIUM_URL` | `http://sandbox:8080` | Points to the Terrarium container |
-| `APOLLOS_SEARXNG_URL` | `http://search:8080` | Points to the SearXNG container |
+| `APOLLOS_SEARXNG_URL` | `http://search:8080` | Points to the SearXNG container; also sets `SEARXNG_BASE_URL` on the search service |
+| `APOLLOS_SEARXNG_SECRET` | `change-this-to-a-random-secret` | Sets `SEARXNG_SECRET` on the search service |
 
 ## Quick Reference: Minimum Production Setup
 
