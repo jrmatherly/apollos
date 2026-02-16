@@ -161,6 +161,10 @@ config:
   # Disable - many files intentionally use bold text for emphasis, not as headings
   MD036: false
 
+  # MD037 - Spaces inside emphasis
+  # Disable - spaces inside emphasis are allowed
+  MD037: false
+
   # MD038 - Spaces inside code spans
   MD038: true
 

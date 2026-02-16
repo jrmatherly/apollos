@@ -2,7 +2,7 @@
 sidebar_position: 99
 ---
 
-{/*NOTE: URLs reference apollosai.dev. If forking this project, update to your domain.*/}
+{/* NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. */}
 
 # Environment Variables
 
