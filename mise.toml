@@ -72,10 +72,6 @@ run = "uv sync --group dev --extra prod --extra local"
 description = "Add a Python dependency (usage: mise run deps:add <package>)"
 run = 'uv add "$@"'
 
-[tasks."deps:upgrade"]
-description = "Upgrade specific packages in lockfile (usage: mise run deps:upgrade -- pkg1 pkg2)"
-run = 'flags=""; for pkg; do flags="$flags --upgrade-package $pkg"; done; echo "⬆️  Upgrading:$flags"; eval uv lock $flags && uv sync --all-extras --group dev --no-build-isolation-package openai-whisper'
-
 [tasks."deps:upgrade-all"]
 description = "Upgrade all packages in lockfile within current pin constraints"
 run = 'uv lock --upgrade && uv sync --all-extras --group dev --no-build-isolation-package openai-whisper'
