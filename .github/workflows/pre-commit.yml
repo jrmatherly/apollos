@@ -65,7 +65,7 @@ jobs:
           UV_INDEX: "https://download.pytorch.org/whl/cpu"
           UV_INDEX_STRATEGY: "unsafe-best-match"
           CUDA_VISIBLE_DEVICES: ""
-        run: uv sync --all-extras
+        run: uv sync --all-extras --group dev
 
       - name: Validate Application
         run: uv run pre-commit run --hook-stage manual --all

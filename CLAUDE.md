@@ -11,7 +11,7 @@ Apollos AI (forked from Khoj) — personal assistant with semantic search. Domai
 mise install && mise run setup && mise run dev  # server at :42110
 
 # Manual:
-uv venv && uv pip install setuptools && uv sync --all-extras --no-build-isolation-package openai-whisper
+uv venv && uv pip install setuptools && uv sync --all-extras --group dev --no-build-isolation-package openai-whisper
 cd src/interface/web && bun install && bun run export
 pre-commit install -t pre-push -t pre-commit
 ```

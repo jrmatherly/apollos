@@ -192,7 +192,7 @@ known-first-party = ["apollos"]
 [tool.uv]
 # openai-whisper requires pkg_resources (from setuptools) at build time but doesn't declare it.
 # If the extra-build-dependencies below don't resolve it, run:
-#   uv pip install setuptools && uv sync --all-extras --no-build-isolation-package openai-whisper
+#   uv pip install setuptools && uv sync --all-extras --group dev --no-build-isolation-package openai-whisper
 no-build-isolation-package = ["openai-whisper"]
 
 [tool.uv.extra-build-dependencies]

@@ -52,7 +52,7 @@ python3 -m venv .venv && source .venv/bin/activate
 
 # Install dependencies (setuptools needed for openai-whisper build)
 
-uv pip install setuptools && uv sync --all-extras --no-build-isolation-package openai-whisper
+uv pip install setuptools && uv sync --all-extras --group dev --no-build-isolation-package openai-whisper
 
 ````
     </TabItem>
@@ -65,7 +65,7 @@ git clone https://github.com/jrmatherly/apollos && cd apollos
 python3 -m venv .venv && .venv\Scripts\activate
 
 # Install Apollos for Development
-uv pip install setuptools && uv sync --all-extras --no-build-isolation-package openai-whisper
+uv pip install setuptools && uv sync --all-extras --group dev --no-build-isolation-package openai-whisper
 ```
     </TabItem>
     <TabItem value="linux" label="Linux">
@@ -77,7 +77,7 @@ git clone https://github.com/jrmatherly/apollos && cd apollos
 python3 -m venv .venv && source .venv/bin/activate
 
 # Install Apollos for Development
-uv pip install setuptools && uv sync --all-extras --no-build-isolation-package openai-whisper
+uv pip install setuptools && uv sync --all-extras --group dev --no-build-isolation-package openai-whisper
 ```
     </TabItem>
   </Tabs>
