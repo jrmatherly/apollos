@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+#MISE description="Upgrade specific packages in lockfile within pin constraints"
+#MISE alias="up"
+#USAGE arg "<packages>" help="Package names to upgrade" var=true
+
+set -euo pipefail
+
+if [ $# -eq 0 ]; then
+  echo "Usage: mise run deps-upgrade -- pkg1 pkg2 ..."
+  echo "       mise run deps:upgrade-all  (to upgrade everything)"
+  exit 1
+fi
+
+flags=""
+for pkg in "$@"; do
+  flags="$flags --upgrade-package $pkg"
+done
+
+echo "⬆️  Upgrading: $*"
+eval uv lock $flags
+
+echo "📦 Syncing..."
+uv sync --all-extras --group dev --no-build-isolation-package openai-whisper
+
+echo "✅ Done"
