@@ -24,8 +24,21 @@ Quick file lookup for common tasks. Only paths NOT already in CLAUDE.md.
 - Components: `src/interface/web/app/components/` (20+ dirs)
 - UI primitives: `src/interface/web/components/ui/` (shadcn)
 
-## Admin API (in api_model.py)
+## RBAC & Auth
+- Role utilities: `routers/auth_helpers.py` — `ROLE_HIERARCHY`, `require_team_role()`, `get_user_highest_role()`, `get_user_teams()`
+- Frontend hook: `src/interface/web/app/common/auth.ts` — `useUserRole()` (isAdmin, highestRole, teams, isTeamLead)
+
+## Admin API
+Model management (in `api_model.py`):
 - `GET/POST /api/model/chat/defaults` — slot management
 - `GET /api/model/embedding` — embedding config
 - `GET/POST/DELETE /api/model/team/{team_slug}/models` — team models
 - `GET /api/model/chat/options` — team-filtered list (anonymous gets all)
+
+Enterprise admin (in `api_admin.py`, all `require_admin` gated):
+- `GET/POST /api/admin/teams` — list/create teams
+- `PUT/DELETE /api/admin/teams/{slug}` — update/delete team
+- `GET/POST /api/admin/teams/{slug}/members` — list/add members
+- `DELETE /api/admin/teams/{slug}/members/{uuid}` — remove member
+- `GET /api/admin/users`, `PUT /api/admin/users/{uuid}` — user management
+- `GET/PUT /api/admin/org` — organization settings

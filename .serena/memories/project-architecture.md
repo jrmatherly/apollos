@@ -7,7 +7,7 @@ Only details NOT covered in CLAUDE.md. Read CLAUDE.md first.
 src/apollos/
   main.py              # Entry point: Django init → FastAPI app → mount Django at /server
   configure.py         # Auth backend, require_admin(), middleware setup
-  routers/             # FastAPI endpoints (api_chat, api_content, api_model, api_agents, research)
+  routers/             # FastAPI endpoints (api_chat, api_content, api_model, api_agents, api_admin, auth_helpers)
   database/models/     # All Django models in __init__.py
   database/adapters/   # All data access in __init__.py (adapter classes)
   processor/           # content/ (ingestion), conversation/ (LLM providers), tools/, operator/
@@ -29,3 +29,11 @@ documentation/         # Docusaurus site (auto-generated sidebar)
 2. Bearer token (API): `ApollosApiUser.token` lookup
 3. Client ID+secret (WhatsApp): `ClientApplication` validation
 4. Anonymous: default user when `state.anonymous_mode` is True
+
+## RBAC Layer (routers/auth_helpers.py)
+- Roles: admin > team_lead > member (ROLE_HIERARCHY dict)
+- `require_admin(request)` — re-exports from configure.py
+- `require_team_role(request, team_slug, min_role)` — team-scoped permission check
+- Org admins bypass all team role checks
+- Agent/content endpoints enforce privacy_level-based RBAC (private/team/org)
+- Delete permissions: private=owner, team=team_lead+, org=admin only
