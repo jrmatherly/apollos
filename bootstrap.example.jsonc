@@ -11,19 +11,18 @@
   "providers": {
     "openai": {
       "api_key": "${OPENAI_API_KEY}",
-      // "base_url": "http://host.docker.internal:11434/v1/",  // Uncomment for Ollama/VLLM
+      "base_url": "${OPENAI_BASE_URL}",
       "chat_models": [
-        "gpt-4o-mini",
-        "gpt-4.1",
-        "o3",
-        "o4-mini"
+        "gpt-5-mini",
+        "gpt-5-nano",
+        "gpt-5.1",
+        "gpt-5.2"
       ],
       "vision_models": [
-        "gpt-4o-mini",
-        "gpt-4.1"
+        "gpt-5.1"
       ]
-    },
-    "anthropic": {
+    }
+    /* "anthropic": {
       "api_key": "${ANTHROPIC_API_KEY}",
       "chat_models": [
         "claude-sonnet-4-0",
@@ -37,27 +36,28 @@
         "gemini-2.5-flash",
         "gemini-2.5-pro"
       ]
-    }
+    } */
   },
   // --- Price Tiers ---
   // Models not listed here default to "free".
   // Valid values: "free", "standard"
   "model_tiers": {
-    "gpt-4.1": "standard",
-    "o3": "standard",
-    "claude-sonnet-4-0": "standard",
-    "gemini-2.5-pro": "standard"
+    "gpt-5.1": "standard",
+    "gpt-5.2": "standard"
+    // "claude-sonnet-4-0": "standard",
+    // "gemini-2.5-pro": "standard"
   },
   // --- Embedding Model ---
   "embedding": {
-    "model": "thenlper/gte-small",
-    "api_type": "local",
+    // For local embeddings, uncomment:
+    // "model": "thenlper/gte-small",
+    // "api_type": "local",
     // For OpenAI embeddings, uncomment:
-    // "model": "text-embedding-3-small",
-    // "api_type": "openai",
-    // "api_key": "${OPENAI_API_KEY}",
-    // "endpoint": "https://api.openai.com/v1",
-    // "dimensions": 1536,
+    "model": "text-embedding-3-small",
+    "api_type": "openai",
+    "api_key": "${OPENAI_API_KEY}",
+    "endpoint": "${OPENAI_BASE_URL}",
+    "dimensions": 1536,
     "cross_encoder": "mixedbread-ai/mxbai-rerank-xsmall-v1"
   },
   // --- Server Chat Slot Defaults ---
@@ -65,12 +65,12 @@
   // chat_default, think_free_fast, think_free_deep require FREE tier models.
   // NOTE: Env vars (APOLLOS_DEFAULT_CHAT_MODEL etc.) override these slots.
   "defaults": {
-    "chat_default": "gpt-4o-mini",
-    "chat_advanced": "gpt-4.1",
-    "think_free_fast": "gpt-4o-mini",
-    "think_free_deep": "gemini-2.5-flash",
-    "think_paid_fast": "gpt-4.1",
-    "think_paid_deep": "o3"
+    "chat_default": "gpt-5-nano",
+    "chat_advanced": "gpt-5-mini",
+    "think_free_fast": "gpt-5-nano",
+    "think_free_deep": "gpt-5-mini",
+    "think_paid_fast": "gpt-5-nano",
+    "think_paid_deep": "gpt-5-mini"
   },
   // --- Team Model Assignments (optional) ---
   // Teams must already exist in the database (create via admin panel or API).

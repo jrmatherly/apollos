@@ -13,10 +13,11 @@
 | **Description** | Your Second Brain - AI personal assistant with semantic search |
 | **License** | AGPL-3.0-or-later |
 | **Python** | 3.10 - 3.12 |
-| **Homepage** | https://github.com/jrmatherly/apollos |
+| **Homepage** | https://apollosai.dev |
 | **Docs** | https://docs.apollosai.dev |
 | **Repository** | https://github.com/jrmatherly/apollos |
 | **Entry Point** | `apollos.main:run` |
+| **Domain** | `*.apollosai.dev` (configurable via `APOLLOS_DOMAIN` env var) |
 
 ## 2. Technology Stack
 
@@ -50,7 +51,11 @@
 | Framework | Next.js (TypeScript) |
 | Styling | Tailwind CSS |
 | Package Manager | Bun |
-| UI Components | shadcn/ui (components.json) |
+| UI Components | shadcn/ui (36 primitives) |
+| Icons | Phosphor Icons |
+| Charts/Diagrams | Excalidraw, Mermaid |
+| Math | KaTeX |
+| Motion | Framer Motion |
 
 ### Production Optional Dependencies
 
@@ -68,14 +73,13 @@
 | **mise** | Tool version management, venv activation, task runner (see `mise.toml`) |
 | uv | Fast Python package manager (deps, venv, lockfile) |
 | pytest | Testing (+ pytest-django, pytest-asyncio, pytest-xdist) |
+| factory-boy | Test data factories |
 | mypy | Type checking |
 | ruff | Linting & formatting (line-length=120, double quotes) |
 | pre-commit | Git hooks |
 | hatchling + hatch-vcs | Build system with VCS versioning |
 
 ### mise Configuration (`mise.toml`)
-
-The project uses mise-en-place for reproducible development environments:
 
 | Tool | Version | Notes |
 |------|---------|-------|
@@ -97,31 +101,32 @@ The project uses mise-en-place for reproducible development environments:
 
 ```text
 ┌─────────────────────────────────────────────────────────────────┐
-│                        Client Interfaces                         │
-│  Web (Next.js) │ Desktop │ Obsidian │ Emacs │ Android            │
+│                        Client Interfaces                        │
+│              Web (Next.js)  │  Obsidian Plugin                  │
 └────────────────────────────┬────────────────────────────────────┘
                              │ HTTP/WS
 ┌────────────────────────────▼────────────────────────────────────┐
-│                      FastAPI Routers                             │
-│  api.py │ api_chat.py │ api_content.py │ api_agents.py │ ...    │
+│                      FastAPI Routers                            │
+│  api.py │ api_chat.py │ api_content.py │ api_model.py │ ...    │
 └────────────────────────────┬────────────────────────────────────┘
                              │
 ┌────────────────────────────▼────────────────────────────────────┐
-│                     Processing Pipeline                          │
-│  Conversation (OpenAI/Anthropic/Google) │ Content Processors     │
-│  Tools (online_search, run_code, mcp) │ Operator (browser/CUA)  │
-│  Speech │ Image │ Embeddings                                     │
+│                     Processing Pipeline                         │
+│  Conversation (OpenAI/Anthropic/Google) │ Content Processors    │
+│  Tools (online_search, run_code, mcp) │ Operator (browser/CUA) │
+│  Speech │ Image │ Embeddings                                    │
 └────────────────────────────┬────────────────────────────────────┘
                              │
 ┌────────────────────────────▼────────────────────────────────────┐
-│                    Search & Retrieval                             │
-│  text_search.py │ search_filters (date, file, word, base)       │
-│  pgvector similarity search │ cross-encoder reranking            │
+│                    Search & Retrieval                            │
+│  text_search.py │ search_filters (date, file, word, base)      │
+│  pgvector similarity search │ cross-encoder reranking           │
 └────────────────────────────┬────────────────────────────────────┘
                              │
 ┌────────────────────────────▼────────────────────────────────────┐
-│                   Data Layer (Django ORM)                         │
-│  Models │ Adapters │ Migrations │ PostgreSQL + pgvector           │
+│                   Data Layer (Django ORM)                        │
+│  Models │ Adapters │ Migrations (116) │ PostgreSQL + pgvector   │
+│  Enterprise: Organization │ Team │ TeamMembership               │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -134,79 +139,80 @@ The project uses mise-en-place for reproducible development environments:
 ```text
 apollos/
 ├── src/
-│   ├── apollos/              # Core Python application
-│   ├── interface/            # Client interfaces (web, desktop, obsidian, emacs, android)
+│   ├── apollos/              # Core Python application (233 .py files)
+│   ├── interface/
+│   │   ├── web/              # Next.js frontend (11,825 .ts/.tsx files)
+│   │   └── obsidian/         # Obsidian plugin
 │   └── telemetry/            # Telemetry microservice
-├── tests/                    # pytest test suite
-├── documentation/            # Docusaurus documentation site
+├── tests/                    # pytest test suite (28 test files)
+├── documentation/            # Docusaurus documentation site (35 pages)
 ├── scripts/                  # Dev & build scripts
-├── .github/workflows/        # CI/CD pipelines
+├── .github/workflows/        # CI/CD pipelines (6 active, 5 disabled)
+├── .claude/                  # Claude Code config (hooks, agents, skills)
 ├── pyproject.toml            # Python project config
+├── mise.toml                 # mise task runner config
+├── bootstrap.example.jsonc   # Example bootstrap model config
 ├── docker-compose.yml        # Container orchestration
-├── Dockerfile                # Main Docker build
-├── prod.Dockerfile           # Production Docker build
-├── computer.Dockerfile       # Computer-use Docker build
-├── gunicorn-config.py        # Production WSGI config
-└── manifest.json             # Application manifest
+├── Dockerfile                # Standard build
+├── prod.Dockerfile           # Production build
+├── computer.Dockerfile       # Computer-use agent build
+└── .mcp.json.example         # MCP server config template
 ```
 
 ### `src/apollos/` - Core Application
 
 #### Entry Points
 
-| File | Purpose |
-|------|---------|
-| `main.py` | Application entry point - creates FastAPI app, mounts Django, CORS, scheduling |
-| `configure.py` | Server initialization, route configuration, middleware, content indexing |
-| `manage.py` | Django management commands |
+| File | Lines | Purpose |
+|------|-------|---------|
+| `main.py` | — | Application entry point - creates FastAPI app, mounts Django, CORS, scheduling |
+| `configure.py` | — | Server initialization, route config, middleware, `require_admin()` RBAC |
+| `manage.py` | — | Django management commands |
 
 #### `routers/` - API Endpoints (FastAPI)
 
-| File | Endpoints | Purpose |
-|------|-----------|---------|
-| `api.py` | `/api/` | Core API: search, settings, user info, health check, transcribe |
-| `api_chat.py` | `/api/chat/` | Chat: send/receive messages, history, sessions, titles, export, WebSocket |
-| `api_content.py` | `/api/content/` | Content CRUD: upload, index, delete, GitHub/Notion integration |
-| `api_agents.py` | `/api/agents/` | Agent management: create, update, delete, list |
-| `api_memories.py` | `/api/memories/` | User memory: get, update, delete long-term memories |
-| `api_automation.py` | `/api/automation/` | Automations: scheduled queries, CRON jobs |
-| `api_model.py` | `/api/model/` | Model config: chat model, voice model, paint model selection |
-| `api_phone.py` | `/api/phone/` | Phone: update, delete, OTP verification |
-| `api_subscription.py` | `/api/subscription/` | Stripe subscription management |
-| `auth.py` | `/auth/` | Authentication: login, logout, magic link, OAuth, token management |
-| `research.py` | `/research/` | Research mode: multi-step tool-based research |
-| `web_client.py` | | Web client serving |
-| `helpers.py` | | Router utilities, rate limiters, chat processing, content search |
-| `email.py` | | Email integration |
-| `notion.py` | | Notion OAuth & sync |
-| `twilio.py` | | Twilio voice/SMS integration |
-| `storage.py` | | File storage endpoints |
+| File | Lines | Endpoints | Purpose |
+|------|-------|-----------|---------|
+| `helpers.py` | 3,453 | — | Router utilities, rate limiters, chat processing, content search |
+| `api_chat.py` | 1,750 | `/api/chat/` | Chat: messages, history, sessions, titles, export, WebSocket |
+| `research.py` | 706 | `/research/` | Multi-step tool-based research |
+| `api_content.py` | 636 | `/api/content/` | Content CRUD: upload, index, delete, GitHub/Notion |
+| `api_agents.py` | 510 | `/api/agents/` | Agent management: create, update, delete, list |
+| `api_model.py` | 431 | `/api/model/` | Model config, admin defaults, team models, embedding config |
+| `auth.py` | 314 | `/auth/` | Auth: login, logout, magic link, OAuth, tokens |
+| `api.py` | 268 | `/api/` | Core API: search, settings, user info, health, transcribe |
+| `api_automation.py` | 243 | `/api/automation/` | Automations: scheduled queries, CRON jobs |
+| `web_client.py` | 160 | — | Web client serving |
+| `api_subscription.py` | 149 | `/api/subscription/` | Stripe subscription management |
+| `email.py` | 145 | — | Email integration (Resend, Jinja2 templates) |
+| `api_memories.py` | 114 | `/api/memories/` | User memory: get, update, delete |
+| `notion.py` | 89 | — | Notion OAuth & sync |
+| `api_phone.py` | 86 | `/api/phone/` | Phone: update, delete, OTP verification |
+| `storage.py` | 63 | — | File storage endpoints |
+| `twilio.py` | — | — | Twilio voice/SMS integration |
 
 #### `database/` - Data Layer (Django)
 
-| Directory/File | Purpose |
-|----------------|---------|
-| `models/__init__.py` | All Django models (see Data Models section) |
-| `adapters/__init__.py` | Database access layer with adapter classes |
-| `migrations/` | Django migration files |
-| `admin.py` | Django admin configuration |
-| `apps.py` | Django app config |
+| File | Lines | Purpose |
+|------|-------|---------|
+| `models/__init__.py` | 911 | All Django models (see Data Models section) |
+| `adapters/__init__.py` | 2,479 | Database access layer with adapter classes |
+| `migrations/` | 116 files | Django migrations (`0001` → `0101`) |
+| `management/commands/bootstrap_models.py` | — | Bootstrap model configuration from JSONC |
+| `admin.py` | — | Django admin configuration |
 
 #### `processor/` - Processing Pipeline
 
 ##### `conversation/` - LLM Chat Processing
 
-| File | Purpose |
-|------|---------|
-| `prompts.py` | All system prompts and prompt templates (~40+ prompt variables) |
-| `utils.py` | Chat history construction, message formatting, token counting, JSON cleaning |
-| `openai/gpt.py` | OpenAI GPT chat implementation |
-| `openai/utils.py` | OpenAI-specific utilities |
-| `openai/whisper.py` | Whisper speech-to-text |
-| `anthropic/anthropic_chat.py` | Anthropic Claude chat implementation |
-| `anthropic/utils.py` | Anthropic-specific utilities |
-| `google/gemini_chat.py` | Google Gemini chat implementation |
-| `google/utils.py` | Gemini-specific utilities |
+| File | Lines | Purpose |
+|------|-------|---------|
+| `prompts.py` | 1,373 | All system prompts and prompt templates (~40+ variables) |
+| `utils.py` | 1,283 | Chat history construction, message formatting, token counting |
+| `openai/gpt.py` | 133 | OpenAI GPT chat implementation |
+| `google/gemini_chat.py` | 82 | Google Gemini chat implementation |
+| `anthropic/anthropic_chat.py` | 72 | Anthropic Claude chat implementation |
+| `openai/whisper.py` | — | Whisper speech-to-text |
 
 ##### `content/` - Document Processors
 
@@ -220,44 +226,43 @@ apollos/
 | `images/image_to_entries.py` | Image files (OCR) |
 | `github/github_to_entries.py` | GitHub repositories |
 | `notion/notion_to_entries.py` | Notion pages |
-| `text_to_entries.py` | Base text-to-entries processor |
+| `text_to_entries.py` | Base text-to-entries processor (chunking) |
 
 ##### `tools/` - Tool Implementations
 
-| File | Purpose |
-|------|---------|
-| `online_search.py` | Web search (Google, Serper, SearXNG, Exa, Firecrawl) + webpage reading |
-| `run_code.py` | Code execution (E2B sandbox, Terrarium) |
-| `mcp.py` | MCP (Model Context Protocol) tool integration |
+| File | Lines | Purpose |
+|------|-------|---------|
+| `online_search.py` | 671 | Web search (Google, Serper, SearXNG, Exa, Firecrawl) + webpage reading |
+| `run_code.py` | 348 | Code execution (E2B sandbox, Terrarium) |
+| `mcp.py` | 124 | MCP (Model Context Protocol) tool integration |
 
 ##### `operator/` - Computer Use Agent
 
-| File | Purpose |
-|------|---------|
-| `operator_agent_base.py` | Base operator agent class |
-| `operator_agent_openai.py` | OpenAI CUA implementation |
-| `operator_agent_anthropic.py` | Anthropic CUA implementation |
-| `operator_agent_binary.py` | Binary operator agent |
-| `operator_environment_base.py` | Base environment class |
-| `operator_environment_browser.py` | Browser environment |
-| `operator_environment_computer.py` | Computer environment |
-| `operator_actions.py` | Operator action definitions |
-| `grounding_agent.py` | UI grounding agent |
-| `grounding_agent_uitars.py` | UITars grounding agent |
+| File | Lines | Purpose |
+|------|-------|---------|
+| `grounding_agent_uitars.py` | 995 | UITars grounding agent |
+| `operator_environment_computer.py` | 658 | Computer environment |
+| `operator_agent_anthropic.py` | 635 | Anthropic CUA implementation |
+| `operator_agent_openai.py` | 472 | OpenAI CUA implementation |
+| `grounding_agent.py` | 412 | UI grounding agent |
+| `operator_agent_binary.py` | 405 | Binary operator agent |
+| `operator_environment_browser.py` | 397 | Browser environment |
+| `operator_actions.py` | 197 | Operator action definitions |
+| `operator_agent_base.py` | 111 | Base operator agent class |
 
 ##### Other Processors
 
-| File | Purpose |
-|------|---------|
-| `embeddings.py` | `EmbeddingsModel` and `CrossEncoderModel` classes |
-| `speech/text_to_speech.py` | Text-to-speech generation |
-| `image/generate.py` | Image generation |
+| File | Lines | Purpose |
+|------|-------|---------|
+| `embeddings.py` | 156 | `EmbeddingsModel` and `CrossEncoderModel` (supports configurable dimensions) |
+| `speech/text_to_speech.py` | — | Text-to-speech generation |
+| `image/generate.py` | — | Image generation |
 
 #### `search_type/` - Search Implementation
 
-| File | Purpose |
-|------|---------|
-| `text_search.py` | Core search: embedding computation, querying, reranking, deduplication |
+| File | Lines | Purpose |
+|------|-------|---------|
+| `text_search.py` | 257 | Core search: embedding, querying, reranking, deduplication |
 
 #### `search_filter/` - Search Filters
 
@@ -270,26 +275,19 @@ apollos/
 
 #### `utils/` - Shared Utilities
 
-| File | Purpose |
-|------|---------|
-| `helpers.py` | Core helpers: `ConversationCommand` enum, device detection, LLM client factories, token counting, URL validation |
-| `rawconfig.py` | Pydantic config models: `ChatRequestBody`, `SearchResponse`, `LocationData`, etc. |
-| `config.py` | Application configuration |
-| `constants.py` | Application constants |
-| `state.py` | Application state management |
-| `models.py` | Utility models |
-| `initialization.py` | Initialization routines |
-| `cli.py` | CLI utilities |
-| `yaml.py` | YAML handling |
-| `jsonl.py` | JSONL handling |
-
-#### `app/` - Django Application Config
-
-| File | Purpose |
-|------|---------|
-| `settings.py` | Django settings |
-| `urls.py` | Django URL configuration |
-| `asgi.py` | ASGI application |
+| File | Lines | Purpose |
+|------|-------|---------|
+| `helpers.py` | 1,252 | `ConversationCommand` enum, device detection, LLM client factories, token counting |
+| `initialization.py` | 361 | Server bootstrap: admin user, bootstrap config, chat model setup, Ollama, slots |
+| `bootstrap.py` | 283 | JSONC config loader, idempotent model/provider/slot/team setup |
+| `rawconfig.py` | 151 | Pydantic models: `ChatRequestBody`, `SearchResponse`, `LocationData` |
+| `constants.py` | 108 | Default model lists per provider (env-var-driven, evaluated at import time) |
+| `config.py` | — | Application configuration |
+| `state.py` | — | Application state management |
+| `models.py` | — | Utility models |
+| `cli.py` | — | CLI utilities |
+| `yaml.py` | — | YAML handling |
+| `jsonl.py` | — | JSONL handling |
 
 ---
 
@@ -308,8 +306,10 @@ web/
 │   ├── search/                 # Search interface
 │   ├── automations/            # Automation management
 │   ├── share/                  # Shared conversations
-│   ├── common/                 # Shared utilities
-│   └── components/             # React components
+│   ├── common/
+│   │   ├── config.ts           # Domain config (APP_URL, DOCS_URL, ASSETS_URL, SUPPORT_EMAIL)
+│   │   └── modelSelector.tsx   # Model selector component (renders server-filtered list)
+│   └── components/             # 29 React component files
 │       ├── chatMessage/        # Chat message rendering
 │       ├── chatInputArea/      # Chat input
 │       ├── chatHistory/        # Chat history display
@@ -330,34 +330,37 @@ web/
 │       ├── loading/            # Loading states
 │       ├── chatWoot/           # ChatWoot integration
 │       └── providers/          # React context providers
-├── components/ui/              # shadcn/ui base components
+├── components/ui/              # 36 shadcn/ui base components
 ├── hooks/                      # Custom React hooks
 ├── lib/                        # Utility libraries
 └── public/                     # Static assets
 ```
 
-#### Other Interfaces
+#### `obsidian/` - Obsidian Plugin
 
-| Directory | Platform |
-|-----------|----------|
-| `desktop/` | Desktop application |
-| `obsidian/` | Obsidian plugin |
-| `emacs/` | Emacs integration |
-| `android/` | Android app |
+TypeScript plugin with esbuild. Package name: `apollos`. See `src/interface/obsidian/`.
 
 ---
 
 ## 5. Data Models
 
-### Core Entities
+### Core User Entities
 
 | Model | Purpose |
 |-------|---------|
-| `ApollosUser` | Extended user model |
+| `ApollosUser` | Extended user model (`is_org_admin` field for enterprise RBAC) |
 | `GoogleUser` | Google OAuth user |
 | `ApollosApiUser` | API key user |
 | `ClientApplication` | Client app registration |
 | `Subscription` | User subscription (Type enum) |
+
+### Enterprise Entities (Migration 0101)
+
+| Model | Purpose |
+|-------|---------|
+| `Organization` | Single org that owns the instance (name, slug, settings JSONField) |
+| `Team` | Teams within org (name, slug, `settings` JSONField for `allowed_models`/`chat_default`) |
+| `TeamMembership` | Maps users to teams with roles (admin, team_lead, member) |
 
 ### Chat & Conversation
 
@@ -365,19 +368,20 @@ web/
 |-------|---------|
 | `Conversation` | Chat conversation with message history |
 | `PublicConversation` | Shared public conversations |
-| `ChatModel` | LLM model configuration (ModelType enum) |
-| `AiModelApi` | AI API credentials |
-| `Agent` | AI agent configuration (privacy, style, tools, output modes) |
+| `ChatModel` | LLM model config (ModelType enum, PriceTier). **`name` is NOT unique.** |
+| `AiModelApi` | AI API credentials. **`name` is NOT unique.** |
+| `Agent` | AI agent config (privacy, style, tools, output modes) |
 | `UserConversationConfig` | Per-user chat settings |
+| `ServerChatSettings` | Server-wide chat slot assignments (ChatModelSlot, MemoryMode) |
 
 ### Content & Search
 
 | Model | Purpose |
 |-------|---------|
-| `Entry` | Indexed content entry (EntryType, EntrySource enums) |
+| `Entry` | Indexed content entry with pgvector embeddings |
 | `EntryDates` | Date metadata for entries |
 | `FileObject` | Uploaded file tracking |
-| `SearchModelConfig` | Search model configuration |
+| `SearchModelConfig` | Search model config (`bi_encoder_dimensions` for OpenAI) |
 | `DataStore` | Data store configuration |
 
 ### Integrations
@@ -385,48 +389,33 @@ web/
 | Model | Purpose |
 |-------|---------|
 | `NotionConfig` | Notion integration settings |
-| `GithubConfig` | GitHub integration settings |
-| `GithubRepoConfig` | GitHub repo configuration |
+| `GithubConfig` / `GithubRepoConfig` | GitHub integration |
 | `McpServer` | MCP server configuration |
 
-### Configuration & System
+### System
 
 | Model | Purpose |
 |-------|---------|
-| `ServerChatSettings` | Server-wide chat settings (ChatModelSlot, MemoryMode) |
 | `TextToImageModelConfig` | Image generation model config |
 | `SpeechToTextModelOptions` | STT model config |
-| `VoiceModelOption` | Voice/TTS model config |
-| `UserVoiceModelConfig` | Per-user voice settings |
-| `UserTextToImageModelConfig` | Per-user image model settings |
-| `WebScraper` | Web scraper configuration (WebScraperType) |
+| `VoiceModelOption` / `UserVoiceModelConfig` | Voice/TTS settings |
+| `WebScraper` | Web scraper config (WebScraperType) |
 | `ProcessLock` | Distributed process locking |
-| `UserRequests` | Request tracking |
-| `RateLimitRecord` | Rate limiting |
+| `UserRequests` / `RateLimitRecord` | Rate limiting |
 | `UserMemory` | Long-term user memories |
 | `ReflectiveQuestion` | Reflective question templates |
-
-### Context Models (Pydantic)
-
-| Model | Purpose |
-|-------|---------|
-| `Context` | Search context container |
-| `OnlineContext` | Web search results |
-| `Intent` | User intent classification |
-| `TrainOfThought` | Reasoning trace |
-| `ChatMessageModel` | Chat message structure |
 
 ---
 
 ## 6. Database Adapters
 
-The adapter layer (`database/adapters/__init__.py`) provides the primary data access API:
+The adapter layer (`database/adapters/__init__.py`, 2,479 lines) provides the data access API:
 
 | Adapter | Key Methods |
 |---------|-------------|
 | `AgentAdapters` | CRUD for agents, accessibility checks, default agent management |
-| `ConversationAdapters` | Conversation CRUD, chat model management, voice/image model config, file filters, memory settings |
-| `EntryAdapters` | Entry CRUD, search with embeddings, file type/source queries |
+| `ConversationAdapters` | Conversation CRUD, `get_available_chat_models(user)` (team-filtered), voice/image model config |
+| `EntryAdapters` | Entry CRUD, `search_with_embeddings`, file type/source queries |
 | `FileObjectAdapters` | File object CRUD, path/regex queries |
 | `AutomationAdapters` | Automation CRUD, job metadata |
 | `McpServerAdapters` | MCP server queries |
@@ -435,12 +424,13 @@ The adapter layer (`database/adapters/__init__.py`) provides the primary data ac
 | `PublicConversationAdapters` | Public conversation management |
 | `ClientApplicationAdapters` | Client app queries |
 
-### Standalone Functions
-Authentication & user management functions: `get_or_create_user`, `get_user_by_token`, `get_user_subscription_state`, `set_user_name`, `create_apollos_token`, etc.
+Many methods have both sync and async variants (prefixed with `a`).
 
 ---
 
-## 7. API Router Summary
+## 7. API Endpoints
+
+### Public APIs
 
 | Router | Mount Point | Key Endpoints |
 |--------|-------------|---------------|
@@ -450,15 +440,53 @@ Authentication & user management functions: `get_or_create_user`, `get_user_by_t
 | `api_agents` | `/api/agents` | `GET /`, `GET /{slug}`, `POST /`, `PATCH /`, `DELETE /` |
 | `api_memories` | `/api/memories` | `GET /`, `PATCH /`, `DELETE /` |
 | `api_automation` | `/api/automations` | `GET /`, `POST /`, `PUT /`, `DELETE /`, `POST /trigger` |
-| `api_model` | `/api/model` | `GET /chat/options`, `GET /chat`, `POST /chat`, `POST /voice`, `POST /paint` |
+| `api_model` | `/api/model` | `GET /chat/options` (team-filtered), `GET /chat`, `POST /chat`, `POST /voice`, `POST /paint` |
 | `api_phone` | `/api/phone` | `POST /`, `DELETE /`, `POST /verify` |
 | `api_subscription` | `/api/subscription` | `POST /subscribe`, `POST /update` |
 | `auth` | `/auth` | `GET /login`, `POST /login`, `POST /magic-link`, `GET /token`, `DELETE /token`, `POST /logout` |
 | `research` | `/research` | Tool-based multi-step research execution |
 
+### Admin-Only APIs (require `is_org_admin` or `is_staff`)
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/model/chat/defaults` | `GET` | View ServerChatSettings slot assignments |
+| `/api/model/chat/defaults` | `POST` | Update server chat slot assignments |
+| `/api/model/embedding` | `GET` | View embedding model configuration |
+| `/api/model/team/{team_slug}/models` | `GET` | List team's allowed models |
+| `/api/model/team/{team_slug}/models` | `POST` | Assign models to a team |
+| `/api/model/team/{team_slug}/models` | `DELETE` | Remove models from a team |
+
+Auth pattern: `@requires(["authenticated"])` + `require_admin(request)` — NOT `Depends()`.
+
 ---
 
-## 8. Processing Pipeline
+## 8. Model Configuration System (6 Phases)
+
+### Phase 1: Embedding Env Vars
+`APOLLOS_EMBEDDING_MODEL`, `_DIMENSIONS`, `_API_TYPE`, `_API_KEY`, `_ENDPOINT`, `APOLLOS_CROSS_ENCODER_MODEL`
+
+### Phase 2: Chat Model Lists (evaluated at import time in `utils/constants.py`)
+`APOLLOS_OPENAI_CHAT_MODELS`, `APOLLOS_GEMINI_CHAT_MODELS`, `APOLLOS_ANTHROPIC_CHAT_MODELS`
+
+### Phase 3: Server Chat Slots
+`APOLLOS_DEFAULT_CHAT_MODEL`, `_ADVANCED_`, `_THINK_FREE_FAST_`, `_THINK_FREE_DEEP_`, `_THINK_PAID_FAST_`, `_THINK_PAID_DEEP_`
+
+### Phase 4: Bootstrap Config File (`APOLLOS_BOOTSTRAP_CONFIG`)
+JSONC format with `${VAR}` env var interpolation. Idempotent. Example: `bootstrap.example.jsonc`.
+Command: `python manage.py bootstrap_models --config <path>`
+
+### Phase 5: Team Model Assignment
+`Team.settings["allowed_models"]` — list of ChatModel PKs. User's available models = global + union of team models.
+
+### Phase 6: Admin API
+`GET/POST /api/model/chat/defaults`, `GET /api/model/embedding`, team model CRUD.
+
+**Override semantics**: Phase 3 env vars override bootstrap slots. Phases 1-2 only apply when no bootstrap config exists.
+
+---
+
+## 9. Processing Pipeline
 
 ### Chat Flow
 
@@ -506,48 +534,63 @@ Query → text_search.py
 
 ---
 
-## 9. CI/CD & Infrastructure
+## 10. CI/CD & Infrastructure
 
-### GitHub Workflows
+### GitHub Workflows (Active)
 
 | Workflow | Purpose |
 |----------|---------|
-| `test.yml` | Run test suite |
+| `test.yml` | Run test suite (uses `OPENAI_API_KEY`) |
 | `pre-commit.yml` | Linting & formatting checks |
 | `dockerize.yml` | Build & push Docker images |
 | `pypi.yml` | Publish to PyPI |
-| `release.yml` | Release management |
-| `desktop.yml` | Desktop app build |
-| `build_apollos_el.yml` | Emacs package build |
-| `test_apollos_el.yml` | Emacs package tests |
-| `github_pages_deploy.yml` | Documentation deployment |
 | `run_evals.yml` | Evaluation benchmarks |
 | `dockerize_telemetry_server.yml` | Telemetry service Docker build |
 
-### Docker
+### GitHub Workflows (Disabled)
+
+| Workflow | Purpose | Status |
+|----------|---------|--------|
+| `release.yml.disabled` | Obsidian plugin release | Needs reconfiguration |
+| `desktop.yml.disabled` | Desktop app build | Interface removed |
+| `build_apollos_el.yml.disabled` | Emacs package build | Interface removed |
+| `test_apollos_el.yml.disabled` | Emacs package tests | Interface removed |
+| `github_pages_deploy.yml.disabled` | Documentation deployment | Needs reconfiguration |
+
+### Docker (5 Dockerfiles)
 
 | File | Purpose |
 |------|---------|
-| `Dockerfile` | Standard build |
+| `Dockerfile` | Standard development build |
 | `prod.Dockerfile` | Production optimized build |
 | `computer.Dockerfile` | Computer-use agent build |
-| `docker-compose.yml` | Full stack orchestration |
+| `.devcontainer/Dockerfile` | VS Code devcontainer |
+| `src/telemetry/Dockerfile` | Telemetry service |
+| `docker-compose.yml` | Full stack: server, database (pgvector), search (SearXNG), sandbox (Terrarium) |
+
+### Other Config
+
+| File | Purpose |
+|------|---------|
+| `dependabot.yml` | Automated dependency updates (pip, npm, GitHub Actions) |
+| `gunicorn-config.py` | Production WSGI config |
 
 ---
 
-## 10. Testing
+## 11. Testing
 
-### Test Files
+### Test Files (28)
 
 | File | Coverage Area |
 |------|---------------|
-| `test_client.py` | API client tests |
-| `test_api_automation.py` | Automation API tests |
+| `test_client.py` | API client integration |
+| `test_api_automation.py` | Automation API (Google provider, skipif guards) |
 | `test_agents.py` | Agent functionality |
 | `test_conversation_utils.py` | Conversation utilities |
+| `test_model_configuration.py` | Model config system (Phases 1-6) |
 | `test_online_chat_director.py` | Online chat integration |
 | `test_online_chat_actors.py` | Chat actors |
-| `test_text_search.py` | Text search functionality |
+| `test_text_search.py` | Text search |
 | `test_multiple_users.py` | Multi-user scenarios |
 | `test_memory_settings.py` | Memory settings |
 | `test_db_lock.py` | Database locking |
@@ -561,20 +604,52 @@ Query → text_search.py
 | `test_file_filter.py` | File filtering |
 | `test_word_filter.py` | Word filtering |
 | `test_grep_files.py` | File grep functionality |
-| `test_helpers.py` | Helper utilities |
+| `test_helpers.py` | Helper utilities (provider fallback chain) |
 | `test_orgnode.py` | Org-mode node parsing |
 | `test_cli.py` | CLI interface |
-| `tests/evals/` | Evaluation benchmarks |
+| `evals/eval.py` | LLM evaluation benchmarks |
 
 ### Test Configuration
+
 - **Framework**: pytest with strict markers
 - **Plugins**: pytest-django, pytest-asyncio, pytest-xdist (parallel), freezegun
-- **Custom Marker**: `chatquality` - evaluates chatbot capabilities
-- **Config**: `pytest.ini` at project root
+- **Factories**: `UserFactory`, `ChatModelFactory`, `AiModelApiFactory`, `OrganizationFactory`, `TeamFactory`, `TeamMembershipFactory` (in `tests/helpers.py`)
+- **Custom Marker**: `chatquality` - evaluates chatbot capabilities (requires API key)
+- **Default provider**: OpenAI (`gpt-4o-mini`), with fallback to Gemini/Anthropic
+- **Config**: `pytest.ini` at project root (`--reuse-db`, `DJANGO_SETTINGS_MODULE`)
 
 ---
 
-## 11. Code Style & Conventions
+## 12. Claude Code Automation
+
+### Hooks (`.claude/settings.json`)
+
+| Hook | Type | Trigger | Purpose |
+|------|------|---------|---------|
+| File guard | PreToolUse | Edit\|Write | Block `.env`/`.lock` edits, warn on `helpers.py` and migrations |
+| Git guard | PreToolUse | Bash | Block `reset --hard`, `push --force`, `clean -f`, `branch -D` |
+| Python format | PostToolUse | Edit\|Write | Auto-run `ruff check --fix` and `ruff format` on `.py` files |
+| Frontend format | PostToolUse | Edit\|Write | Auto-run `prettier --write` on `.ts/.tsx/.js/.jsx/.css` files |
+
+### Subagents (`.claude/agents/`)
+
+| Agent | Purpose |
+|-------|---------|
+| `security-reviewer.md` | RBAC enforcement, bootstrap parsing, auth flows, API security, OWASP Top 10 |
+| `django-reviewer.md` | N+1 queries, model integrity, team boundary enforcement, migration safety |
+
+### Skills (`.claude/skills/`)
+
+| Skill | Invocation | Purpose |
+|-------|------------|---------|
+| `bootstrap-validate` | Both | Validate bootstrap JSONC config before deployment |
+| `run-tests` | Both | Run tests with appropriate flags |
+| `django-migration` | Both | Safe migration workflow: makemigrations → sqlmigrate → migrate |
+| `docs-sync` | User-only | Sync CLAUDE.md + MEMORY.md + Serena memories after features |
+
+---
+
+## 13. Code Style & Conventions
 
 | Setting | Value |
 |---------|-------|
@@ -586,51 +661,47 @@ Query → text_search.py
 | Lint Rules | E (errors), F (warnings), I (imports) |
 | Ignored | E501 (line length), F405 (star imports), E402 (import order in main.py) |
 | Type Checking | mypy (strict_optional=false, ignore_missing_imports) |
+| Frontend | prettier, ESLint (Next.js config) |
 
 ---
 
-## 12. Key Enums & Constants
+## 14. Environment Variables
 
-### ConversationCommand (from `utils/helpers.py`)
-Controls chat behavior: determines which tools and modes are available to the LLM.
+### Domain & Email
 
-### Agent Configuration (from `database/models`)
-- `StyleColorTypes` / `StyleIconTypes` - Agent visual styling
-- `PrivacyLevel` - Agent visibility (private, public, etc.)
-- `InputToolOptions` - Available input tools
-- `OutputModeOptions` - Output format options
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `APOLLOS_DOMAIN` | `apollosai.dev` | Base domain (backend, via `django.conf.settings`) |
+| `APOLLOS_SUPPORT_EMAIL` | `placeholder@apollosai.dev` | Support email |
+| `NEXT_PUBLIC_APOLLOS_DOMAIN` | `apollosai.dev` | Base domain (frontend) |
+| `NEXT_PUBLIC_SUPPORT_EMAIL` | — | Support email (frontend) |
 
-### Entry Types & Sources (from `database/models`)
-- `EntryType` - Content type classification
-- `EntrySource` - Content origin tracking
+### Model Configuration
 
-### Chat Model Types (from `database/models`)
-- `ChatModel.ModelType` - LLM provider types
-- `SearchModelConfig.ModelType` / `ApiType` - Search model configuration
+| Variable | Phase | Purpose |
+|----------|-------|---------|
+| `APOLLOS_EMBEDDING_MODEL` | 1 | Bi-encoder model name |
+| `APOLLOS_EMBEDDING_DIMENSIONS` | 1 | Embedding vector dimensions |
+| `APOLLOS_EMBEDDING_API_TYPE` | 1 | `local` \| `openai` \| `huggingface` |
+| `APOLLOS_OPENAI_CHAT_MODELS` | 2 | Comma-separated OpenAI model list |
+| `APOLLOS_GEMINI_CHAT_MODELS` | 2 | Comma-separated Gemini model list |
+| `APOLLOS_ANTHROPIC_CHAT_MODELS` | 2 | Comma-separated Anthropic model list |
+| `APOLLOS_DEFAULT_CHAT_MODEL` | 3 | Default + advanced chat slot |
+| `APOLLOS_ADVANCED_CHAT_MODEL` | 3 | Advanced chat slot override |
+| `APOLLOS_BOOTSTRAP_CONFIG` | 4 | Path to JSONC bootstrap config |
 
----
-
-## 13. Environment & Configuration
-
-### Key Environment Variables
+### External Services
 
 | Variable | Purpose |
 |----------|---------|
-| `GOOGLE_SEARCH_API_KEY` | Google Search API |
-| `GOOGLE_SEARCH_ENGINE_ID` | Google Custom Search Engine |
-| `SERPER_DEV_API_KEY` | Serper.dev search API |
+| `OPENAI_API_KEY` | OpenAI API (chat, embeddings, whisper) |
+| `GEMINI_API_KEY` | Google Gemini API |
+| `ANTHROPIC_API_KEY` | Anthropic Claude API |
+| `GOOGLE_SEARCH_API_KEY` | Google Search |
+| `SERPER_DEV_API_KEY` | Serper.dev search |
 | `FIRECRAWL_API_KEY` | Firecrawl web scraping |
-| `SEARXNG_URL` | SearXNG instance URL |
-| `EXA_API_KEY` | Exa search API |
-| `APOLLOS_DOMAIN` | Application domain |
-| `NOTION_OAUTH_CLIENT_ID` | Notion OAuth |
-| `NOTION_OAUTH_CLIENT_SECRET` | Notion OAuth |
-
-### Configuration Classes
-- `ServerChatSettings` - Server-wide LLM settings
-- `SearchModelConfig` - Embedding model config
-- `UserConversationConfig` - Per-user chat preferences
-- `configure.py: initialize_server()` - Full server bootstrap
+| `SEARXNG_URL` | SearXNG instance |
+| `EXA_API_KEY` | Exa search |
 
 ---
 

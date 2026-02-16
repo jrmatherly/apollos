@@ -1,0 +1,377 @@
+{
+  "project": {
+    "name": "apollos",
+    "description": "Your Second Brain - AI personal assistant with semantic search",
+    "license": "AGPL-3.0-or-later",
+    "python": ">=3.10, <3.13",
+    "homepage": "https://apollosai.dev",
+    "docs": "https://docs.apollosai.dev",
+    "repository": "https://github.com/jrmatherly/apollos",
+    "domain": "*.apollosai.dev",
+    "entry_point": "apollos.main:run"
+  },
+  "stats": {
+    "python_files": 233,
+    "typescript_files": 11825,
+    "test_files": 28,
+    "migrations": 116,
+    "documentation_pages": 35,
+    "shadcn_components": 36,
+    "react_components": 29,
+    "active_workflows": 6,
+    "disabled_workflows": 5,
+    "dockerfiles": 5,
+    "mise_tasks": 40
+  },
+  "stack": {
+    "backend": {
+      "framework": ["django==5.1.15", "fastapi>=0.110.0"],
+      "database": "postgresql+pgvector",
+      "ml": ["torch==2.6.0", "sentence-transformers==3.4.1"],
+      "llm_providers": ["openai", "anthropic", "google-genai"],
+      "asgi": "uvicorn==0.30.6",
+      "auth": "authlib==1.6.5"
+    },
+    "frontend": {
+      "framework": "next.js",
+      "language": "typescript",
+      "package_manager": "bun",
+      "ui": "shadcn/ui",
+      "styling": "tailwindcss"
+    },
+    "tooling": {
+      "version_manager": "mise",
+      "package_manager": "uv",
+      "linter": "ruff",
+      "type_checker": "mypy",
+      "test_runner": "pytest",
+      "build": "hatchling+hatch-vcs"
+    }
+  },
+  "entry_points": {
+    "cli": "src/apollos/main.py",
+    "django_manage": "src/apollos/manage.py",
+    "configure": "src/apollos/configure.py",
+    "frontend": "src/interface/web/app/layout.tsx"
+  },
+  "core_modules": {
+    "routers": {
+      "path": "src/apollos/routers/",
+      "files": {
+        "helpers.py": {
+          "lines": 3453,
+          "purpose": "Router utilities, rate limiters, chat processing"
+        },
+        "api_chat.py": {
+          "lines": 1750,
+          "mount": "/api/chat/",
+          "purpose": "Chat endpoints + WebSocket"
+        },
+        "research.py": {
+          "lines": 706,
+          "mount": "/research/",
+          "purpose": "Multi-step research"
+        },
+        "api_content.py": {
+          "lines": 636,
+          "mount": "/api/content/",
+          "purpose": "Content CRUD"
+        },
+        "api_agents.py": {
+          "lines": 510,
+          "mount": "/api/agents/",
+          "purpose": "Agent management"
+        },
+        "api_model.py": {
+          "lines": 431,
+          "mount": "/api/model/",
+          "purpose": "Model config + admin + team models"
+        },
+        "auth.py": {
+          "lines": 314,
+          "mount": "/auth/",
+          "purpose": "Authentication"
+        },
+        "api.py": { "lines": 268, "mount": "/api/", "purpose": "Core API" },
+        "api_automation.py": {
+          "lines": 243,
+          "mount": "/api/automation/",
+          "purpose": "Scheduled automations"
+        },
+        "api_subscription.py": {
+          "lines": 149,
+          "mount": "/api/subscription/",
+          "purpose": "Stripe subscriptions"
+        },
+        "email.py": { "lines": 145, "purpose": "Email integration" },
+        "api_memories.py": {
+          "lines": 114,
+          "mount": "/api/memories/",
+          "purpose": "User memory"
+        },
+        "api_phone.py": {
+          "lines": 86,
+          "mount": "/api/phone/",
+          "purpose": "Phone verification"
+        }
+      }
+    },
+    "database": {
+      "path": "src/apollos/database/",
+      "files": {
+        "models/__init__.py": { "lines": 911, "purpose": "All Django models" },
+        "adapters/__init__.py": {
+          "lines": 2479,
+          "purpose": "Data access layer"
+        },
+        "management/commands/bootstrap_models.py": {
+          "purpose": "Bootstrap config command"
+        }
+      }
+    },
+    "processor": {
+      "conversation": {
+        "prompts.py": { "lines": 1373, "purpose": "40+ prompt templates" },
+        "utils.py": {
+          "lines": 1283,
+          "purpose": "Chat history, formatting, tokens"
+        },
+        "openai/gpt.py": { "lines": 133 },
+        "google/gemini_chat.py": { "lines": 82 },
+        "anthropic/anthropic_chat.py": { "lines": 72 }
+      },
+      "content": [
+        "pdf",
+        "markdown",
+        "org_mode",
+        "plaintext",
+        "docx",
+        "images",
+        "github",
+        "notion"
+      ],
+      "tools": {
+        "online_search.py": {
+          "lines": 671,
+          "providers": ["google", "serper", "searxng", "exa", "firecrawl"]
+        },
+        "run_code.py": { "lines": 348, "sandboxes": ["e2b", "terrarium"] },
+        "mcp.py": { "lines": 124 }
+      },
+      "operator": {
+        "total_lines": 5715,
+        "agents": ["openai", "anthropic", "binary"],
+        "environments": ["browser", "computer"]
+      }
+    },
+    "search": {
+      "text_search.py": {
+        "lines": 257,
+        "purpose": "Embedding, querying, reranking, dedup"
+      },
+      "filters": ["date", "file", "word", "base"]
+    },
+    "utils": {
+      "helpers.py": {
+        "lines": 1252,
+        "purpose": "ConversationCommand enum, LLM clients, tokens"
+      },
+      "initialization.py": {
+        "lines": 361,
+        "purpose": "Server bootstrap sequence"
+      },
+      "bootstrap.py": {
+        "lines": 283,
+        "purpose": "JSONC config loader, idempotent setup"
+      },
+      "constants.py": {
+        "lines": 108,
+        "purpose": "Model lists (env-var-driven, import-time)"
+      },
+      "rawconfig.py": { "lines": 151, "purpose": "Pydantic models" }
+    }
+  },
+  "data_models": {
+    "core": [
+      "ApollosUser",
+      "GoogleUser",
+      "ApollosApiUser",
+      "ClientApplication",
+      "Subscription"
+    ],
+    "enterprise": ["Organization", "Team", "TeamMembership"],
+    "chat": [
+      "Conversation",
+      "PublicConversation",
+      "ChatModel",
+      "AiModelApi",
+      "Agent",
+      "ServerChatSettings"
+    ],
+    "content": [
+      "Entry",
+      "EntryDates",
+      "FileObject",
+      "SearchModelConfig",
+      "DataStore"
+    ],
+    "integrations": [
+      "NotionConfig",
+      "GithubConfig",
+      "GithubRepoConfig",
+      "McpServer"
+    ],
+    "system": [
+      "TextToImageModelConfig",
+      "VoiceModelOption",
+      "WebScraper",
+      "ProcessLock",
+      "UserMemory"
+    ]
+  },
+  "adapters": [
+    "AgentAdapters",
+    "ConversationAdapters",
+    "EntryAdapters",
+    "FileObjectAdapters",
+    "AutomationAdapters",
+    "McpServerAdapters",
+    "UserMemoryAdapters",
+    "ProcessLockAdapters",
+    "PublicConversationAdapters",
+    "ClientApplicationAdapters"
+  ],
+  "model_config_system": {
+    "phases": [
+      {
+        "phase": 1,
+        "name": "Embedding env vars",
+        "key_vars": ["APOLLOS_EMBEDDING_MODEL", "APOLLOS_EMBEDDING_DIMENSIONS"]
+      },
+      {
+        "phase": 2,
+        "name": "Chat model lists",
+        "key_vars": [
+          "APOLLOS_OPENAI_CHAT_MODELS",
+          "APOLLOS_GEMINI_CHAT_MODELS",
+          "APOLLOS_ANTHROPIC_CHAT_MODELS"
+        ]
+      },
+      {
+        "phase": 3,
+        "name": "Server chat slots",
+        "key_vars": [
+          "APOLLOS_DEFAULT_CHAT_MODEL",
+          "APOLLOS_ADVANCED_CHAT_MODEL"
+        ]
+      },
+      {
+        "phase": 4,
+        "name": "Bootstrap config file",
+        "key_vars": ["APOLLOS_BOOTSTRAP_CONFIG"],
+        "format": "JSONC"
+      },
+      {
+        "phase": 5,
+        "name": "Team model assignment",
+        "mechanism": "Team.settings.allowed_models"
+      },
+      {
+        "phase": 6,
+        "name": "Admin API",
+        "endpoints": ["/api/model/chat/defaults", "/api/model/embedding"]
+      }
+    ],
+    "override_rule": "Phase 3 env vars override bootstrap slots; Phases 1-2 only apply when no bootstrap config"
+  },
+  "admin_endpoints": [
+    {
+      "path": "/api/model/chat/defaults",
+      "methods": ["GET", "POST"],
+      "purpose": "Server chat slot management"
+    },
+    {
+      "path": "/api/model/embedding",
+      "methods": ["GET"],
+      "purpose": "Embedding config view"
+    },
+    {
+      "path": "/api/model/team/{team_slug}/models",
+      "methods": ["GET", "POST", "DELETE"],
+      "purpose": "Team model CRUD"
+    }
+  ],
+  "auth_pattern": {
+    "decorator": "@requires([\"authenticated\"])",
+    "admin_check": "require_admin(request)",
+    "location": "src/apollos/configure.py",
+    "note": "NOT Depends() - uses starlette auth pattern"
+  },
+  "ci_cd": {
+    "active_workflows": [
+      "test.yml",
+      "pre-commit.yml",
+      "dockerize.yml",
+      "pypi.yml",
+      "run_evals.yml",
+      "dockerize_telemetry_server.yml"
+    ],
+    "disabled_workflows": [
+      "release.yml",
+      "desktop.yml",
+      "build_apollos_el.yml",
+      "test_apollos_el.yml",
+      "github_pages_deploy.yml"
+    ]
+  },
+  "testing": {
+    "framework": "pytest",
+    "plugins": ["pytest-django", "pytest-asyncio", "pytest-xdist", "freezegun"],
+    "factories": [
+      "UserFactory",
+      "ChatModelFactory",
+      "AiModelApiFactory",
+      "OrganizationFactory",
+      "TeamFactory",
+      "TeamMembershipFactory"
+    ],
+    "default_provider": "openai",
+    "default_model": "gpt-4o-mini",
+    "config": "pytest.ini"
+  },
+  "claude_code": {
+    "hooks": {
+      "pre_tool_use": [
+        "file_guard (block .env/.lock, warn helpers.py/migrations)",
+        "git_guard (block destructive git commands)"
+      ],
+      "post_tool_use": [
+        "python_format (ruff check+format on .py)",
+        "frontend_format (prettier on .ts/.tsx/.js/.jsx/.css)"
+      ]
+    },
+    "agents": ["security-reviewer", "django-reviewer"],
+    "skills": [
+      "bootstrap-validate",
+      "run-tests",
+      "django-migration",
+      "docs-sync"
+    ]
+  },
+  "gotchas": [
+    "helpers.py (~3400 lines): Never broad find-replace — corrupts identifiers",
+    "AiModelApi.name and ChatModel.name are NOT unique — use filter().first()",
+    "Django must init before FastAPI imports — import order in main.py matters",
+    "constants.py model lists evaluated at module import time — mock vars directly in tests",
+    "MDX requires proper JSX closing tags — </TabItem> not <TabItem />",
+    "Bootstrap config uses .jsonc extension — not .json",
+    "bump_version.sh has 4 parallel option cases that need identical updates"
+  ],
+  "quick_start": [
+    "git clone https://github.com/jrmatherly/apollos && cd apollos",
+    "mise install",
+    "mise run setup",
+    "mise run dev"
+  ],
+  "generated": "2026-02-15"
+}
