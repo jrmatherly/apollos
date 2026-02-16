@@ -9,7 +9,8 @@ from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel
 from starlette.authentication import requires
 
-from apollos.database.models import McpServiceRegistry, McpUserConnection, Team
+from apollos.database.adapters import get_user_team_ids
+from apollos.database.models import McpServiceRegistry, McpUserConnection
 
 logger = logging.getLogger(__name__)
 api_mcp = APIRouter(prefix="/api/mcp", tags=["mcp"])
@@ -40,7 +41,7 @@ async def list_mcp_services(request: Request):
         services = await sync_to_async(list)(McpServiceRegistry.objects.filter(enabled=True))
     else:
         # Filter by team access
-        user_teams = await sync_to_async(list)(Team.objects.filter(memberships__user=user).values_list("id", flat=True))
+        user_teams = await sync_to_async(get_user_team_ids)(user)
         services = await sync_to_async(list)(
             McpServiceRegistry.objects.filter(
                 enabled=True,

@@ -94,10 +94,22 @@ LENGTH_OF_FREE_TRIAL = 7  #
 
 
 def get_user_team_ids(user: ApollosUser) -> list[int]:
-    """Get IDs of all teams the user belongs to."""
+    """Get IDs of all teams the user belongs to.
+
+    Results are cached on the user object for the lifetime of the request.
+    Call clear_team_ids_cache(user) if team membership changes mid-request.
+    """
     if user is None:
         return []
-    return list(Team.objects.filter(memberships__user=user).values_list("id", flat=True))
+    if not hasattr(user, "_cached_team_ids"):
+        user._cached_team_ids = list(Team.objects.filter(memberships__user=user).values_list("id", flat=True))
+    return user._cached_team_ids
+
+
+def clear_team_ids_cache(user: ApollosUser):
+    """Remove the per-request team-ids cache from a user object."""
+    if user is not None and hasattr(user, "_cached_team_ids"):
+        del user._cached_team_ids
 
 
 def build_entry_access_filter(user: ApollosUser, agent: Agent = None) -> Q:
