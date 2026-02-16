@@ -7,6 +7,7 @@ from urllib.parse import urlparse
 from fastapi import APIRouter, Request
 from starlette.responses import RedirectResponse
 
+from apollos.utils.audit import audit_log
 from apollos.utils.entra import (
     acquire_token_by_code,
     extract_user_claims,
@@ -68,6 +69,12 @@ async def entra_callback(request: Request):
 
     if "error" in token_response:
         logger.error(f"Token exchange error: {token_response}")
+        await audit_log(
+            action="auth.login_failed",
+            resource_type="auth",
+            details={"method": "entra_id", "error": "token_exchange_failed"},
+            request=request,
+        )
         return RedirectResponse(url="/login?error=token_exchange_failed", status_code=302)
 
     # Extract claims
@@ -114,6 +121,10 @@ async def entra_callback(request: Request):
 
     # Create session
     request.session["user"] = {"email": user.email}
+
+    await audit_log(
+        user=user, action="auth.login", resource_type="auth", details={"method": "entra_id"}, request=request
+    )
 
     return RedirectResponse(url=state or "/", status_code=302)
 

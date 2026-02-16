@@ -2144,6 +2144,23 @@ class ApiUserRateLimiter:
                 detail=f"I'm glad you're enjoying interacting with me! You've unfortunately exceeded your usage limit for today. You can subscribe to increase your usage limit via [your settings](https://app.{django_settings.APOLLOS_DOMAIN}/settings) or we can continue our conversation tomorrow?",
             )
 
+        # Per-team aggregate rate limit
+        if user:
+            from apollos.database.models import Team, TeamMembership
+
+            team_ids = list(TeamMembership.objects.filter(user=user).values_list("team_id", flat=True))
+            for team_id in team_ids:
+                team = Team.objects.filter(id=team_id).first()
+                if team and team.settings.get("rate_limit_daily"):
+                    team_limit = team.settings["rate_limit_daily"]
+                    team_usage = UserRequests.objects.filter(
+                        user__team_memberships__team_id=team_id,
+                        created_at__gte=cutoff,
+                        slug=self.slug,
+                    ).count()
+                    if team_usage >= team_limit:
+                        raise HTTPException(status_code=429, detail="Team rate limit exceeded")
+
         # Add the current request to the cache
         UserRequests.objects.create(user=user, slug=self.slug)
 
@@ -2193,6 +2210,23 @@ class ApiUserRateLimiter:
                 status_code=429,
                 detail=f"{common_message_prefix} You can subscribe to increase your usage limit via [your settings](https://app.{django_settings.APOLLOS_DOMAIN}/settings) or we can continue our conversation {next_window}.",
             )
+
+        # Per-team aggregate rate limit
+        if user:
+            from apollos.database.models import Team, TeamMembership
+
+            team_ids = [tm async for tm in TeamMembership.objects.filter(user=user).values_list("team_id", flat=True)]
+            for team_id in team_ids:
+                team = await Team.objects.filter(id=team_id).afirst()
+                if team and team.settings.get("rate_limit_daily"):
+                    team_limit = team.settings["rate_limit_daily"]
+                    team_usage = await UserRequests.objects.filter(
+                        user__team_memberships__team_id=team_id,
+                        created_at__gte=cutoff,
+                        slug=self.slug,
+                    ).acount()
+                    if team_usage >= team_limit:
+                        raise HTTPException(status_code=429, detail="Team rate limit exceeded")
 
         # Add the current request to the cache
         await UserRequests.objects.acreate(user=user, slug=self.slug)

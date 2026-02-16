@@ -255,6 +255,12 @@ async def add_team_member(request: Request, slug: str, body: AddMemberBody) -> R
 
     membership = await TeamMembership.objects.acreate(user=user, team=team, role=body.role)
 
+    from apollos.utils.audit import audit_log
+
+    await audit_log(
+        user=request.user.object, action="team.member_add", resource_type="team", resource_id=slug, request=request
+    )
+
     return Response(
         content=json.dumps({"user_id": str(user.uuid), "team_slug": team.slug, "role": membership.role}),
         media_type="application/json",
@@ -287,6 +293,16 @@ async def remove_team_member(request: Request, slug: str, user_uuid: str) -> Res
         )
 
     await sync_to_async(membership.delete)()
+
+    from apollos.utils.audit import audit_log
+
+    await audit_log(
+        user=request.user.object,
+        action="team.member_remove",
+        resource_type="team",
+        resource_id=slug,
+        request=request,
+    )
 
     return Response(
         content=json.dumps({"message": f"User removed from team '{slug}'"}),
@@ -406,8 +422,44 @@ async def update_org_settings(request: Request, body: UpdateOrgBody) -> Response
 
     await sync_to_async(org.save)()
 
+    from apollos.utils.audit import audit_log
+
+    await audit_log(user=request.user.object, action="admin.org_settings", resource_type="admin", request=request)
+
     return Response(
         content=json.dumps({"name": org.name, "slug": org.slug, "settings": org.settings}),
         media_type="application/json",
         status_code=200,
     )
+
+
+# --- Audit Log ---
+
+
+@api_admin.get("/audit-log")
+@requires(["authenticated"])
+async def get_audit_log(request: Request, action: str = None, limit: int = 100, offset: int = 0):
+    """View audit logs (admin only)."""
+    from apollos.configure import require_admin
+    from apollos.database.models import AuditLog
+
+    require_admin(request)
+
+    qs = AuditLog.objects.select_related("user").all()
+    if action:
+        qs = qs.filter(action__startswith=action)
+
+    logs = await sync_to_async(list)(qs[offset : offset + limit])
+    return [
+        {
+            "id": log.id,
+            "user": log.user.email if log.user else None,
+            "action": log.action,
+            "resource_type": log.resource_type,
+            "resource_id": log.resource_id,
+            "details": log.details,
+            "ip_address": str(log.ip_address) if log.ip_address else None,
+            "created_at": log.created_at.isoformat(),
+        }
+        for log in logs
+    ]

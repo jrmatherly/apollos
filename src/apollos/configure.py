@@ -407,6 +407,72 @@ def configure_routes(app):
         app.include_router(api_phone, prefix="/api/phone")
         logger.info("📞 Enabled Twilio")
 
+    @app.get("/health")
+    async def health_check():
+        """Unauthenticated health check for load balancers and monitoring."""
+        from django.db import connection
+
+        checks = {}
+
+        # Database connectivity
+        try:
+            await sync_to_async(connection.ensure_connection)()
+            checks["database"] = "ok"
+        except Exception as e:
+            checks["database"] = f"error: {e}"
+
+        # Entra ID connectivity (if configured)
+        from apollos.utils.entra import ENTRA_AUTHORITY, is_entra_configured
+
+        if is_entra_configured():
+            try:
+                import httpx
+
+                async with httpx.AsyncClient(timeout=5.0) as http_client:
+                    resp = await http_client.get(f"{ENTRA_AUTHORITY}/v2.0/.well-known/openid-configuration")
+                    checks["entra_id"] = "ok" if resp.status_code == 200 else f"error: {resp.status_code}"
+            except Exception as e:
+                checks["entra_id"] = f"error: {e}"
+
+        healthy = all(v == "ok" for v in checks.values())
+        from starlette.responses import JSONResponse
+
+        status_code = 200 if healthy else 503
+        return JSONResponse(
+            content={"status": "healthy" if healthy else "degraded", "checks": checks},
+            status_code=status_code,
+        )
+
+
+class CSRFOriginMiddleware(BaseHTTPMiddleware):
+    """Validate Origin header for state-changing requests on non-API routes."""
+
+    async def dispatch(self, request: Request, call_next):
+        if request.method in ("POST", "PUT", "DELETE", "PATCH"):
+            # Skip CSRF for API routes (use bearer tokens, not cookies)
+            if request.url.path.startswith("/api/"):
+                return await call_next(request)
+            # Skip for MCP server routes (use JWT bearer tokens)
+            if request.url.path.startswith("/mcp/"):
+                return await call_next(request)
+
+            origin = request.headers.get("origin", "")
+            if origin:
+                from django.conf import settings as django_settings
+
+                domain = django_settings.APOLLOS_DOMAIN
+                allowed_origins = [
+                    f"https://{domain}",
+                    f"https://app.{domain}",
+                    "http://localhost:42110",
+                    "http://localhost:3000",
+                    "http://127.0.0.1:42110",
+                ]
+                if not any(origin.startswith(ao) for ao in allowed_origins):
+                    return Response("CSRF validation failed", status_code=403)
+
+        return await call_next(request)
+
 
 def configure_middleware(app, ssl_enabled: bool = False):
     class NextJsMiddleware(Middleware):
@@ -447,14 +513,39 @@ def configure_middleware(app, ssl_enabled: bool = False):
                 # Re-raise for API routes and non-5xx errors
                 raise e
 
+    class SecurityHeadersMiddleware(BaseHTTPMiddleware):
+        """Add security headers to all responses."""
+
+        async def dispatch(self, request: Request, call_next):
+            response = await call_next(request)
+            response.headers["X-Content-Type-Options"] = "nosniff"
+            response.headers["X-Frame-Options"] = "DENY"
+            response.headers["X-XSS-Protection"] = "0"  # Disabled per modern best practice
+            response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+            response.headers["Permissions-Policy"] = "camera=(), microphone=(self), geolocation=()"
+
+            # Strict CSP for API responses (no HTML rendering needed)
+            if request.url.path.startswith("/api/"):
+                response.headers["Content-Security-Policy"] = "default-src 'none'"
+
+            return response
+
     if ssl_enabled:
         app.add_middleware(HTTPSRedirectMiddleware)
     app.add_middleware(SuppressClientDisconnectMiddleware)
     app.add_middleware(AsyncCloseConnectionsMiddleware)
     app.add_middleware(AuthenticationMiddleware, backend=UserAuthenticationBackend())
+    app.add_middleware(CSRFOriginMiddleware)  # CSRF origin validation for non-API state-changing requests
+    app.add_middleware(SecurityHeadersMiddleware)  # Security headers on all responses
     app.add_middleware(ServerErrorMiddleware)  # Add after AuthenticationMiddleware to catch its exceptions
     app.add_middleware(NextJsMiddleware)
-    app.add_middleware(SessionMiddleware, secret_key=os.environ.get("APOLLOS_DJANGO_SECRET_KEY", "!secret"))
+    app.add_middleware(
+        SessionMiddleware,
+        secret_key=os.environ.get("APOLLOS_DJANGO_SECRET_KEY", "!secret"),
+        max_age=86400,  # 24 hours
+        same_site="lax",
+        https_only=ssl_enabled,
+    )
 
 
 def update_content_index():

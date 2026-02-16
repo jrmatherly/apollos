@@ -1057,3 +1057,22 @@ class UserMemory(DbBaseModel):
     embeddings = VectorField(dimensions=None)
     raw = models.TextField()
     search_model = models.ForeignKey(SearchModelConfig, on_delete=models.SET_NULL, default=None, null=True, blank=True)
+
+
+class AuditLog(DbBaseModel):
+    """Tracks security-relevant actions for compliance."""
+
+    user = models.ForeignKey("ApollosUser", on_delete=models.SET_NULL, null=True, blank=True)
+    action = models.CharField(max_length=100, db_index=True)
+    resource_type = models.CharField(max_length=50, db_index=True)
+    resource_id = models.CharField(max_length=200, null=True, blank=True)
+    details = models.JSONField(default=dict)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.CharField(max_length=500, null=True, blank=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["action", "created_at"]),
+            models.Index(fields=["user", "created_at"]),
+        ]
+        ordering = ["-created_at"]

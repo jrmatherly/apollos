@@ -67,4 +67,14 @@ async def mcp_oauth_callback(request: Request):
         },
     )
 
+    from apollos.utils.audit import audit_log
+
+    await audit_log(
+        user=request.user.object,
+        action="mcp.connect",
+        resource_type="mcp",
+        resource_id=str(service_id),
+        request=request,
+    )
+
     return RedirectResponse(url=f"/settings?mcp_connected={service.name}", status_code=302)

@@ -163,6 +163,16 @@ async def disconnect_mcp_service(request: Request, service_id: int):
     connection.refresh_token = None
     await connection.asave()
 
+    from apollos.utils.audit import audit_log
+
+    await audit_log(
+        user=request.user.object,
+        action="mcp.disconnect",
+        resource_type="mcp",
+        resource_id=str(service_id),
+        request=request,
+    )
+
     return {"status": "disconnected"}
 
 
