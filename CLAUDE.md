@@ -154,7 +154,11 @@ api_content.py (put_content) → processor/content/*_to_entries.py (parse)
 
 ### Documentation
 
-Project documentation lives at `documentation/` (Docusaurus site). Feature docs, client guides, and architecture references are at `documentation/docs/`. When completing a feature implementation, convert the implementation plan into proper documentation here.
+Project documentation lives at `documentation/` (Docusaurus site). Feature docs, client guides, and architecture references are at `documentation/docs/`. Docusaurus sidebar is auto-generated from the filesystem (`sidebars.js`) — no manual sidebar config needed when adding or removing pages. When completing a feature implementation, convert the implementation plan into proper documentation here.
+
+### Client Interfaces
+
+`src/interface/` contains only `web/` (primary, Next.js) and `obsidian/` (plugin). Android, emacs, and desktop interfaces were removed. The word "desktop" in documentation may refer to Docker Desktop, LM Studio, or PWA install — not the removed Apollos Desktop client.
 
 ### Frontend (Web)
 
@@ -196,6 +200,7 @@ Server port: 42110. Database: pgvector/pgvector:pg15. Search: SearXNG. Sandbox: 
 - **Documentation MDX files**: Uses Docusaurus with MDX. Tags like `<TabItem>` and `<Tabs>` must use proper JSX closing (`</TabItem>`), never self-closing (`<TabItem />`). Batch operations on docs must include both `*.md` and `*.mdx` files.
 - **Multiple Dockerfiles**: `.devcontainer/Dockerfile`, `Dockerfile`, `prod.Dockerfile`, `computer.Dockerfile`, `src/telemetry/Dockerfile`. Lint with `docker run --rm -i hadolint/hadolint < <file>`.
 - **ESLint `next/babel` errors**: IDE-only issue when workspace root is the monorepo instead of `src/interface/web/`. Not a code bug.
+- **`scripts/bump_version.sh`**: Has 4 parallel option cases (`-p`, `-t`, `-c`, `-n`) that all follow the same version-bump pattern for web + obsidian. When modifying, all 4 cases need identical updates.
 - **Bootstrap config files use `.jsonc` extension**: IDEs validate `.json` strictly and flag JSONC features (comments, trailing commas) as errors. Always use `.jsonc` for config files with comments.
 - **Documentation layers**: When completing features, update all layers: `CLAUDE.md` (git-tracked), auto-memory `MEMORY.md` (session-persistent), Serena memories (`project-architecture`, `codebase-navigation`). Stale docs across layers cause confusion in future sessions.
 
