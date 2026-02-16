@@ -11,6 +11,7 @@ on:
       - src/apollos/**
       - src/interface/web/**
       - pyproject.toml
+      - uv.lock
       - Dockerfile
       - prod.Dockerfile
       - computer.Dockerfile
@@ -67,7 +68,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           # Get all history to correctly infer Apollos version using hatch
           fetch-depth: 0

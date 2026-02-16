@@ -28,7 +28,7 @@ if [ "$DEVCONTAINER" = true ]; then
     echo "Setup Server App with UV. Use pre-installed dependencies in $UV_PROJECT_ENVIRONMENT."
     sed -i "s/dynamic = \\[\"version\"\\]/version = \"$VERSION\"/" pyproject.toml
     cp /opt/uv.lock.linux uv.lock
-    uv sync --all-extras --group dev
+    uv sync --all-extras --group dev --no-build-isolation-package openai-whisper
 
     # Install Web App using cached dependencies
     echo "Setup Web App with Bun. Use pre-installed dependencies in /opt/apollos_web."

@@ -66,7 +66,7 @@ uv sync --all-extras --group dev --no-build-isolation-package openai-whisper
 
 [tasks."deps:dev"]
 description = "Install Python dev dependencies only (test + lint + data groups)"
-run = "uv sync --group dev --extra prod --extra local"
+run = "uv sync --group dev --extra prod --extra local --no-build-isolation-package openai-whisper"
 
 [tasks."deps:add"]
 description = "Add a Python dependency (usage: mise run deps:add <package>)"
@@ -200,8 +200,8 @@ sources = ["src/apollos/**/*.py", "pyproject.toml"]
 # ─── Testing ──────────────────────────────────────────────────────────────────
 
 [tasks.test]
-description = "Run all tests"
-run = "uv run pytest tests/ -x"
+description = "Run all tests (excludes chatquality; use test:chat for those)"
+run = "uv run pytest tests/ -x -m 'not chatquality'"
 
 [tasks."test:unit"]
 description = "Run unit tests only (exclude chatquality)"

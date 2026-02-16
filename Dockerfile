@@ -7,7 +7,7 @@ LABEL org.opencontainers.image.description="Your second brain, containerized for
 
 # Install System Dependencies
 RUN apt-get update -y && apt-get -y install --no-install-recommends \
-    python3-pip \
+    python3 \
     swig \
     curl \
     # Required by RapidOCR
@@ -21,18 +21,21 @@ RUN apt-get update -y && apt-get -y install --no-install-recommends \
     # Clean up
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Build Server
+# Build Server Dependencies
 FROM base AS server-deps
+COPY --from=ghcr.io/astral-sh/uv:0.10.2 /uv /uvx /bin/
 WORKDIR /app
-COPY pyproject.toml .
-COPY README.md .
+COPY pyproject.toml README.md uv.lock ./
 ARG VERSION=0.0.0
-# use the pre-built llama-cpp-python, torch cpu wheel
-ENV PIP_EXTRA_INDEX_URL="https://download.pytorch.org/whl/cpu https://abetlen.github.io/llama-cpp-python/whl/cpu"
-# avoid downloading unused cuda specific python packages
-ENV CUDA_VISIBLE_DEVICES=""
-RUN sed -i "s/dynamic = \\[\"version\"\\]/version = \"$VERSION\"/" pyproject.toml && \
-    pip install --no-cache-dir --break-system-packages .
+# Use pre-built CPU wheels for PyTorch and llama-cpp-python
+ENV UV_EXTRA_INDEX_URL="https://download.pytorch.org/whl/cpu https://abetlen.github.io/llama-cpp-python/whl/cpu" \
+    UV_INDEX_STRATEGY="unsafe-best-match" \
+    CUDA_VISIBLE_DEVICES="" \
+    UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy
+RUN --mount=type=cache,target=/root/.cache/uv \
+    sed -i "s/dynamic = \\[\"version\"\\]/version = \"$VERSION\"/" pyproject.toml && \
+    uv sync --frozen --no-install-project --no-dev --no-build-isolation-package openai-whisper
 
 # Build Web App
 FROM oven/bun:1-alpine AS web-app
@@ -51,7 +54,8 @@ RUN bun run build
 FROM base
 ENV PYTHONPATH=/app/src
 WORKDIR /app
-COPY --from=server-deps /usr/local/lib/python3.12/dist-packages /usr/local/lib/python3.12/dist-packages
+COPY --from=server-deps /app/.venv /app/.venv
+ENV PATH="/app/.venv/bin:$PATH"
 COPY --from=web-app /app/src/interface/web/out ./src/apollos/interface/built
 COPY . .
 WORKDIR /app/src

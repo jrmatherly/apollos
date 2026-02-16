@@ -68,7 +68,7 @@ sudo -u postgres createdb apollos
 ### Install Apollos
 
 ```bash
-uv sync --all-extras
+uv sync --all-extras --no-build-isolation-package openai-whisper
 ```
 
 ### Make Apollos DB migrations

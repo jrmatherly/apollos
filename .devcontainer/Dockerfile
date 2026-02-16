@@ -36,7 +36,7 @@ ENV UV_INDEX="https://download.pytorch.org/whl/cpu" \
 ENV UV_LINK_MODE=copy
 RUN --mount=type=cache,target=/root/.cache/uv \
     sed -i "s/dynamic = \\[\"version\"\\]/version = \"$VERSION\"/" pyproject.toml && \
-    uv sync --all-extras --group dev && \
+    uv sync --all-extras --group dev --no-build-isolation-package openai-whisper && \
     # Save the lock file generated with correct Linux platform wheels
     cp uv.lock /opt/uv.lock.linux && \
     chown -R vscode:vscode /opt/venv
