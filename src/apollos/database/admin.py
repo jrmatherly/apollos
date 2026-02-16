@@ -24,6 +24,8 @@ from apollos.database.models import (
     Entry,
     GithubConfig,
     McpServer,
+    McpServiceRegistry,
+    McpUserConnection,
     NotionConfig,
     Organization,
     ProcessLock,
@@ -200,6 +202,20 @@ class McpServerAdmin(unfold_admin.ModelAdmin):
         "path",
     )
     search_fields = ("id", "name", "path")
+
+
+@admin.register(McpServiceRegistry)
+class McpServiceRegistryAdmin(unfold_admin.ModelAdmin):
+    list_display = ("id", "name", "service_type", "enabled", "requires_admin_approval")
+    search_fields = ("id", "name", "server_url")
+    list_filter = ("service_type", "enabled")
+
+
+@admin.register(McpUserConnection)
+class McpUserConnectionAdmin(unfold_admin.ModelAdmin):
+    list_display = ("id", "user", "service", "status", "last_used_at")
+    search_fields = ("user__username", "service__name")
+    list_filter = ("status",)
 
 
 @admin.register(Agent)

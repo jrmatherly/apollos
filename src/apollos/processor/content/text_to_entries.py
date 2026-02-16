@@ -30,7 +30,9 @@ class TextToEntries(ABC):
         self.date_filter = DateFilter()
 
     @abstractmethod
-    def process(self, files: dict[str, str], user: ApollosUser, regenerate: bool = False) -> Tuple[int, int]: ...
+    def process(
+        self, files: dict[str, str], user: ApollosUser, regenerate: bool = False, visibility: str = "private", team=None
+    ) -> Tuple[int, int]: ...
 
     @staticmethod
     def hash_func(key: str) -> Callable:
@@ -150,6 +152,8 @@ class TextToEntries(ABC):
         deletion_filenames: Set[str] = None,
         regenerate: bool = False,
         file_to_text_map: dict[str, str] = None,
+        visibility: str = "private",
+        team=None,
     ):
         with timer("Constructed current entry hashes in", logger):
             hashes_by_file = dict[str, set[str]]()
@@ -195,6 +199,9 @@ class TextToEntries(ABC):
                         file_object = FileObjectAdapters.create_file_object(user, modified_file, raw_text)
                     file_to_file_object_map[modified_file] = file_object
 
+        if visibility == "team" and team is None:
+            raise ValueError("Cannot create team-visible entries without a team")
+
         added_entries: list[DbEntry] = []
         with timer("Added entries to database in", logger):
             num_items = len(hashes_to_process)
@@ -222,6 +229,8 @@ class TextToEntries(ABC):
                             url=entry.uri,
                             search_model=model,
                             file_object=file_object,
+                            visibility=visibility,
+                            team=team,
                         )
                     )
                 try:

@@ -16,6 +16,8 @@ from apollos.database.models import (
     ChatMessageModel,
     ChatModel,
     Conversation,
+    McpServiceRegistry,
+    McpUserConnection,
     Organization,
     ProcessLock,
     SearchModelConfig,
@@ -216,6 +218,10 @@ class UserFactory(factory.django.DjangoModelFactory):
     email = factory.Faker("email")
     password = factory.Faker("password")
     uuid = factory.Faker("uuid4")
+    # Entra ID fields — leave None by default, set explicitly in Entra tests
+    entra_oid = None
+    entra_upn = None
+    display_name = None
 
 
 class ApiUserFactory(factory.django.DjangoModelFactory):
@@ -320,6 +326,24 @@ class TeamMembershipFactory(factory.django.DjangoModelFactory):
     role = TeamMembership.Role.MEMBER
 
 
+class McpServiceRegistryFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = McpServiceRegistry
+
+    name = factory.Sequence(lambda n: f"test-mcp-service-{n}")
+    server_url = "https://mcp.example.com"
+    service_type = McpServiceRegistry.ServiceType.EXTERNAL
+
+
+class McpUserConnectionFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = McpUserConnection
+
+    user = factory.SubFactory(UserFactory)
+    service = factory.SubFactory(McpServiceRegistryFactory)
+    status = McpUserConnection.Status.CONNECTED
+
+
 # Async-safe wrappers for factories and ORM operations
 async def acreate_user():
     return await sync_to_async(UserFactory)()
@@ -365,3 +389,11 @@ async def acreate_team(organization, name="Test Team", slug="test-team"):
 
 async def acreate_team_membership(user, team, role=TeamMembership.Role.MEMBER):
     return await TeamMembership.objects.acreate(user=user, team=team, role=role)
+
+
+async def acreate_mcp_service(name="test-mcp", server_url="https://mcp.example.com"):
+    return await McpServiceRegistry.objects.acreate(name=name, server_url=server_url, service_type="external")
+
+
+async def acreate_mcp_connection(user, service, status="connected"):
+    return await McpUserConnection.objects.acreate(user=user, service=service, status=status)

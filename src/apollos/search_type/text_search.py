@@ -212,14 +212,16 @@ def setup(
     regenerate: bool,
     user: ApollosUser,
     config=None,
+    visibility: str = "private",
+    team=None,
 ) -> Tuple[int, int]:
     if config:
         num_new_embeddings, num_deleted_embeddings = text_to_entries(config).process(
-            files=files, user=user, regenerate=regenerate
+            files=files, user=user, regenerate=regenerate, visibility=visibility, team=team
         )
     else:
         num_new_embeddings, num_deleted_embeddings = text_to_entries().process(
-            files=files, user=user, regenerate=regenerate
+            files=files, user=user, regenerate=regenerate, visibility=visibility, team=team
         )
 
     if files:

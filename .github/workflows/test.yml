@@ -88,7 +88,11 @@ jobs:
           UV_INDEX: "https://download.pytorch.org/whl/cpu"
           UV_INDEX_STRATEGY: "unsafe-best-match"
           CUDA_VISIBLE_DEVICES: ""
-        run: sed -i 's/dynamic = \["version"\]/version = "0.0.0"/' pyproject.toml && uv sync --all-extras --group dev --no-build-isolation-package openai-whisper
+        run: |
+          sed -i 's/dynamic = \["version"\]/version = "0.0.0"/' pyproject.toml
+          uv venv
+          uv pip install "setuptools<81"
+          uv sync --all-extras --group dev --no-build-isolation-package openai-whisper
 
       - name: Test Application
         env:

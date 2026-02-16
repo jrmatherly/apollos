@@ -39,6 +39,7 @@ class ModifyAgentBody(BaseModel):
     output_modes: Optional[List[str]] = []
     slug: Optional[str] = None
     is_hidden: Optional[bool] = False
+    team_slug: Optional[str] = None
 
 
 class ModifyHiddenAgentBody(BaseModel):
@@ -246,6 +247,27 @@ async def delete_agent(
             status_code=404,
         )
 
+    # RBAC: check delete permissions based on agent privacy level
+    if agent.privacy_level == Agent.PrivacyLevel.ORGANIZATION:
+        if not (user.is_org_admin or user.is_staff):
+            return Response(
+                content=json.dumps({"error": "Only admins can delete organization-wide agents"}),
+                media_type="application/json",
+                status_code=403,
+            )
+    elif agent.privacy_level == Agent.PrivacyLevel.TEAM and agent.team:
+        if not (user.is_org_admin or user.is_staff):
+            from apollos.database.models import TeamMembership
+            from apollos.routers.auth_helpers import get_user_role_in_team
+
+            role = await sync_to_async(get_user_role_in_team)(user, agent.team)
+            if role not in [TeamMembership.Role.TEAM_LEAD, TeamMembership.Role.ADMIN]:
+                return Response(
+                    content=json.dumps({"error": "Only team leads can delete team agents"}),
+                    media_type="application/json",
+                    status_code=403,
+                )
+
     await AgentAdapters.adelete_agent_by_slug(agent_slug, user)
 
     return Response(content=json.dumps({"message": "Agent deleted."}), media_type="application/json", status_code=200)
@@ -372,8 +394,46 @@ async def create_agent(
 ) -> Response:
     user: ApollosUser = request.user.object
 
+    # RBAC: validate privacy level permissions
+    if body.privacy_level == Agent.PrivacyLevel.ORGANIZATION:
+        if not (user.is_org_admin or user.is_staff):
+            return Response(
+                content=json.dumps({"error": "Only admins can create organization-wide agents"}),
+                media_type="application/json",
+                status_code=403,
+            )
+
+    resolved_team = None
+    if body.privacy_level == Agent.PrivacyLevel.TEAM:
+        if not body.team_slug:
+            return Response(
+                content=json.dumps({"error": "team_slug required for team agents"}),
+                media_type="application/json",
+                status_code=400,
+            )
+        from apollos.database.models import Team, TeamMembership
+        from apollos.routers.auth_helpers import get_user_role_in_team
+
+        resolved_team = await sync_to_async(Team.objects.filter(slug=body.team_slug).first)()
+        if not resolved_team:
+            return Response(
+                content=json.dumps({"error": "Team not found"}),
+                media_type="application/json",
+                status_code=404,
+            )
+        if not (user.is_org_admin or user.is_staff):
+            role = await sync_to_async(get_user_role_in_team)(user, resolved_team)
+            if role not in [TeamMembership.Role.TEAM_LEAD, TeamMembership.Role.ADMIN]:
+                return Response(
+                    content=json.dumps({"error": "Only team leads can create team agents"}),
+                    media_type="application/json",
+                    status_code=403,
+                )
+
     is_safe_prompt, reason = await acheck_if_safe_prompt(
-        body.persona, user, lax=body.privacy_level == Agent.PrivacyLevel.PRIVATE
+        body.persona,
+        user,
+        lax=body.privacy_level == Agent.PrivacyLevel.PRIVATE,
     )
 
     if not is_safe_prompt:
@@ -412,6 +472,11 @@ async def create_agent(
             status_code=400,
         )
 
+    # Set team association for team-scoped agents
+    if resolved_team:
+        agent.team = resolved_team
+        await sync_to_async(agent.save)(update_fields=["team"])
+
     agent.chat_model = await AgentAdapters.aget_agent_chat_model(agent, user)
     agents_packet = {
         "slug": agent.slug,
@@ -441,6 +506,42 @@ async def update_agent(
 ) -> Response:
     user: ApollosUser = request.user.object
 
+    # RBAC: validate privacy level permissions
+    if body.privacy_level == Agent.PrivacyLevel.ORGANIZATION:
+        if not (user.is_org_admin or user.is_staff):
+            return Response(
+                content=json.dumps({"error": "Only admins can create organization-wide agents"}),
+                media_type="application/json",
+                status_code=403,
+            )
+
+    resolved_team = None
+    if body.privacy_level == Agent.PrivacyLevel.TEAM:
+        if not body.team_slug:
+            return Response(
+                content=json.dumps({"error": "team_slug required for team agents"}),
+                media_type="application/json",
+                status_code=400,
+            )
+        from apollos.database.models import Team, TeamMembership
+        from apollos.routers.auth_helpers import get_user_role_in_team
+
+        resolved_team = await sync_to_async(Team.objects.filter(slug=body.team_slug).first)()
+        if not resolved_team:
+            return Response(
+                content=json.dumps({"error": "Team not found"}),
+                media_type="application/json",
+                status_code=404,
+            )
+        if not (user.is_org_admin or user.is_staff):
+            role = await sync_to_async(get_user_role_in_team)(user, resolved_team)
+            if role not in [TeamMembership.Role.TEAM_LEAD, TeamMembership.Role.ADMIN]:
+                return Response(
+                    content=json.dumps({"error": "Only team leads can update team agents"}),
+                    media_type="application/json",
+                    status_code=403,
+                )
+
     selected_agent = await AgentAdapters.aget_agent_by_slug(body.slug, user)
 
     if not selected_agent:
@@ -453,7 +554,9 @@ async def update_agent(
     if selected_agent.personality != body.persona:
         # Check if the new persona is safe
         is_safe_prompt, reason = await acheck_if_safe_prompt(
-            body.persona, user, lax=body.privacy_level == Agent.PrivacyLevel.PRIVATE
+            body.persona,
+            user,
+            lax=body.privacy_level == Agent.PrivacyLevel.PRIVATE,
         )
 
         if not is_safe_prompt:
@@ -490,6 +593,11 @@ async def update_agent(
             media_type="application/json",
             status_code=400,
         )
+
+    # Set team association for team-scoped agents
+    if resolved_team:
+        agent.team = resolved_team
+        await sync_to_async(agent.save)(update_fields=["team"])
 
     agent.chat_model = await AgentAdapters.aget_agent_chat_model(agent, user)
     agents_packet = {

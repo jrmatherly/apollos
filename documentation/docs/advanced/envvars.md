@@ -143,6 +143,34 @@ Required for Google Sign-In authentication. Either Google OAuth or Resend (magic
 | `GOOGLE_CLIENT_ID` | *(none)* | Conditional | Google OAuth 2.0 client ID. |
 | `GOOGLE_CLIENT_SECRET` | *(none)* | Conditional | Google OAuth 2.0 client secret. |
 
+## Enterprise SSO (Microsoft Entra ID)
+
+Required for enterprise single sign-on via Microsoft Entra ID (formerly Azure AD). Requires an [App Registration](https://learn.microsoft.com/en-us/entra/identity-platform/quickstart-register-app) in Azure Portal with an OIDC redirect URI configured.
+
+| Variable | Default | Required | Description |
+|----------|---------|----------|-------------|
+| `APOLLOS_ENTRA_TENANT_ID` | *(none)* | Conditional | Microsoft Entra ID (Azure AD) tenant ID. Required for SSO. |
+| `APOLLOS_ENTRA_CLIENT_ID` | *(none)* | Conditional | App Registration client ID for the Apollos web application. |
+| `APOLLOS_ENTRA_CLIENT_SECRET` | *(none)* | Conditional | App Registration client secret. |
+| `APOLLOS_ENTRA_REDIRECT_URI` | *(none)* | Conditional | OAuth redirect URI (e.g., `https://apollos.example.com/auth/callback`). Must match the redirect URI configured in the App Registration. |
+
+:::tip
+When all four Entra ID variables are set, the Entra ID login option appears automatically in the authentication UI. Google OAuth and magic links continue to work alongside SSO.
+:::
+
+## MCP Server (Inbound)
+
+When configured, Apollos exposes MCP server endpoints at `/mcp/v1/*` for external clients to connect. Requires a separate App Registration in Azure Portal configured as a Web API.
+
+| Variable | Default | Required | Description |
+|----------|---------|----------|-------------|
+| `APOLLOS_MCP_CLIENT_ID` | *(none)* | Conditional | App Registration client ID for the MCP API ("Apollos AI - MCP API"). Required to enable inbound MCP server. |
+| `APOLLOS_MCP_RESOURCE_URI` | *(none)* | Conditional | RFC 8707 resource indicator (e.g., `api://apollos-mcp`). Must match the Application ID URI in the App Registration. |
+
+:::info
+The MCP server uses JWT bearer token validation via Microsoft Entra ID. External MCP clients authenticate using OAuth 2.0 client credentials or delegated tokens scoped to the MCP API resource.
+:::
+
 ## Online Search
 
 At least one search provider enables the `/search` tool in chat. SearXNG is included in the default Docker Compose stack.
@@ -230,6 +258,22 @@ Only needed for cloud image storage.
 | `AWS_IMAGE_UPLOAD_BUCKET` | *(none)* | Conditional | S3 bucket name for generated images. |
 | `AWS_USER_UPLOADED_IMAGES_BUCKET_NAME` | *(none)* | Conditional | S3 bucket name for user-uploaded images. |
 
+## Security / Encryption
+
+| Variable | Default | Required | Description |
+|----------|---------|----------|-------------|
+| `APOLLOS_VAULT_MASTER_KEY` | *(none)* | Recommended (production) | Master key for AES-256-GCM encryption of OAuth tokens stored in the MCP service registry. Must be at least 32 characters. |
+
+**Generate a secure vault key:**
+
+```shell
+python -c "import secrets; print(secrets.token_urlsafe(48))"
+```
+
+:::warning
+If you change the vault master key after MCP service connections have been established, existing encrypted tokens will become unreadable. Back up the key securely.
+:::
+
 ## Advanced / Debugging
 
 | Variable | Default | Required | Description |
@@ -280,4 +324,23 @@ OPENAI_API_KEY=sk-...
 ANTHROPIC_API_KEY=sk-ant-...
 # or
 GEMINI_API_KEY=AI...
+```
+
+### Enterprise SSO Setup
+
+If deploying with Microsoft Entra ID single sign-on, also set:
+
+```shell
+# Entra ID SSO
+APOLLOS_ENTRA_TENANT_ID=your-tenant-id
+APOLLOS_ENTRA_CLIENT_ID=your-client-id
+APOLLOS_ENTRA_CLIENT_SECRET=your-client-secret
+APOLLOS_ENTRA_REDIRECT_URI=https://apollos.yourdomain.com/auth/callback
+
+# Token encryption (recommended)
+APOLLOS_VAULT_MASTER_KEY=$(python -c "import secrets; print(secrets.token_urlsafe(48))")
+
+# MCP server (optional — enables inbound MCP connections)
+# APOLLOS_MCP_CLIENT_ID=your-mcp-api-client-id
+# APOLLOS_MPC_RESOURCE_URI=api://apollos-mcp
 ```

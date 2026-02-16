@@ -2,7 +2,7 @@ import styles from "./agentCard.module.css";
 
 import { useEffect, useRef, useState } from "react";
 
-import { UserProfile, ModelOptions, UserConfig } from "@/app/common/auth";
+import { UserProfile, ModelOptions, UserConfig, useUserRole } from "@/app/common/auth";
 import { Button } from "@/components/ui/button";
 
 import {
@@ -193,6 +193,7 @@ export function AgentCard(props: AgentCardProps) {
     const [showModal, setShowModal] = useState(props.agentSlug === props.data.slug);
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
     const [errors, setErrors] = useState<string | null>(null);
+    const { isAdmin } = useUserRole();
 
     let lockIcon = <Lock />;
     let privacyHoverText = "Private agents are only visible to you.";
@@ -289,6 +290,13 @@ export function AgentCard(props: AgentCardProps) {
     function makeBadgeFooter() {
         return (
             <div className="flex flex-wrap items-center gap-1">
+                {props.data.managed_by_admin && (
+                    <Badge
+                        icon={<ShieldWarning />}
+                        text="Managed"
+                        hoverText="This agent is managed by an organization administrator."
+                    />
+                )}
                 {props.editCard && (
                     <Badge
                         icon={lockIcon}
@@ -386,7 +394,8 @@ export function AgentCard(props: AgentCardProps) {
                                                         url={`${window.location.origin}/agents?agent=${props.data.slug}`}
                                                     />
                                                 )}
-                                            {props.data.creator === userData?.username && (
+                                            {(props.data.creator === userData?.username ||
+                                                (isAdmin && props.data.managed_by_admin)) && (
                                                 <Button
                                                     className="items-center justify-start"
                                                     variant={"destructive"}

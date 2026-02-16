@@ -79,7 +79,9 @@ class NotionToEntries(TextToEntries):
 
         self.body_params = {"page_size": 100}
 
-    def process(self, files: dict[str, str], user: ApollosUser, regenerate: bool = False) -> Tuple[int, int]:
+    def process(
+        self, files: dict[str, str], user: ApollosUser, regenerate: bool = False, visibility: str = "private", team=None
+    ) -> Tuple[int, int]:
         current_entries = []
 
         # Get all pages
@@ -113,7 +115,7 @@ class NotionToEntries(TextToEntries):
 
         current_entries = TextToEntries.split_entries_by_max_tokens(current_entries, max_tokens=256)
 
-        return self.update_entries_with_ids(current_entries, user=user)
+        return self.update_entries_with_ids(current_entries, user=user, visibility=visibility, team=team)
 
     def process_page(self, page):
         page_id = page["id"]
@@ -244,7 +246,9 @@ class NotionToEntries(TextToEntries):
             title = None
         return title, content
 
-    def update_entries_with_ids(self, current_entries, user: ApollosUser = None):
+    def update_entries_with_ids(
+        self, current_entries, user: ApollosUser = None, visibility: str = "private", team=None
+    ):
         # Identify, mark and merge any new entries with previous entries
         with timer("Identify new or updated entries", logger):
             num_new_embeddings, num_deleted_embeddings = self.update_embeddings(
@@ -254,6 +258,8 @@ class NotionToEntries(TextToEntries):
                 DbEntry.EntrySource.NOTION,
                 key="compiled",
                 logger=logger,
+                visibility=visibility,
+                team=team,
             )
 
         return num_new_embeddings, num_deleted_embeddings

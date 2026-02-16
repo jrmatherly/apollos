@@ -21,7 +21,9 @@ class PdfToEntries(TextToEntries):
         super().__init__()
 
     # Define Functions
-    def process(self, files: dict[str, str], user: ApollosUser, regenerate: bool = False) -> Tuple[int, int]:
+    def process(
+        self, files: dict[str, str], user: ApollosUser, regenerate: bool = False, visibility: str = "private", team=None
+    ) -> Tuple[int, int]:
         # Extract required fields from config
         deletion_file_names = set([file for file in files if files[file] == b""])
         files_to_process = set(files) - deletion_file_names
@@ -47,6 +49,8 @@ class PdfToEntries(TextToEntries):
                 deletion_file_names,
                 regenerate=regenerate,
                 file_to_text_map=file_to_text_map,
+                visibility=visibility,
+                team=team,
             )
 
         return num_new_embeddings, num_deleted_embeddings
