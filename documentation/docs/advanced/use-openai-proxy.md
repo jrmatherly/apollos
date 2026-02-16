@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-<!-- NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. -->
+{/* NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. */}
 
 # Use OpenAI Proxy
 :::info

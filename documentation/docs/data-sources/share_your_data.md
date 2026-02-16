@@ -4,7 +4,7 @@ keywords: ["upload data", "upload files", "share data", "share files", "pdf ai",
 
 ---
 
-<!-- NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. -->
+{/* NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. */}
 
 # Upload your data
 

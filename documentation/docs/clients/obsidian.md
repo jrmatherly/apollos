@@ -2,7 +2,7 @@
 sidebar_position: 3
 ---
 
-<!-- NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. -->
+{/* NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. */}
 
 # Obsidian
 
@@ -28,7 +28,7 @@ If you are self-hosting the Apollos server, update the Apollos Obsidian plugin s
 - Do not set the `Apollos API Key` field if your Apollos server runs in anonymous mode. For example, `apollos --anonymous-mode`
 :::
 
-1. Open [Apollos](https://obsidian.md/plugins?id=khoj) <!-- TODO: Update Obsidian plugin ID once re-published --> from the *Community plugins* tab in Obsidian settings panel
+1. Open [Apollos](https://obsidian.md/plugins?id=khoj) {/* TODO: Update Obsidian plugin ID once re-published */} from the *Community plugins* tab in Obsidian settings panel
 2. Click *Install*, then *Enable* on the Apollos plugin page in Obsidian
 3. Generate an API key on the [Apollos Web App](https://app.apollosai.dev/settings#clients)
 4. Set your Apollos API Key in the Apollos plugin settings on Obsidian

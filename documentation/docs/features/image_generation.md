@@ -1,4 +1,4 @@
-<!-- NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. -->
+{/* NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. */}
 
 # Image Generation
 You can use Apollos to generate images from text prompts. You can get deeper into the  details of our image generation flow in this blog post: https://blog.apollosai.dev/posts/how-apollos-generates-images/.

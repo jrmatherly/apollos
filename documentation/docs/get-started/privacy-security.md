@@ -3,7 +3,7 @@ sidebar_position: 4
 slug: /privacy
 ---
 
-<!-- NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. -->
+{/* NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. */}
 
 # Privacy
 

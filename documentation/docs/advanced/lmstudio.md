@@ -1,4 +1,4 @@
-<!-- NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. -->
+{/* NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. */}
 
 # LM Studio
 :::warning[Unsupported]

@@ -4,7 +4,7 @@ slug: /
 keywords: ["apollos", "apollos ai", "apollos docs", "apollos documentation", "apollos features", "apollos overview", "apollos quickstart", "apollos chat", "apollos search", "apollos cloud", "apollos self-host", "apollos setup", "open source ai", "local llm", "ai copilot", "second brain", "personal ai", "ai search engine", "research assistant", "open source llm", "self-host llm", "self-host chatgpt", "ai chatbot", "ai assistant", "ai research assistant", "ai search engine", "ai knowledge base", "ai knowledge graph", "ai personal assistant", "ai second brain", "open source ai assistant"]
 ---
 
-<!-- NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. -->
+{/* NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. */}
 
 # Overview
 <div align="center">

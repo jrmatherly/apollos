@@ -2,7 +2,7 @@
 sidebar_position: 5
 ---
 
-<!-- NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. -->
+{/* NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. */}
 
 # WhatsApp
 
@@ -16,7 +16,7 @@ In order to use Apollos on WhatsApp with your own data, you need to setup a Apol
 
 If you hit usage limits for the WhatsApp bot, upgrade to [a paid plan](https://apollosai.dev/#pricing) on Apollos Cloud.
 
-<img src="https://khoj-web-bucket.s3.amazonaws.com/khojwhatsapp.png" alt="WhatsApp QR Code" width="300" height="300" /> <!-- TODO: Update S3 asset URL -->
+<img src="https://khoj-web-bucket.s3.amazonaws.com/khojwhatsapp.png" alt="WhatsApp QR Code" width="300" height="300" /> {/* TODO: Update S3 asset URL */}
 
 ## Features
 
@@ -25,8 +25,8 @@ If you hit usage limits for the WhatsApp bot, upgrade to [a paid plan](https://a
   - `/dream`: Generate an image in response to your prompt.
   - `/notes`: Explicitly force Apollos to retrieve context from your notes. Note: You'll need to connect your WhatsApp account to a Apollos Cloud account for this to work.
 
-We have more commands under development, including `/share` to uploading documents directly to your Apollos account from WhatsApp, and `/speak` in order to get a speech response from Apollos. Feel free to [raise an issue](https://github.com/jrmatherly/apollos/issues) <!-- TODO: Verify repo for WhatsApp bot --> if you have any suggestions for new commands.
+We have more commands under development, including `/share` to uploading documents directly to your Apollos account from WhatsApp, and `/speak` in order to get a speech response from Apollos. Feel free to [raise an issue](https://github.com/jrmatherly/apollos/issues) {/* TODO: Verify repo for WhatsApp bot */} if you have any suggestions for new commands.
 
 ## Source Code
 
-You can find all of the code for the WhatsApp bot in the [flint repository](https://github.com/jrmatherly/apollos) <!-- TODO: Verify repo for WhatsApp bot -->. As all of our code, it is open source and you can contribute to it.
+You can find all of the code for the WhatsApp bot in the [flint repository](https://github.com/jrmatherly/apollos) {/* TODO: Verify repo for WhatsApp bot */}. As all of our code, it is open source and you can contribute to it.
