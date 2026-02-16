@@ -9,6 +9,7 @@ pgserver_data/
 
 # External app artifacts
 __pycache__
+.mypy_cache
 .ruff_cache
 .DS_Store
 .emacs.desktop*

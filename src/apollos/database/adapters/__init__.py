@@ -562,7 +562,7 @@ def _search_model_defaults_from_env() -> dict:
 
     Returns a dict of field overrides; only includes keys whose env vars are set.
     """
-    defaults = {}
+    defaults: dict[str, object] = {}
     bi_encoder = os.getenv("APOLLOS_EMBEDDING_MODEL")
     if bi_encoder:
         defaults["bi_encoder"] = bi_encoder
@@ -581,7 +581,7 @@ def _search_model_defaults_from_env() -> dict:
     api_type = os.getenv("APOLLOS_EMBEDDING_API_TYPE")
     if api_type:
         api_type_upper = api_type.upper()
-        valid_types = {t.value.upper(): t.value for t in SearchModelConfig.ApiType}
+        valid_types = {t.value.upper(): t.value for t in SearchModelConfig.ApiType}  # type: ignore[attr-defined]
         if api_type_upper in valid_types:
             defaults["embeddings_inference_endpoint_type"] = valid_types[api_type_upper]
         else:

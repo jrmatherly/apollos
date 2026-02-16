@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Dict, Optional, Union
+from typing import Any, Callable, Dict, Optional, Union
 
 from fastapi import APIRouter, Request
 from fastapi.responses import Response
@@ -390,7 +390,7 @@ def update_embedding_config(request: Request, body: dict):
     requires_reindex = False
     old_model = search_config.bi_encoder
 
-    updatable_fields = {
+    updatable_fields: dict[str, Callable[[Any], Any]] = {
         "bi_encoder": str,
         "bi_encoder_dimensions": lambda v: int(v) if v is not None else None,
         "cross_encoder": str,

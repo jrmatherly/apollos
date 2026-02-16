@@ -182,7 +182,7 @@ def apply_bootstrap_config(config: dict):
     embedding = config.get("embedding")
     if embedding and embedding.get("model"):
         api_type_str = embedding.get("api_type", "local").upper()
-        valid_types = {t.value.upper(): t.value for t in SearchModelConfig.ApiType}
+        valid_types = {t.value.upper(): t.value for t in SearchModelConfig.ApiType}  # type: ignore[attr-defined]
         if api_type_str not in valid_types:
             logger.warning(f"Bootstrap: invalid embedding api_type '{embedding.get('api_type')}', skipping.")
         else:
@@ -212,7 +212,7 @@ def apply_bootstrap_config(config: dict):
     if slot_defaults:
         from django.core.exceptions import ValidationError
 
-        valid_slots = {slot.value for slot in ServerChatSettings.ChatModelSlot}
+        valid_slots = {slot.value for slot in ServerChatSettings.ChatModelSlot}  # type: ignore[attr-defined]
         free_tier_slots = {"chat_default", "think_free_fast", "think_free_deep"}
 
         server_settings = ServerChatSettings.objects.first()
