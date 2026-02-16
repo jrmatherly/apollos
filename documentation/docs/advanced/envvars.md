@@ -2,7 +2,7 @@
 sidebar_position: 99
 ---
 
-{/* NOTE: URLs reference apollosai.dev. If forking this project, update to your domain. */}
+{/*NOTE: URLs reference apollosai.dev. If forking this project, update to your domain.*/}
 
 # Environment Variables
 
@@ -31,6 +31,7 @@ Complete reference for all environment variables used by Apollos. Variables are 
 | `APOLLOS_DJANGO_SECRET_KEY` | `!secret` | **Required** (production) | Django secret key for cryptographic signing. Must be unique and unpredictable. |
 
 **Generate a secure secret key:**
+
 ```shell
 # Using Python (recommended — generates a Django-compatible key)
 python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
@@ -47,6 +48,7 @@ openssl rand -base64 50
 | `APOLLOS_ADMIN_PASSWORD` | *(interactive prompt)* | Required (non-interactive) | Admin account password. Required when running with `--non-interactive`. |
 
 **Generate a secure admin password:**
+
 ```shell
 openssl rand -base64 32
 ```
