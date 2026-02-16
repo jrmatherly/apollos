@@ -97,6 +97,7 @@ dependencies = [
     "e2b-code-interpreter ~= 1.0.0",
     "mcp >= 1.12.4",
     "msal>=1.34.0",
+    "PyJWT[crypto]>=2.8.0",
     "argon2-cffi>=25.1.0",
     "cryptography>=45.0.3",
 ]

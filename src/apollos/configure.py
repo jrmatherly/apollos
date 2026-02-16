@@ -369,6 +369,21 @@ def configure_routes(app):
     app.include_router(api_mcp)
     app.include_router(auth_mcp_router)
 
+    # MCP Server endpoints (inbound from external MCP clients)
+    from apollos.utils.mcp_jwt import MCP_CLIENT_ID
+
+    if MCP_CLIENT_ID:
+        from apollos.routers.api_mcp import protected_resource_metadata
+        from apollos.routers.api_mcp_server import mcp_server_router
+
+        # Protected Resource Metadata at /.well-known/ (RFC 9728)
+        @app.get("/.well-known/oauth-protected-resource")
+        async def well_known_protected_resource(request: Request):
+            return await protected_resource_metadata()
+
+        app.include_router(mcp_server_router)
+        logger.info("MCP Server enabled (inbound MCP clients)")
+
     if not state.anonymous_mode:
         from apollos.routers.auth import auth_router
 

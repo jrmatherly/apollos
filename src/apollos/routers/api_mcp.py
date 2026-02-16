@@ -164,3 +164,23 @@ async def disconnect_mcp_service(request: Request, service_id: int):
     await connection.asave()
 
     return {"status": "disconnected"}
+
+
+async def protected_resource_metadata():
+    """RFC 9728: Protected Resource Metadata.
+
+    Tells MCP clients where to get tokens for this server.
+    """
+    from django.conf import settings
+
+    from apollos.utils.mcp_jwt import ENTRA_TENANT_ID, MCP_RESOURCE_URI
+
+    domain = getattr(settings, "APOLLOS_DOMAIN", "localhost")
+
+    return {
+        "resource": MCP_RESOURCE_URI or f"https://{domain}/api/mcp",
+        "authorization_servers": [f"https://login.microsoftonline.com/{ENTRA_TENANT_ID}/v2.0"],
+        "scopes_supported": ["mcp:read", "mcp:tools", "mcp:admin"],
+        "bearer_methods_supported": ["header"],
+        "resource_documentation": f"https://{domain}/docs/mcp",
+    }
