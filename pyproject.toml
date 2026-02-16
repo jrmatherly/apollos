@@ -95,6 +95,7 @@ dependencies = [
     "email-validator ~= 2.2",
     "e2b-code-interpreter ~= 1.0.0",
     "mcp >= 1.12.4",
+    "msal>=1.34.0",
 ]
 dynamic = ["version"]
 
