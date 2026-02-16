@@ -16,6 +16,8 @@ src/telemetry/
 .vscode/
 PROJECT_INDEX.md
 README.md
+# Exception: Dockerfiles COPY README.md for setuptools metadata
+!README.md
 
 # Docs
 .scratchpad/

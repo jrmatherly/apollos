@@ -4,7 +4,7 @@ FROM mcr.microsoft.com/devcontainers/python:${PYTHON_VERSION}
 # Install UV and Bun
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 RUN curl -fsSL https://bun.sh/install | bash && mv /root/.bun/bin/bun /usr/local/bin/bun
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.10.2 /uv /uvx /bin/
 RUN uv python pin "${PYTHON_VERSION}"
 # create python virtual environment
 RUN uv venv /opt/venv --python "${PYTHON_VERSION}" --seed
@@ -33,7 +33,9 @@ ENV UV_INDEX="https://download.pytorch.org/whl/cpu" \
     USE_EMBEDDED_DB="True" \
     PGSERVER_DATA_DIR="/opt/apollos_db"
 # Install Python dependencies from pyproject.toml in editable mode
-RUN sed -i "s/dynamic = \\[\"version\"\\]/version = \"$VERSION\"/" pyproject.toml && \
+ENV UV_LINK_MODE=copy
+RUN --mount=type=cache,target=/root/.cache/uv \
+    sed -i "s/dynamic = \\[\"version\"\\]/version = \"$VERSION\"/" pyproject.toml && \
     uv sync --all-extras && \
     # Save the lock file generated with correct Linux platform wheels
     cp uv.lock /opt/uv.lock.linux && \

@@ -81,7 +81,7 @@ USER $USERNAME
 WORKDIR $HOME
 
 # Install Python using uv and create a virtual environment
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+COPY --from=ghcr.io/astral-sh/uv:0.10.2 /uv /uvx /bin/
 ENV PYTHON_VERSION=3.11.6
 RUN uv python pin $PYTHON_VERSION
 RUN uv venv $HOME/.venv --python $PYTHON_VERSION --seed

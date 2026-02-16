@@ -116,20 +116,31 @@ prod = [
 local = [
     "pgserver == 0.1.4",
 ]
-dev = [
-    "apollos[prod,local]",
+
+[dependency-groups]
+test = [
     "pytest >= 7.1.2",
     "pytest-xdist[psutil]",
     "pytest-django == 4.5.2",
     "pytest-asyncio == 0.21.1",
+    "pytest-cov >= 4.1.0",
     "freezegun >= 1.2.0",
     "factory-boy >= 3.2.1",
+]
+lint = [
     "mypy >= 1.0.1",
     "ruff >= 0.12.0",
     "pre-commit >= 3.0.4",
-    "gitpython ~= 3.1.43",
+]
+data = [
     "datasets",
     "pandas",
+]
+dev = [
+    { include-group = "test" },
+    { include-group = "lint" },
+    { include-group = "data" },
+    "gitpython ~= 3.1.43",
 ]
 
 [tool.hatch.version]
@@ -188,7 +199,10 @@ no-build-isolation-package = ["openai-whisper"]
 openai-whisper = ["setuptools"]
 
 [tool.pytest.ini_options]
-addopts = "--strict-markers"
+DJANGO_SETTINGS_MODULE = "apollos.app.settings"
+pythonpath = [". ", "src"]
+testpaths = ["tests"]
+addopts = "--reuse-db --strict-markers"
 markers = [
-    "chatquality: Evaluate chatbot capabilities and quality",
+    "chatquality: marks tests as chatquality (deselect with '-m \"not chatquality\"')",
 ]

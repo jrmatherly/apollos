@@ -61,9 +61,10 @@ class TestEmbeddingEnvVars:
             "APOLLOS_CROSS_ENCODER_MODEL": "mixedbread-ai/mxbai-rerank-xsmall-v1",
         }
         with patch.dict(os.environ, env):
-            from apollos.database.adapters import EmbeddingAdapters
+            from apollos.database.adapters import get_or_create_search_models
 
-            config = EmbeddingAdapters.get_or_create_search_model()
+            configs = get_or_create_search_models()
+            config = configs.first()
 
         assert config.bi_encoder == "text-embedding-3-small"
         assert config.bi_encoder_dimensions == 1536
@@ -77,9 +78,10 @@ class TestEmbeddingEnvVars:
 
         env = {"APOLLOS_EMBEDDING_MODEL": "should-not-override"}
         with patch.dict(os.environ, env):
-            from apollos.database.adapters import EmbeddingAdapters
+            from apollos.database.adapters import get_or_create_search_models
 
-            config = EmbeddingAdapters.get_or_create_search_model()
+            configs = get_or_create_search_models()
+            config = configs.first()
 
         assert config.bi_encoder == "existing-model"
         existing.delete()
