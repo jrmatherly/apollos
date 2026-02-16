@@ -362,6 +362,13 @@ def configure_routes(app):
     app.include_router(notion_router, prefix="/api/notion")
     app.include_router(web_client)
 
+    # MCP service registry and OAuth callback
+    from apollos.routers.api_mcp import api_mcp
+    from apollos.routers.auth_mcp import auth_mcp_router
+
+    app.include_router(api_mcp)
+    app.include_router(auth_mcp_router)
+
     if not state.anonymous_mode:
         from apollos.routers.auth import auth_router
 

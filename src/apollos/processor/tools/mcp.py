@@ -17,12 +17,37 @@ class MCPClient:
     Supports both stdio and sse communication methods.
     """
 
-    def __init__(self, name: str, path: str, api_key: Optional[str] = None):
+    def __init__(self, name: str, path: str, api_key: Optional[str] = None, oauth_token: Optional[str] = None):
         self.name = name
         self.path = path
         self.api_key = api_key
+        self.oauth_token = oauth_token
         self.session: Optional[ClientSession] = None
         self.exit_stack = AsyncExitStack()
+
+    @classmethod
+    async def from_user_connection(cls, connection) -> "MCPClient":
+        """Create MCPClient from a user's MCP connection with decrypted OAuth token."""
+        from django.utils import timezone
+
+        from apollos.utils.crypto import decrypt_token
+
+        # Refresh token if expired
+        if connection.token_expires_at and connection.token_expires_at < timezone.now():
+            from apollos.processor.tools.mcp_oauth import McpOAuthClient
+
+            oauth_client = McpOAuthClient()
+            success = await oauth_client.refresh_access_token(connection)
+            if not success:
+                raise ValueError(f"Failed to refresh token for {connection.service.name}")
+            await connection.arefresh_from_db()
+
+        token = decrypt_token(connection.access_token) if connection.access_token else None
+        return cls(
+            name=connection.service.name,
+            path=connection.service.server_url,
+            oauth_token=token,
+        )
 
     async def connect(self):
         """
@@ -70,7 +95,13 @@ class MCPClient:
         """
         Connect to the MCP server using Server-Sent Events (SSE).
         """
-        self._streams_context = sse_client(url=self.path)
+        headers = {}
+        if self.oauth_token:
+            headers["Authorization"] = f"Bearer {self.oauth_token}"
+        elif self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+
+        self._streams_context = sse_client(url=self.path, headers=headers if headers else None)
         streams = await self._streams_context.__aenter__()
 
         self._session_context = ClientSession(*streams)

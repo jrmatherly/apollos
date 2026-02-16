@@ -497,9 +497,28 @@ async def research(
     current_iteration = 0
     MAX_ITERATIONS = int(os.getenv("APOLLOS_RESEARCH_ITERATIONS", 5))
 
-    # Construct MCP clients
+    # Construct MCP clients (global admin-configured servers)
     mcp_servers = await McpServerAdapters.aget_all_mcp_servers()
     mcp_clients = [MCPClient(server.name, server.path, server.api_key) for server in mcp_servers]
+
+    # Per-user OAuth MCP connections
+    if user:
+        from asgiref.sync import sync_to_async
+
+        from apollos.database.models import McpUserConnection
+
+        user_connections = await sync_to_async(list)(
+            McpUserConnection.objects.filter(
+                user=user,
+                status=McpUserConnection.Status.CONNECTED,
+            ).select_related("service")
+        )
+        for conn in user_connections:
+            try:
+                client = await MCPClient.from_user_connection(conn)
+                mcp_clients.append(client)
+            except Exception as e:
+                logger.warning(f"Failed to create MCP client for {conn.service.name}: {e}")
 
     # Incorporate previous partial research into current research chat history
     research_conversation_history = [chat for chat in deepcopy(conversation_history) if chat.message]

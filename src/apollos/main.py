@@ -188,6 +188,18 @@ def run(should_start_server=True):
     finally:
         logger.info("Started Background Scheduler")
 
+    # Register MCP token refresh job (every 30 minutes)
+    from apscheduler.triggers.interval import IntervalTrigger
+
+    from apollos.utils.mcp_maintenance import refresh_expiring_mcp_tokens
+
+    state.scheduler.add_job(
+        refresh_expiring_mcp_tokens,
+        trigger=IntervalTrigger(minutes=30),
+        id="mcp_token_refresh",
+        replace_existing=True,
+    )
+
     # Start Server
     configure_routes(app)
 
