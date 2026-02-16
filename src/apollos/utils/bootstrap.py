@@ -4,7 +4,7 @@ Loads a JSONC configuration file and idempotently creates/updates providers,
 chat models, embedding config, and server chat slot assignments.
 
 Usage:
-    config = load_bootstrap_config("/path/to/bootstrap.json")
+    config = load_bootstrap_config("/path/to/bootstrap.jsonc")
     apply_bootstrap_config(config)
 """
 

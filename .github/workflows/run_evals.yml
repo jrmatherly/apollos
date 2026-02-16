@@ -74,6 +74,9 @@ on:
         default: ""
         type: string
 
+permissions:
+  contents: read
+
 jobs:
   eval:
     runs-on: ubuntu-latest
@@ -85,7 +88,7 @@ jobs:
 
     services:
       postgres:
-        image: ankane/pgvector
+        image: pgvector/pgvector:pg17
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
@@ -99,14 +102,16 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
+          enable-cache: true
+          cache-dependency-glob: "**/uv.lock"
 
       - name: Set up Python
         run: uv python install 3.10
@@ -122,7 +127,7 @@ jobs:
           # Get app version from hatch
           echo "version=$(pipx run hatch version)" >> $GITHUB_OUTPUT
 
-      - name: ⏬️ Install Dependencies
+      - name: Install Dependencies
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
@@ -131,7 +136,7 @@ jobs:
           # install terrarium for code sandbox
           git clone https://github.com/jrmatherly/terrarium.git && cd terrarium && npm install --legacy-peer-deps && mkdir pyodide_cache
 
-      - name: ⬇️ Install Application
+      - name: Install Application
         env:
           UV_INDEX: "https://download.pytorch.org/whl/cpu"
           UV_INDEX_STRATEGY: "unsafe-best-match"
@@ -140,7 +145,7 @@ jobs:
           sed -i 's/dynamic = \["version"\]/version = "${{ steps.hatch.outputs.version }}"/' pyproject.toml
           uv sync --all-extras
 
-      - name: 📝 Run Eval
+      - name: Run Eval
         env:
           APOLLOS_MODE: ${{ matrix.apollos_mode }}
           SAMPLE_SIZE: ${{ github.event_name == 'workflow_dispatch' && inputs.sample_size || 200 }}
@@ -151,15 +156,10 @@ jobs:
           APOLLOS_URL: "http://localhost:42110"
           APOLLOS_DEFAULT_CHAT_MODEL: ${{ github.event_name == 'workflow_dispatch' && inputs.chat_model || 'gemini-2.5-flash' }}
           APOLLOS_RESEARCH_ITERATIONS: ${{ github.event_name == 'workflow_dispatch' && inputs.max_research_iterations || 10 }}
-          APOLLOS_AUTO_READ_WEBPAGE: ${{ github.event_name == 'workflow_dispatch' && inputs.auto_read_webpage || 'false' }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          APOLLOS_AUTO_READ_WEBPAGE: "false"
+          OPENAI_API_KEY: ${{ inputs.openai_api_key || secrets.OPENAI_API_KEY }}
           OPENAI_BASE_URL: ${{ github.event_name == 'workflow_dispatch' && inputs.openai_base_url || 'https://api.openai.com/v1' }}
           SERPER_DEV_API_KEY: ${{ matrix.dataset != 'math500' && secrets.SERPER_DEV_API_KEY || '' }}
-          OLOSTEP_API_KEY: ${{ matrix.dataset != 'math500' && secrets.OLOSTEP_API_KEY || ''}}
-          FIRECRAWL_API_KEY: ${{ matrix.dataset != 'math500' && secrets.FIRECRAWL_API_KEY || '' }}
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          E2B_API_KEY: ${{ inputs.sandbox == 'e2b' && secrets.E2B_API_KEY || '' }}
-          E2B_TEMPLATE: ${{ vars.E2B_TEMPLATE }}
           APOLLOS_ADMIN_EMAIL: apollos
           APOLLOS_ADMIN_PASSWORD: apollos
           POSTGRES_HOST: localhost

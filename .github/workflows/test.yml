@@ -26,6 +26,13 @@ on:
       - .pre-commit-config.yml
       - .github/workflows/test.yml
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test:
     name: Run Tests
@@ -41,7 +48,7 @@ jobs:
 
     services:
       postgres:
-        image: ankane/pgvector
+        image: pgvector/pgvector:pg17
         env:
           POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
@@ -50,44 +57,47 @@ jobs:
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
+          enable-cache: true
+          cache-dependency-glob: "**/uv.lock"
 
       - name: Set up Python ${{ matrix.python_version }}
         run: uv python install ${{ matrix.python_version }}
 
-      - name: ⏬️ Install Dependencies
+      - name: Install Dependencies
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
           apt update && apt install -y git libegl1 sqlite3 libsqlite3-dev libsqlite3-0 ffmpeg libsm6 libxext6
 
-      - name: ⬇️ Install Postgres
+      - name: Install Postgres
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
           apt install -y postgresql postgresql-client && apt install -y postgresql-server-dev-16
 
-      - name: ⬇️ Install Application
+      - name: Install Application
         env:
           UV_INDEX: "https://download.pytorch.org/whl/cpu"
           UV_INDEX_STRATEGY: "unsafe-best-match"
           CUDA_VISIBLE_DEVICES: ""
         run: sed -i 's/dynamic = \["version"\]/version = "0.0.0"/' pyproject.toml && uv sync --all-extras
 
-      - name: 🧪 Test Application
+      - name: Test Application
         env:
           POSTGRES_HOST: postgres
           POSTGRES_PORT: 5432
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: postgres
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_BASE_URL: ${{ secrets.OPENAI_BASE_URL || 'https://api.openai.com/v1' }}
         run: uv run pytest
         timeout-minutes: 10

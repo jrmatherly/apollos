@@ -10,7 +10,7 @@ sidebar_position: 5
 
 Text [+1 (848) 800 4242](https://wa.me/18488004242) or scan the QR code below on your phone to chat with Apollos on WhatsApp.
 
-Without any desktop clients, you can start chatting with Apollos on WhatsApp. Bear in mind you do need one of the desktop clients in order to share and sync your data with Apollos. The WhatsApp AI bot will work right away for answering generic queries and using Apollos in default mode.
+Start chatting with Apollos on WhatsApp. The WhatsApp AI bot will work right away for answering generic queries and using Apollos in default mode. To use it with your own data, upload documents via the [web app](/clients/web) or sync via [Obsidian](/clients/obsidian), [Notion](/data-sources/notion_integration), or [Github](/data-sources/github_integration).
 
 In order to use Apollos on WhatsApp with your own data, you need to setup a Apollos Cloud account and connect your WhatsApp account to it. This is a one time setup and you can do it from the [Apollos Cloud config page](https://app.apollosai.dev/settings).
 

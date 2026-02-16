@@ -2,7 +2,7 @@
 
 # Voice
 
-You can talk to Apollos using your voice. Apollos will respond to your queries using the same models as the chat feature. You can use voice chat on the web, Desktop, and Obsidian apps.
+You can talk to Apollos using your voice. Apollos will respond to your queries using the same models as the chat feature. You can use voice chat on the web and Obsidian apps.
 
 ![Voice Chat](https://assets.apollosai.dev/speech_to_text_demo.gif)
 

@@ -34,6 +34,10 @@ on:
         type: boolean
         default: true
 
+permissions:
+  contents: read
+  packages: write
+
 env:
   # Tag Image with tag name on release
   # else with user specified tag (default 'dev') if triggered via workflow
@@ -63,16 +67,16 @@ jobs:
     runs-on: ${{ matrix.runner }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           # Get all history to correctly infer Apollos version using hatch
           fetch-depth: 0
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
@@ -82,11 +86,11 @@ jobs:
         id: hatch
         run: echo "version=$(pipx run hatch version)" >> $GITHUB_OUTPUT
 
-      - name: 🧹 Delete huge unnecessary tools folder
+      - name: Delete huge unnecessary tools folder
         run: rm -rf /opt/hostedtoolcache
 
-      - name: 📦 Build and Push Docker Image
-        uses: docker/build-push-action@v4
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v6
         if: (matrix.image == 'local' && github.event_name == 'workflow_dispatch') && github.event.inputs.apollos == 'true' || (matrix.image == 'local' && github.event_name == 'push')
         with:
           context: .
@@ -98,13 +102,13 @@ jobs:
             VERSION=${{ steps.hatch.outputs.version }}
             PORT=42110
           cache-from: type=gha,scope=${{ matrix.image }}-${{ matrix.platform }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.image }}-${{ matrix.platform}}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}-${{ matrix.platform }}
           labels: |
             org.opencontainers.image.description=Apollos AI - Your second brain powered by LLMs and Neural Search
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
 
-      - name: 📦️⛅️ Build and Push Cloud Docker Image
-        uses: docker/build-push-action@v4
+      - name: Build and Push Cloud Docker Image
+        uses: docker/build-push-action@v6
         if: (matrix.image == 'cloud' && github.event_name == 'workflow_dispatch') && github.event.inputs.apollos-cloud == 'true' || (matrix.image == 'cloud' && github.event_name == 'push')
         with:
           context: .
@@ -116,13 +120,13 @@ jobs:
             VERSION=${{ steps.hatch.outputs.version }}
             PORT=42110
           cache-from: type=gha,scope=${{ matrix.image }}-${{ matrix.platform }}
-          cache-to: type=gha,mode=max,scope=${{ matrix.image }}-${{ matrix.platform}}
+          cache-to: type=gha,mode=max,scope=${{ matrix.image }}-${{ matrix.platform }}
           labels: |
             org.opencontainers.image.description=Apollos AI Cloud - Your second brain powered by LLMs and Neural Search
             org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
 
-      - name: 📦️️💻 Build and Push Computer for Apollos
-        uses: docker/build-push-action@v4
+      - name: Build and Push Computer for Apollos
+        uses: docker/build-push-action@v6
         if: github.event_name == 'workflow_dispatch' && github.event.inputs.apollos-computer == 'true' && matrix.image == 'local'
         with:
           context: .
@@ -145,7 +149,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}

@@ -5,7 +5,7 @@ sidebar_position: 1
 # Telemetry
 
 We collect some high level, anonymized metadata about usage of self-hosted Apollos. This includes:
-- Client (Web, Emacs, Obsidian)
+- Client (Web, Obsidian)
 - API usage (Search, Chat)
 - Configured content types (Github, Org, etc)
 - Request metadata (e.g., host, referrer)
@@ -15,5 +15,3 @@ We don't send any personal information or any information from/about your conten
 ## Disable Telemetry
 
 If you're self-hosting Apollos, you can opt out of telemetry at any time by setting the `APOLLOS_TELEMETRY_DISABLE` environment variable to `True` via shell or `docker-compose.yml`
-
-If you have any questions or concerns, please reach out to us on [Discord](https://discord.gg/BDgyabRM6e).

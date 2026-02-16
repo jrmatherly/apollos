@@ -43,5 +43,3 @@ Apollos can use Google's Gemini and Anthropic's Claude family of AI models from 
 
 - Use Environment Variables
   For better security, consider using environment variables to manage sensitive keys and inject them at runtime during base64 encoding.
-
-If you encounter any issues, the [Apollos Discord](https://discord.gg/BDgyabRM6e) is a great place to ask for help!

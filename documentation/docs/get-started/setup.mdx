@@ -293,10 +293,11 @@ Offline chat stays completely private and can work without internet using any
 open-weights model.
 
 :::tip[System Requirements]
+
 - Minimum 8 GB RAM. Recommend **16Gb VRAM**
 - Minimum **5 GB of Disk** available
 - A Nvidia, AMD GPU or a Mac M1+ machine would significantly speed up chat responses
-:::
+  :::
 
 1. Install any Openai API compatible local ai model server like [llama-cpp-server](https://github.com/ggml-org/llama.cpp/tree/master/tools/server), Ollama, vLLM etc.
 2. Add an [ai model api](http://localhost:42110/server/admin/database/aimodelapi/add/) on the admin panel
@@ -323,26 +324,20 @@ Apollos uses these chat model for all intermediate steps like intent detection, 
 ### Sync your Knowledge
 
 - You can chat with your notes and documents using Apollos.
-- Apollos can keep your files and folders synced using the Apollos [Desktop](/clients/desktop#setup), [Obsidian](/clients/obsidian#setup) or [Emacs](/clients/emacs#setup) clients.
+- Apollos can keep your files and folders synced using the [Obsidian](/clients/obsidian#setup) plugin.
 - Your [Notion workspace](/data-sources/notion_integration) can be directly synced from the web app.
 - You can also just drag and drop specific files you want to chat with on the [Web app](/clients/web#upload-documents).
 
 ### Setup Apollos Clients
 
 The Apollos web app is available by default to chat, search and configure Apollos.<br />
-You can also install a Apollos client to easily access it from Obsidian, Emacs, Whatsapp or your OS and keep your documents synced with Apollos.
+You can also install a Apollos client to easily access it from Obsidian or Whatsapp and keep your documents synced with Apollos.
 
 :::info[Note]
 Set the host URL on your clients settings page to your Apollos server URL. By default, use `http://127.0.0.1:42110` or `http://localhost:42110`. Note that `localhost` may not work in all cases.
 :::
 
 <Tabs groupId="client" queryString>
-  <TabItem value="desktop" label="Desktop">
-    - Read the Apollos Desktop app [setup docs](/clients/desktop#setup).
-  </TabItem>
-  <TabItem value="emacs" label="Emacs">
-    - Read the Apollos Emacs package [setup docs](/clients/emacs#setup).
-  </TabItem>
   <TabItem value="obsidian" label="Obsidian">
     - Read the Apollos Obsidian plugin [setup docs](/clients/obsidian#setup).
   </TabItem>
@@ -372,15 +367,6 @@ Set the host URL on your clients settings page to your Apollos server URL. By de
 ### Upgrade Clients
 
 <Tabs groupId="client" queryString>
-  <TabItem value="desktop" label="Desktop">
-    - The Desktop app automatically updates to the latest released version on
-    restart. - You can manually download the latest version from the [Apollos
-    Website](https://apollosai.dev/downloads).
-  </TabItem>
-  <TabItem value="emacs" label="Emacs">
-    - Use your Emacs Package Manager to Upgrade - See [apollos.el package
-    setup](/clients/emacs#setup) for details
-  </TabItem>
   <TabItem value="obsidian" label="Obsidian">
     - Upgrade via the Community plugins tab on the settings pane in the Obsidian
     app - See the [apollos plugin setup](/clients/obsidian#setup) for details
@@ -415,12 +401,6 @@ Set the host URL on your clients settings page to your Apollos server URL. By de
 ### Uninstall Clients
 
 <Tabs groupId="client" queryString>
-  <TabItem value="desktop" label="Desktop">
-    Uninstall the Apollos Desktop client in the standard way from your OS.
-  </TabItem>
-  <TabItem value="emacs" label="Emacs">
-    Uninstall the Apollos Emacs package in the standard way from Emacs.
-  </TabItem>
   <TabItem value="obsidian" label="Obsidian">
     Uninstall via the Community plugins tab on the settings pane in the Obsidian
     app

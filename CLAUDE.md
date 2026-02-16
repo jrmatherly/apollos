@@ -35,7 +35,7 @@ cd src/interface/web && bun install && bun run export
 # Install pre-commit hooks
 pre-commit install -t pre-push -t pre-commit
 
-# Full setup (includes Obsidian + Desktop)
+# Full setup (includes Obsidian plugin)
 ./scripts/dev_setup.sh --full
 ```
 
@@ -78,7 +78,7 @@ mise run docker:logs                  # follow logs
 mise run ci                           # lint + format check + unit tests
 
 # Apply bootstrap model configuration
-mise run manage bootstrap_models -- --config /path/to/bootstrap.json
+mise run manage bootstrap_models -- --config /path/to/bootstrap.jsonc
 ```
 
 ### mise Task Reference
@@ -142,15 +142,19 @@ api_content.py (put_content) → processor/content/*_to_entries.py (parse)
 
 ### Key Modules
 
-- **`database/models/__init__.py`**: All Django models in a single file. Core entities: `ApollosUser`, `Conversation`, `Agent`, `Entry`, `ChatModel`, `FileObject`, `UserMemory`.
-- **`database/adapters/__init__.py`**: All database access logic. Adapter classes (`ConversationAdapters`, `AgentAdapters`, `EntryAdapters`, etc.) provide the data access API. Many methods have both sync and async variants (prefixed with `a`).
+- **`database/models/__init__.py`**: All Django models in a single file. Core entities: `ApollosUser`, `Conversation`, `Agent`, `Entry`, `ChatModel`, `FileObject`, `UserMemory`. Enterprise models: `Organization`, `Team`, `TeamMembership`.
+- **`database/adapters/__init__.py`**: All database access logic. Adapter classes (`ConversationAdapters`, `AgentAdapters`, `EntryAdapters`, etc.) provide the data access API. Many methods have both sync and async variants (prefixed with `a`). `ConversationAdapters.get_available_chat_models(user)` returns team-filtered models.
 - **`processor/conversation/prompts.py`**: All LLM prompt templates (~40+ variables). Modify here when changing AI behavior.
 - **`routers/helpers.py`**: Core chat processing logic, rate limiters, tool dispatch, content search. This is the largest and most complex router helper.
 - **`utils/helpers.py`**: `ConversationCommand` enum (controls chat behavior), LLM client factory functions, device detection, token counting.
 - **`utils/constants.py`**: Default chat model lists per provider (read from env vars at import time), model-to-cost pricing dict, app paths.
-- **`utils/bootstrap.py`**: JSONC bootstrap config loader and applicator. Idempotently creates providers, chat models, embedding config, and server chat slots from a single config file.
+- **`utils/bootstrap.py`**: JSONC bootstrap config loader and applicator. Idempotently creates providers, chat models, embedding config, server chat slots, and team model assignments from a single config file.
 - **`utils/initialization.py`**: Server bootstrap sequence — admin user, bootstrap config, chat model setup, Ollama discovery, server chat slot configuration.
 - **`pyproject.toml`**: The `dev` extras use `"apollos[prod,local]"` — this is a self-referencing dependency resolved locally, not fetched from PyPI.
+
+### Documentation
+
+Project documentation lives at `documentation/` (Docusaurus site). Feature docs, client guides, and architecture references are at `documentation/docs/`. When completing a feature implementation, convert the implementation plan into proper documentation here.
 
 ### Frontend (Web)
 
@@ -161,7 +165,7 @@ Next.js app at `src/interface/web/`. Pages: chat, settings, agents, search, auto
 - Tests require a running PostgreSQL database with pgvector
 - `pytest.ini` sets `DJANGO_SETTINGS_MODULE=apollos.app.settings` and `--reuse-db`
 - Chat-related tests need an LLM API key (`OPENAI_API_KEY`, `GEMINI_API_KEY`, or `ANTHROPIC_API_KEY`). Set `APOLLOS_TEST_CHAT_PROVIDER` to choose provider.
-- Test fixtures use factory-boy (`tests/helpers.py`): `UserFactory`, `ChatModelFactory`, `AiModelApiFactory`, etc.
+- Test fixtures use factory-boy (`tests/helpers.py`): `UserFactory`, `ChatModelFactory`, `AiModelApiFactory`, `OrganizationFactory`, `TeamFactory`, `TeamMembershipFactory`, etc.
 - `conftest.py` provides `client` (with auth), `chat_client` (without auth), and `search_config` fixtures
 
 ## Code Style
@@ -188,12 +192,12 @@ Server port: 42110. Database: pgvector/pgvector:pg15. Search: SearXNG. Sandbox: 
 ## Gotchas
 
 - **`routers/helpers.py` (~2400 lines)**: Never do broad find-replace in this file. It contains identifiers like `starlette`, `pydantic`, `ClientApplication`, `Conversation` etc. that can be corrupted by substring matching. Always make surgical, targeted edits.
-- **Android package ID**: Must be a valid Java identifier — no hyphens. Current: `dev.apollos.app`
 - **Domain convention**: All URLs use `*.apollosai.dev`. Domain is configurable via env vars (see below). Hardcoded references have `NOTE` comments with forking instructions.
-- **Android Java directory**: Files under `src/interface/android/.../java/` must mirror the `package` declaration path (`dev/apollos/app/`).
 - **Documentation MDX files**: Uses Docusaurus with MDX. Tags like `<TabItem>` and `<Tabs>` must use proper JSX closing (`</TabItem>`), never self-closing (`<TabItem />`). Batch operations on docs must include both `*.md` and `*.mdx` files.
 - **Multiple Dockerfiles**: `.devcontainer/Dockerfile`, `Dockerfile`, `prod.Dockerfile`, `computer.Dockerfile`, `src/telemetry/Dockerfile`. Lint with `docker run --rm -i hadolint/hadolint < <file>`.
 - **ESLint `next/babel` errors**: IDE-only issue when workspace root is the monorepo instead of `src/interface/web/`. Not a code bug.
+- **Bootstrap config files use `.jsonc` extension**: IDEs validate `.json` strictly and flag JSONC features (comments, trailing commas) as errors. Always use `.jsonc` for config files with comments.
+- **Documentation layers**: When completing features, update all layers: `CLAUDE.md` (git-tracked), auto-memory `MEMORY.md` (session-persistent), Serena memories (`project-architecture`, `codebase-navigation`). Stale docs across layers cause confusion in future sessions.
 
 ## Environment Variables (Domain & Email)
 
@@ -207,7 +211,7 @@ Domain and email addresses are configurable via environment variables. See `.env
 - `NEXT_PUBLIC_APOLLOS_DOMAIN` — Base domain, default `apollosai.dev`. Centralized in `src/interface/web/app/common/config.ts`.
 - `NEXT_PUBLIC_SUPPORT_EMAIL` — Support email. Used in error/contact messages across settings, automations, and chat pages.
 
-**Forking**: Files where env vars aren't practical (LLM prompts, documentation, desktop/Android configs) contain `NOTE` comments instructing forkers to search for `apollosai.dev` and replace with their domain.
+**Forking**: Files where env vars aren't practical (LLM prompts, documentation, Obsidian configs) contain `NOTE` comments instructing forkers to search for `apollosai.dev` and replace with their domain.
 
 ## Environment Variables (Model Configuration)
 
@@ -239,4 +243,25 @@ Model providers, chat model lists, embedding config, and server chat slots are a
 - Supports `${VAR_NAME}` env var interpolation, `//` and `/* */` comments, trailing commas
 - Idempotent: safe to run multiple times. See plan at `.scratchpad/litellm-models/plan.md`
 - Chat slot env vars (Phase 3) override bootstrap slots. Embedding/chat-list env vars only apply when no bootstrap config exists.
-- Django management command: `python manage.py bootstrap_models --config bootstrap.json`
+- Django management command: `python manage.py bootstrap_models --config bootstrap.jsonc`
+
+**Team Model Assignment** (Phase 5):
+- `Team.settings["allowed_models"]` — List of ChatModel PKs a team can access beyond global defaults
+- `Team.settings["chat_default"]` — Optional per-team default model override
+- User's available models = global defaults + union of all their teams' allowed models
+- `GET /api/model/chat/options` filters by team for authenticated users; anonymous mode returns all models
+- `POST /api/model/chat` validates selected model is in user's available set
+- Admin endpoints: `GET/POST/DELETE /api/model/team/{team_slug}/models`
+
+**Admin Model Management API** (Phase 6):
+- `GET/POST /api/model/chat/defaults` — View/update ServerChatSettings slot assignments (admin-only)
+- `GET /api/model/embedding` — View embedding model configuration (admin-only)
+- Auth pattern: `@requires(["authenticated"])` + `require_admin(request)` from `configure.py`
+- `require_admin()` checks `is_org_admin` or `is_staff` — raises HTTPException(403) if neither
+
+**Enterprise Foundation Models**:
+- `Organization` — Single org that owns the Apollos instance (name, slug, settings JSONField)
+- `Team` — Teams within the org (name, slug, settings JSONField for allowed_models)
+- `TeamMembership` — Maps users to teams with roles (admin, team_lead, member)
+- `ApollosUser.is_org_admin` — Boolean field for org-level admin access
+- Migration: `0101_organization_team_teammembership`

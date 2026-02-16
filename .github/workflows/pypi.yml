@@ -23,26 +23,34 @@ on:
       - .github/workflows/pypi.yml
   workflow_dispatch:
 
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   publish:
     name: Publish Python Package to PyPI
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
+          enable-cache: true
+          cache-dependency-glob: "**/uv.lock"
 
       - name: Set up Python 3.11
         run: uv python install 3.11.12
 
-      - name: ⬇️ Install Server
+      - name: Install Server
         run: uv sync --all-extras
 
       - name: Install bun
@@ -50,13 +58,21 @@ jobs:
         with:
           bun-version: latest
 
-      - name: ⬇️ Install Web Client
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('src/interface/web/bun.lock') }}
+          restore-keys: |
+            bun-${{ runner.os }}-
+
+      - name: Install Web Client
         run: |
           bun install
           bun pypiciexport
         working-directory: src/interface/web
 
-      - name: ⚙️ Build Python Package
+      - name: Build Python Package
         run: |
           # Setup Environment for Reproducible Builds
           export PYTHONHASHSEED=42
@@ -66,21 +82,21 @@ jobs:
           # Build PyPI Package
           uv build
 
-      - name: 🌡️ Validate Python Package
+      - name: Validate Python Package
         run: |
           # Validate PyPi Package
           uv tool run check-wheel-contents dist/*.whl --ignore W004
           uv tool run twine check dist/*
 
-      - name: ⏫ Upload Python Package Artifacts
+      - name: Upload Python Package Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: apollos
           path: dist/apollos-*.whl
 
-      - name: 📦 Publish Python Package to PyPI
+      - name: Publish Python Package to PyPI
         if: startsWith(github.ref, 'refs/tags') || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/release/1.x'
-        uses: pypa/gh-action-pypi-publish@release/v1.12
+        uses: pypa/gh-action-pypi-publish@release/v1
         with:
           skip-existing: true
           print-hash: true

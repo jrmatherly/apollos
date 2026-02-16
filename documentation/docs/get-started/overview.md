@@ -12,15 +12,6 @@ keywords: ["apollos", "apollos ai", "apollos docs", "apollos documentation", "ap
 </div>
 
 <br />
-<div align="center">
-
-  [📜 Explore Code](https://github.com/jrmatherly/apollos)
-  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-  [🌍 Try Apollos Cloud](https://apollosai.dev)
-  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-  [💬 Get Involved](https://discord.gg/BDgyabRM6e)
-
-</div>
 
 ## Introduction
 Welcome to the Apollos Docs! This is the best place to get setup and explore Apollos's features.
@@ -29,11 +20,10 @@ Welcome to the Apollos Docs! This is the best place to get setup and explore Apo
 - You can [chat](/features/chat) with it about anything. It'll use files you shared with it to respond, when relevant. It can also access information from the public internet.
 - Quickly [find](/features/search) relevant notes and documents using natural language
 - It understands pdf, plaintext, markdown, org-mode files, and [notion pages](/data-sources/notion_integration).
-- Access it from your [Emacs](/clients/emacs), [Obsidian](/clients/obsidian), the [Apollos desktop app](/clients/desktop), or [any web browser](/clients/web)
-- Use our [cloud](https://app.apollosai.dev) instance to access your Apollos anytime from anywhere, [self-host](/get-started/setup) on consumer hardware for privacy
+- Access it from [Obsidian](/clients/obsidian) or [any web browser](/clients/web)
+- [self-host](/get-started/setup) on consumer hardware for privacy
 
 ![demo_chat](https://assets.apollosai.dev/quadratic_equation_apollos_web.gif)
 
 ## Quickstart
-- [Try Apollos Cloud](https://app.apollosai.dev) to get started quickly
 - [Read these instructions](/get-started/setup) to self-host a private instance of Apollos

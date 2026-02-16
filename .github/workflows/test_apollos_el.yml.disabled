@@ -18,6 +18,9 @@ on:
       - src/interface/emacs/tests/*.el
       - .github/workflows/test_apollos_el.yml
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -33,8 +36,8 @@ jobs:
       - uses: purcell/setup-emacs@master
         with:
           version: ${{ matrix.emacs_version }}
-      - uses: actions/checkout@v3
-      - name: 🧪 Test Apollos.el
+      - uses: actions/checkout@v4
+      - name: Test Apollos.el
         run: |
           # Run ERT tests on apollos.el
           emacs -batch \

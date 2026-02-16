@@ -32,7 +32,7 @@ from apollos.utils.helpers import get_absolute_path, is_none_or_empty
 logger = logging.getLogger(__name__)
 
 
-def get_chat_provider(default: ChatModel.ModelType | None = ChatModel.ModelType.GOOGLE):
+def get_chat_provider(default: ChatModel.ModelType | None = ChatModel.ModelType.OPENAI):
     provider = os.getenv("APOLLOS_TEST_CHAT_PROVIDER")
     if provider and provider in ChatModel.ModelType:
         return ChatModel.ModelType(provider)
@@ -240,7 +240,7 @@ class ChatModelFactory(factory.django.DjangoModelFactory):
 
     max_prompt_size = 20000
     tokenizer = None
-    name = "gemini-2.5-flash"
+    name = "gpt-4o-mini"
     model_type = get_chat_provider()
     ai_model_api = factory.LazyAttribute(lambda obj: AiModelApiFactory() if get_chat_api_key() else None)
 

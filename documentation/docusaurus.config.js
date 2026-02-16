@@ -110,27 +110,6 @@ const config = {
             title: "Codebase",
             "aria-label": "GitHub repository",
           },
-          {
-            href: "https://app.apollosai.dev",
-            position: "right",
-            className: "header-cloud-link",
-            title: "Apollos Cloud",
-            "aria-label": "Apollos Cloud",
-          },
-          {
-            href: "https://discord.gg/BDgyabRM6e",
-            position: "right",
-            className: "header-discord-link",
-            title: "Community",
-            "aria-label": "Discord community",
-          },
-          {
-            href: "https://blog.apollosai.dev",
-            position: "right",
-            className: "header-blog-link",
-            title: "Blog",
-            "aria-label": "Apollos Blog",
-          },
         ],
       },
       footer: {
@@ -169,38 +148,18 @@ const config = {
             title: "Community",
             items: [
               {
-                label: "Discord",
-                href: "https://discord.gg/BDgyabRM6e",
-              },
-              {
-                label: "LinkedIn",
-                href: "https://www.linkedin.com/company/apollos-ai/",
-              },
-              {
-                label: "Twitter",
-                href: "https://twitter.com/apollos_ai",
-              },
-              {
                 label: "GitHub",
                 href: "https://github.com/jrmatherly/apollos/issues",
               },
               {
                 label: "Email",
-                href: "mailto:placeholder@apollosai.dev",
+                href: "mailto:support@apollosai.dev",
               },
             ],
           },
           {
             title: "More",
             items: [
-              {
-                href: "https://blog.apollosai.dev",
-                label: "Blog",
-              },
-              {
-                label: "Apollos Cloud",
-                href: "https://app.apollosai.dev",
-              },
               {
                 label: "GitHub",
                 href: "https://github.com/jrmatherly/apollos",
@@ -219,8 +178,8 @@ const config = {
         darkTheme: prismThemes.dracula,
       },
       algolia: {
-        appId: "NBR0FXJNGW",
-        apiKey: "8841b34192a28b2d06f04dd28d768017",
+        appId: "",
+        apiKey: "",
         indexName: "apollos",
         contextualSearch: false,
       },

@@ -23,7 +23,6 @@ See [the setup guide](/get-started/setup.mdx) to configure your chat models.
 1. Open Apollos Chat
     - **On Web**: Open [/chat](https://app.apollosai.dev/chat) in your web browser
     - **On Obsidian**: Search for *Apollos: Chat* in the [Command Palette](https://help.obsidian.md/Plugins/Command+palette)
-    - **On Emacs**: Run `M-x apollos <user-query>`
 2. Enter your queries to chat with Apollos. Use [slash commands](#commands) and [query filters](/miscellaneous/query-filters) to change what Apollos uses to respond
 
 #### Details

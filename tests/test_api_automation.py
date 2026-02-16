@@ -20,7 +20,7 @@ def create_test_automation(client: TestClient) -> str:
     """Helper function to create a test automation and return its ID."""
     state.anonymous_mode = True
     ChatModelFactory(
-        name="gemini-2.5-flash", model_type="google", ai_model_api=AiModelApiFactory(api_key=get_chat_api_key("google"))
+        name="gpt-4o-mini", model_type="openai", ai_model_api=AiModelApiFactory(api_key=get_chat_api_key("openai"))
     )
     params = {
         "q": "test automation",
@@ -37,7 +37,7 @@ def test_create_automation(client: TestClient):
     # Arrange
     state.anonymous_mode = True
     ChatModelFactory(
-        name="gemini-2.5-flash", model_type="google", ai_model_api=AiModelApiFactory(api_key=get_chat_api_key("google"))
+        name="gpt-4o-mini", model_type="openai", ai_model_api=AiModelApiFactory(api_key=get_chat_api_key("openai"))
     )
     params = {
         "q": "test automation",
@@ -55,7 +55,7 @@ def test_create_automation(client: TestClient):
 
 
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.skipif(get_chat_api_key("google") is None, reason="Requires GEMINI_API_KEY to be set")
+@pytest.mark.skipif(get_chat_api_key("openai") is None, reason="Requires OPENAI_API_KEY to be set")
 def test_get_automations(client: TestClient):
     """Test that getting a list of automations works."""
     automation_id = create_test_automation(client)
@@ -72,7 +72,7 @@ def test_get_automations(client: TestClient):
 
 
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.skipif(get_chat_api_key("google") is None, reason="Requires GEMINI_API_KEY to be set")
+@pytest.mark.skipif(get_chat_api_key("openai") is None, reason="Requires OPENAI_API_KEY to be set")
 def test_delete_automation(client: TestClient):
     """Test that deleting an automation works."""
     automation_id = create_test_automation(client)
@@ -91,7 +91,7 @@ def test_delete_automation(client: TestClient):
 
 
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.skipif(get_chat_api_key("google") is None, reason="Requires GEMINI_API_KEY to be set")
+@pytest.mark.skipif(get_chat_api_key("openai") is None, reason="Requires OPENAI_API_KEY to be set")
 def test_edit_automation(client: TestClient):
     """Test that editing an automation works."""
     automation_id = create_test_automation(client)
@@ -118,7 +118,7 @@ def test_edit_automation(client: TestClient):
 
 
 @pytest.mark.django_db(transaction=True)
-@pytest.mark.skipif(get_chat_api_key("google") is None, reason="Requires GEMINI_API_KEY to be set")
+@pytest.mark.skipif(get_chat_api_key("openai") is None, reason="Requires OPENAI_API_KEY to be set")
 def test_trigger_automation(client: TestClient):
     """Test that triggering an automation works."""
     automation_id = create_test_automation(client)

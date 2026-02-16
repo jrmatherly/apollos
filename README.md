@@ -3,9 +3,6 @@
 <div align="center">
 
 [![test](https://github.com/jrmatherly/apollos/actions/workflows/test.yml/badge.svg)](https://github.com/jrmatherly/apollos/actions/workflows/test.yml)
-[![docker](https://github.com/jrmatherly/apollos/actions/workflows/dockerize.yml/badge.svg)](https://github.com/jrmatherly/apollos/pkgs/container/apollos)
-[![pypi](https://github.com/jrmatherly/apollos/actions/workflows/pypi.yml/badge.svg)](https://pypi.org/project/apollos/)
-[![discord](https://img.shields.io/discord/1112065956647284756?style=plastic&label=discord)](https://discord.gg/BDgyabRM6e)
 
 </div>
 
@@ -14,15 +11,6 @@
 </div>
 
 <br />
-
-***
-
-### 🎁 New
-- Start any message with `/research` to try out the experimental research mode with Apollos.
-- Anyone can now [create custom agents](https://blog.apollosai.dev/posts/create-agents-on-apollos/) with tunable personality, tools and knowledge bases.
-- [Read](https://blog.apollosai.dev/posts/evaluate-apollos-quality/) about Apollos's excellent performance on modern retrieval and reasoning benchmarks.
-
-***
 
 ## Overview
 
@@ -36,15 +24,9 @@
 - Find relevant docs quickly and easily using our advanced semantic search.
 - Generate images, talk out loud, play your messages.
 - Apollos is open-source, self-hostable. Always.
-- Run it privately on [your computer](https://docs.apollosai.dev/get-started/setup) or try it on our [cloud app](https://app.apollosai.dev).
+- Run it privately on [your computer](https://docs.apollosai.dev/get-started/setup)
 
 ***
-
-## See it in action
-
-![demo_chat](https://github.com/jrmatherly/apollos/blob/master/documentation/assets/img/quadratic_equation_apollos_web.gif?raw=true)
-
-Go to https://app.apollosai.dev to see Apollos live.
 
 ## Full feature list
 You can see the full feature list [here](https://docs.apollosai.dev/category/features).
@@ -65,40 +47,3 @@ mise run dev          # Server at http://localhost:42110
 ```
 
 Run `mise tasks ls` to see all available tasks. See [CLAUDE.md](CLAUDE.md) for full development docs.
-
-## Enterprise
-
-Apollos is available as a cloud service, on-premises, or as a hybrid solution. To learn more about Apollos Enterprise, [visit our website](https://github.com/jrmatherly/apollos/teams).
-
-## Frequently Asked Questions (FAQ)
-
-Q: Can I use Apollos without self-hosting?
-
-Yes! You can use Apollos right away at [https://app.apollosai.dev](https://app.apollosai.dev) — no setup required.
-
-Q: What kinds of documents can Apollos read?
-
-Apollos supports a wide variety: PDFs, Markdown, Notion, Word docs, org-mode files, and more.
-
-Q: How can I make my own agent?
-
-Check out [this blog post](https://blog.apollosai.dev/posts/create-agents-on-apollos/) for a step-by-step guide to custom agents.
-For more questions, head over to our [Discord](https://discord.gg/BDgyabRM6e)!
-
-## Contributors
-Cheers to our awesome contributors! 🎉
-
-<a href="https://github.com/jrmatherly/apollos/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=jrmatherly/apollos" alt="Contributors" />
-</a>
-
-Made with [contrib.rocks](https://contrib.rocks).
-
-### Interested in Contributing?
-Apollos is open source. It is sustained by the community and we’d love for you to join it! Whether you’re a coder, designer, writer, or enthusiast, there’s a place for you.
-
-Why Contribute?
-- Make an Impact: Help build, test and improve a tool used by thousands to boost productivity.
-- Learn & Grow: Work on cutting-edge AI, LLMs, and semantic search technologies.
-
-You can help us build new features, improve the project documentation, report issues and fix bugs. If you're a developer, please see our [Contributing Guidelines](https://docs.apollosai.dev/contributing/development) and check out [good first issues](https://github.com/jrmatherly/apollos/contribute) to work on.

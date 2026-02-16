@@ -152,7 +152,7 @@ class UserAuthenticationBackend(AuthenticationBackend):
                 logger.error("DB Exception: Failed to authenticate user", exc_info=True)
                 raise HTTPException(
                     status_code=503,
-                    detail=f"Please report this issue on Github, Discord or email {APOLLOS_SUPPORT_EMAIL} and try again later.",
+                    detail=f"Please report this issue on Github or email {APOLLOS_SUPPORT_EMAIL} and try again later.",
                 )
             if user:
                 subscribed = await ais_user_subscribed(user)
@@ -176,7 +176,7 @@ class UserAuthenticationBackend(AuthenticationBackend):
                 logger.error("DB Exception: Failed to authenticate user applications", exc_info=True)
                 raise HTTPException(
                     status_code=503,
-                    detail=f"Please report this issue on Github, Discord or email {APOLLOS_SUPPORT_EMAIL} and try again later.",
+                    detail=f"Please report this issue on Github or email {APOLLOS_SUPPORT_EMAIL} and try again later.",
                 )
             if user_with_token:
                 subscribed = await ais_user_subscribed(user_with_token.user)
@@ -204,7 +204,7 @@ class UserAuthenticationBackend(AuthenticationBackend):
                 logger.error("DB Exception: Failed to authenticate first party application", exc_info=True)
                 raise HTTPException(
                     status_code=503,
-                    detail=f"Please report this issue on Github, Discord or email {APOLLOS_SUPPORT_EMAIL} and try again later.",
+                    detail=f"Please report this issue on Github or email {APOLLOS_SUPPORT_EMAIL} and try again later.",
                 )
             if client_application is None:
                 return AuthCredentials(), UnauthenticatedUser()
@@ -243,7 +243,7 @@ class UserAuthenticationBackend(AuthenticationBackend):
                 logger.error("DB Exception: Failed to fetch default user from DB", exc_info=True)
                 raise HTTPException(
                     status_code=503,
-                    detail=f"Please report this issue on Github, Discord or email {APOLLOS_SUPPORT_EMAIL} and try again later.",
+                    detail=f"Please report this issue on Github or email {APOLLOS_SUPPORT_EMAIL} and try again later.",
                 )
             if user:
                 return AuthCredentials(["authenticated", "premium"]), AuthenticatedApollosUser(user)

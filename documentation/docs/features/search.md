@@ -12,7 +12,6 @@ Take advantage of super fast search to find relevant notes and documents from yo
 1. Open Apollos Search
 - **On Web**: Open https://app.apollosai.dev/ in your web browser
 - **On Obsidian**: Click the *Apollos search* icon 🔎 on the [Ribbon](https://help.obsidian.md/User+interface/Workspace/Ribbon) or Search for *Apollos: Search* in the [Command Palette](https://help.obsidian.md/Plugins/Command+palette)
-- **On Emacs**: Run `M-x apollos <user-query>`
 2. Query using natural language to find relevant entries from your knowledge base. Use [query filters](/miscellaneous/query-filters) to limit entries to search
 
 ### Demo

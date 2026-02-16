@@ -24,33 +24,48 @@ on:
       - .pre-commit-config.yml
       - .github/workflows/test.yml
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test:
     name: Setup Application and Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v4
+        uses: astral-sh/setup-uv@v5
         with:
           version: "latest"
+          enable-cache: true
+          cache-dependency-glob: "**/uv.lock"
 
       - name: Set up Python 3.11
         run: uv python install 3.11
 
-      - name: ⏬️ Install Dependencies
+      - name: Cache pre-commit hooks
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Install Dependencies
         run: |
           sudo apt update && sudo apt install -y libegl1
 
-      - name: ⬇️ Install Application
+      - name: Install Application
         env:
           UV_INDEX: "https://download.pytorch.org/whl/cpu"
           UV_INDEX_STRATEGY: "unsafe-best-match"
           CUDA_VISIBLE_DEVICES: ""
         run: uv sync --all-extras
 
-      - name: 🌡️ Validate Application
+      - name: Validate Application
         run: uv run pre-commit run --hook-stage manual --all

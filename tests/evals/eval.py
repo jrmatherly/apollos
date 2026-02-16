@@ -36,8 +36,11 @@ APOLLOS_CHAT_API_URL = f"{APOLLOS_URL}/api/chat"
 APOLLOS_API_KEY = os.getenv("APOLLOS_API_KEY")
 APOLLOS_MODE = os.getenv("APOLLOS_MODE", "default").lower()  # E.g research, general, default etc.
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-GEMINI_EVAL_MODEL = os.getenv("GEMINI_EVAL_MODEL", "gemini-2.5-flash")
+# GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+# GEMINI_EVAL_MODEL = os.getenv("GEMINI_EVAL_MODEL", "gemini-2.5-flash")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+OPENAI_BASE_URL = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")
+OPENAI_EVAL_MODEL = os.getenv("OPENAI_EVAL_MODEL", "gpt-4o-mini")
 
 LLM_SEED = int(os.getenv("APOLLOS_LLM_SEED")) if os.getenv("APOLLOS_LLM_SEED") else None
 DATASET_SEED = int(os.getenv("DATASET_SEED")) if os.getenv("DATASET_SEED") else None
@@ -463,52 +466,101 @@ def evaluate_response_with_mcq_match(
         return None, f"Evaluation failed: {str(e)}", 0.0
 
 
-def evaluate_response_with_gemini(
-    query: str, agent_response: str, ground_truth: str, agent_references: dict = {}, eval_model=GEMINI_EVAL_MODEL
+# def evaluate_response_with_gemini(
+#     query: str, agent_response: str, ground_truth: str, agent_references: dict = {}, eval_model=GEMINI_EVAL_MODEL
+# ) -> tuple[bool | None, str, float]:
+#     """Evaluate Apollos response against benchmark ground truth using Gemini"""
+#     evaluation_prompt = f"""
+#     Compare the following agent response with the ground truth answer.
+#     Determine if the agent response contains the key information from the ground truth.
+#     Focus on factual correctness rather than exact wording.
+#
+#     Query: {query}
+#     Agent Response: {agent_response}
+#     Ground Truth: {ground_truth}
+#
+#     Provide your evaluation in the following json format:
+#     {"explanation:<1 short sentence on how you made the decision>", "decision:<TRUE if response contains key information, FALSE otherwise>"}
+#     """
+#     gemini_api_url = (
+#         f"https://generativelanguage.googleapis.com/v1beta/models/{eval_model}:generateContent?key={GEMINI_API_KEY}"
+#     )
+#
+#     try:
+#         response = requests.post(
+#             gemini_api_url,
+#             headers={"Content-Type": "application/json"},
+#             json={
+#                 "contents": [{"parts": [{"text": evaluation_prompt}]}],
+#                 "generationConfig": {"response_mime_type": "application/json", "seed": LLM_SEED},
+#             },
+#         )
+#         response.raise_for_status()
+#         response_json = response.json()
+#
+#         # Update cost of evaluation
+#         input_tokens = response_json["usageMetadata"]["promptTokenCount"]
+#         ouput_tokens = response_json["usageMetadata"]["candidatesTokenCount"]
+#         cost = get_cost_of_chat_message(eval_model, input_tokens, ouput_tokens)
+#
+#         # Parse evaluation response
+#         eval_response: dict[str, str] = json.loads(
+#             clean_json(response_json["candidates"][0]["content"]["parts"][0]["text"])
+#         )
+#         decision = float(str(eval_response.get("decision", "")).upper() == "TRUE")
+#         explanation = eval_response.get("explanation", "")
+#         # Handle evaluation service errors
+#         if "503 Service Error" in explanation:
+#             decision = None
+#         # Extract decision and explanation from structured response
+#         return decision, explanation, cost
+#     except Exception as e:
+#         logger.error(f"Error in evaluation: {e}")
+#         return None, f"Evaluation failed: {str(e)}", 0.0
+
+
+def evaluate_response_with_openai(
+    query: str, agent_response: str, ground_truth: str, agent_references: dict = {}, eval_model=OPENAI_EVAL_MODEL
 ) -> tuple[bool | None, str, float]:
-    """Evaluate Apollos response against benchmark ground truth using Gemini"""
-    evaluation_prompt = f"""
-    Compare the following agent response with the ground truth answer.
-    Determine if the agent response contains the key information from the ground truth.
-    Focus on factual correctness rather than exact wording.
-
-    Query: {query}
-    Agent Response: {agent_response}
-    Ground Truth: {ground_truth}
-
-    Provide your evaluation in the following json format:
-    {"explanation:<1 short sentence on how you made the decision>", "decision:<TRUE if response contains key information, FALSE otherwise>"}
-    """
-    gemini_api_url = (
-        f"https://generativelanguage.googleapis.com/v1beta/models/{eval_model}:generateContent?key={GEMINI_API_KEY}"
+    """Evaluate Apollos response against benchmark ground truth using OpenAI"""
+    evaluation_prompt = (
+        "Compare the following agent response with the ground truth answer. "
+        "Determine if the agent response contains the key information from the ground truth. "
+        "Focus on factual correctness rather than exact wording.\n\n"
+        f"Query: {query}\n"
+        f"Agent Response: {agent_response}\n"
+        f"Ground Truth: {ground_truth}\n\n"
+        'Respond with JSON only: {"explanation": "<1 short sentence>", "decision": "<TRUE or FALSE>"}'
     )
+    openai_api_url = f"{OPENAI_BASE_URL}/chat/completions"
 
     try:
         response = requests.post(
-            gemini_api_url,
-            headers={"Content-Type": "application/json"},
+            openai_api_url,
+            headers={
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {OPENAI_API_KEY}",
+            },
             json={
-                "contents": [{"parts": [{"text": evaluation_prompt}]}],
-                "generationConfig": {"response_mime_type": "application/json", "seed": LLM_SEED},
+                "model": eval_model,
+                "messages": [{"role": "user", "content": evaluation_prompt}],
+                "response_format": {"type": "json_object"},
+                **({"seed": LLM_SEED} if LLM_SEED else {}),
             },
         )
         response.raise_for_status()
         response_json = response.json()
 
         # Update cost of evaluation
-        input_tokens = response_json["usageMetadata"]["promptTokenCount"]
-        ouput_tokens = response_json["usageMetadata"]["candidatesTokenCount"]
-        cost = get_cost_of_chat_message(eval_model, input_tokens, ouput_tokens)
+        usage = response_json.get("usage", {})
+        input_tokens = usage.get("prompt_tokens", 0)
+        output_tokens = usage.get("completion_tokens", 0)
+        cost = get_cost_of_chat_message(eval_model, input_tokens, output_tokens)
 
         # Parse evaluation response
-        eval_response: dict[str, str] = json.loads(
-            clean_json(response_json["candidates"][0]["content"]["parts"][0]["text"])
-        )
+        eval_response: dict[str, str] = json.loads(clean_json(response_json["choices"][0]["message"]["content"]))
         decision = float(str(eval_response.get("decision", "")).upper() == "TRUE")
         explanation = eval_response.get("explanation", "")
-        # Handle evaluation service errors
-        if "503 Service Error" in explanation:
-            decision = None
         # Extract decision and explanation from structured response
         return decision, explanation, cost
     except Exception as e:
@@ -650,13 +702,17 @@ def main():
     if args.dataset == "gpqa":
         response_evaluator = evaluate_response_with_mcq_match
     elif args.dataset == "math500":
+        # response_evaluator = partial(
+        #     evaluate_response_with_gemini, eval_model=os.getenv("GEMINI_EVAL_MODEL", "gemini-2.5-flash-lite")
+        # )
         response_evaluator = partial(
-            evaluate_response_with_gemini, eval_model=os.getenv("GEMINI_EVAL_MODEL", "gemini-2.5-flash-lite")
+            evaluate_response_with_openai, eval_model=os.getenv("OPENAI_EVAL_MODEL", "gpt-4o-mini")
         )
     elif args.dataset == "frames_ir":
         response_evaluator = evaluate_response_for_ir
     else:
-        response_evaluator = evaluate_response_with_gemini
+        # response_evaluator = evaluate_response_with_gemini
+        response_evaluator = evaluate_response_with_openai
 
     # Process examples in batches
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -711,14 +767,14 @@ def main():
 if __name__ == "__main__":
     """
     Evaluate Apollos on supported benchmarks.
-    Response are evaluated by GEMINI_EVAL_MODEL (default: gemini-2.5-flash).
+    Responses are evaluated by OPENAI_EVAL_MODEL (default: gpt-4o-mini).
 
     Apollos should be running at APOLLOS_URL (default: http://localhost:42110).
-    The Gemini judge model is accessed via the Gemini API with your GEMINI_API_KEY.
+    The OpenAI judge model is accessed via the OpenAI API with your OPENAI_API_KEY.
     To evaluate Apollos in research mode, set the APOLLOS_MODE environment variable to "research".
 
     Run the script using the following command:
-    APOLLOS_MODE="research" GEMINI_API_KEY="<your_gemini_api_key>" python eval_frames.py
+    APOLLOS_MODE="research" OPENAI_API_KEY="<your_openai_api_key>" python eval_frames.py
     """
     logger.info(f"{datetime.now()} - Begin Quizzing Apollos.")
     with timer("Ran eval script in", logger, log_level=logging.INFO):

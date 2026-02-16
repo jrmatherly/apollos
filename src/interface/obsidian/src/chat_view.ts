@@ -1704,7 +1704,7 @@ export class ApollosChatView extends ApollosPaneView {
 			}
 		} catch (err) {
 			let errorMsg =
-				"Unable to get response from Apollos server ❤️‍🩹. Ensure server is running or contact developers for help at [placeholder@apollosai.dev](mailto:placeholder@apollosai.dev) or in [Discord](https://discord.gg/BDgyabRM6e)";
+				"Unable to get response from Apollos server ❤️🩹. Ensure server is running or contact support at [support@apollosai.dev](mailto:support@apollosai.dev)";
 			this.renderMessage({
 				chatBodyEl,
 				message: errorMsg,
@@ -2102,7 +2102,7 @@ export class ApollosChatView extends ApollosPaneView {
 		} catch (err) {
 			console.error(`Apollos chat response failed with\n${err}`);
 			let errorMsg =
-				"Sorry, unable to get response from Apollos backend ❤️‍🩹. Retry or contact developers for help at <a href=mailto:'placeholder@apollosai.dev'>placeholder@apollosai.dev</a> or <a href='https://discord.gg/BDgyabRM6e'>on Discord</a>";
+				"Sorry, unable to get response from Apollos backend ❤️🩹. Retry or contact support at <a href=mailto:'support@apollosai.dev'>support@apollosai.dev</a>";
 			newResponseTextEl.textContent = errorMsg;
 		}
 	}

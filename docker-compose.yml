@@ -64,7 +64,7 @@ services:
       # uncomment line below to mount docker socket to allow apollos to use its computer.
       # - /var/run/docker.sock:/var/run/docker.sock
       # uncomment line below to mount a bootstrap config file for model setup.
-      # - ./bootstrap.json:/app/bootstrap.json:ro
+      # - ./bootstrap.jsonc:/app/bootstrap.jsonc:ro
     # Use 0.0.0.0 to explicitly set the host ip for the service on the container. https://pythonspeed.com/articles/docker-connection-refused/
     environment:
       - POSTGRES_DB=apollos
@@ -121,10 +121,10 @@ services:
       # - APOLLOS_THINK_PAID_DEEP_MODEL=o3
       #
       # Bootstrap Configuration File
-      # Mount a JSON config file and set this env var to configure all models from a single file.
+      # Mount a JSONC config file and set this env var to configure all models from a single file.
       # Chat slot env vars (APOLLOS_*_CHAT_MODEL) override bootstrap slots.
       # Embedding and chat-list env vars only apply when no bootstrap config exists.
-      # - APOLLOS_BOOTSTRAP_CONFIG=/app/bootstrap.json
+      # - APOLLOS_BOOTSTRAP_CONFIG=/app/bootstrap.jsonc
       #
       # Uncomment line below to enable Apollos to use its computer.
       # - APOLLOS_OPERATOR_ENABLED=True

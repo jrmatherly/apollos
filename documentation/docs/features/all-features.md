@@ -23,10 +23,10 @@ Apollos supports a variety of features, including search and chat with a wide ra
 - **Natural**: Advanced natural language understanding using Transformer based ML Models
 - **Pluggable**: Modular architecture makes it easy to plug in new data sources, frontends and ML models
 - **Multiple Sources**: Index your Org-mode, Markdown, PDF, plaintext files, Github repos and Notion pages
-- **Multiple Interfaces**: Interact from your Web Browser, Emacs, Obsidian, Desktop app or even Whatsapp
+- **Multiple Interfaces**: Interact from your Web Browser, Obsidian or even Whatsapp
 
 ### Supported Interfaces
-Apollos is available as a [Desktop app](/clients/desktop), [Emacs package](/clients/emacs), [Obsidian plugin](/clients/obsidian), [Web app](/clients/web) and a [Whatsapp AI](https://apollosai.dev/whatsapp).
+Apollos is available as an [Obsidian plugin](/clients/obsidian), [Web app](/clients/web) and a [Whatsapp AI](https://apollosai.dev/whatsapp).
 
 ![Apollos Clients](/img/apollos_clients.svg ':size=400px')
 
