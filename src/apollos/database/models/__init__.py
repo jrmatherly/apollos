@@ -458,8 +458,11 @@ class ProcessLock(DbBaseModel):
 def verify_agent(sender, instance, **kwargs):
     # check if this is a new instance
     if instance._state.adding:
-        if Agent.objects.filter(name=instance.name, privacy_level=Agent.PrivacyLevel.PUBLIC).exists():
-            raise ValidationError(f"A public Agent with the name {instance.name} already exists.")
+        if Agent.objects.filter(
+            name=instance.name,
+            privacy_level__in=[Agent.PrivacyLevel.PUBLIC, Agent.PrivacyLevel.ORGANIZATION],
+        ).exists():
+            raise ValidationError(f"A public or organization-wide Agent with the name {instance.name} already exists.")
         if Agent.objects.filter(name=instance.name, creator=instance.creator).exists():
             raise ValidationError(f"A private Agent with the name {instance.name} already exists.")
 

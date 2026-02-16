@@ -373,7 +373,9 @@ async def create_agent(
     user: ApollosUser = request.user.object
 
     is_safe_prompt, reason = await acheck_if_safe_prompt(
-        body.persona, user, lax=body.privacy_level == Agent.PrivacyLevel.PRIVATE
+        body.persona,
+        user,
+        lax=body.privacy_level == Agent.PrivacyLevel.PRIVATE,
     )
 
     if not is_safe_prompt:
@@ -453,7 +455,9 @@ async def update_agent(
     if selected_agent.personality != body.persona:
         # Check if the new persona is safe
         is_safe_prompt, reason = await acheck_if_safe_prompt(
-            body.persona, user, lax=body.privacy_level == Agent.PrivacyLevel.PRIVATE
+            body.persona,
+            user,
+            lax=body.privacy_level == Agent.PrivacyLevel.PRIVATE,
         )
 
         if not is_safe_prompt:

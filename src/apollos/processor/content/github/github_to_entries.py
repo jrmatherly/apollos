@@ -49,7 +49,9 @@ class GithubToEntries(TextToEntries):
         else:
             return
 
-    def process(self, files: dict[str, str], user: ApollosUser, regenerate: bool = False) -> Tuple[int, int]:
+    def process(
+        self, files: dict[str, str], user: ApollosUser, regenerate: bool = False, visibility: str = "private", team=None
+    ) -> Tuple[int, int]:
         if is_none_or_empty(self.config.pat_token):
             logger.warning(
                 "Github PAT token is not set. Private repositories cannot be indexed and lower rate limits apply."
@@ -58,7 +60,7 @@ class GithubToEntries(TextToEntries):
         for repo in self.config.repos:
             current_entries += self.process_repo(repo)
 
-        return self.update_entries_with_ids(current_entries, user=user)
+        return self.update_entries_with_ids(current_entries, user=user, visibility=visibility, team=team)
 
     def process_repo(self, repo: GithubRepoConfig):
         repo_url = f"https://api.github.com/repos/{repo.owner}/{repo.name}"
@@ -99,7 +101,9 @@ class GithubToEntries(TextToEntries):
 
         return current_entries
 
-    def update_entries_with_ids(self, current_entries, user: ApollosUser = None):
+    def update_entries_with_ids(
+        self, current_entries, user: ApollosUser = None, visibility: str = "private", team=None
+    ):
         # Identify, mark and merge any new entries with previous entries
         with timer("Identify new or updated entries", logger):
             num_new_embeddings, num_deleted_embeddings = self.update_embeddings(
@@ -109,6 +113,8 @@ class GithubToEntries(TextToEntries):
                 DbEntry.EntrySource.GITHUB,
                 key="compiled",
                 logger=logger,
+                visibility=visibility,
+                team=team,
             )
 
         return num_new_embeddings, num_deleted_embeddings

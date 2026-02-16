@@ -10,6 +10,7 @@ from fastapi import (
     APIRouter,
     BackgroundTasks,
     Depends,
+    Form,
     Header,
     HTTPException,
     Request,
@@ -27,7 +28,7 @@ from apollos.database.adapters import (
     get_user_notion_config,
 )
 from apollos.database.models import Entry as DbEntry
-from apollos.database.models import GithubConfig, GithubRepoConfig, NotionConfig
+from apollos.database.models import GithubConfig, GithubRepoConfig, NotionConfig, Team, TeamMembership
 from apollos.processor.content.docx.docx_to_entries import DocxToEntries
 from apollos.processor.content.pdf.pdf_to_entries import PdfToEntries
 from apollos.routers.helpers import (
@@ -82,6 +83,8 @@ async def put_content(
     user_agent: Optional[str] = Header(None),
     referer: Optional[str] = Header(None),
     host: Optional[str] = Header(None),
+    visibility: str = Form(default="private"),
+    team_slug: Optional[str] = Form(default=None),
     indexed_data_limiter: ApiIndexedDataLimiter = Depends(
         ApiIndexedDataLimiter(
             incoming_entries_size_limit=50,
@@ -91,7 +94,7 @@ async def put_content(
         )
     ),
 ):
-    return await indexer(request, files, t, True, client, user_agent, referer, host)
+    return await indexer(request, files, t, True, client, user_agent, referer, host, visibility, team_slug)
 
 
 @api_content.patch("")
@@ -104,6 +107,8 @@ async def patch_content(
     user_agent: Optional[str] = Header(None),
     referer: Optional[str] = Header(None),
     host: Optional[str] = Header(None),
+    visibility: str = Form(default="private"),
+    team_slug: Optional[str] = Form(default=None),
     indexed_data_limiter: ApiIndexedDataLimiter = Depends(
         ApiIndexedDataLimiter(
             incoming_entries_size_limit=50,
@@ -113,7 +118,7 @@ async def patch_content(
         )
     ),
 ):
-    return await indexer(request, files, t, False, client, user_agent, referer, host)
+    return await indexer(request, files, t, False, client, user_agent, referer, host, visibility, team_slug)
 
 
 @api_content.get("/github", response_class=Response)
@@ -550,8 +555,31 @@ async def indexer(
     user_agent: Optional[str] = Header(None),
     referer: Optional[str] = Header(None),
     host: Optional[str] = Header(None),
+    visibility: str = "private",
+    team_slug: Optional[str] = None,
 ):
     user = request.user.object
+
+    # Validate visibility parameter
+    if visibility not in ("private", "team", "org"):
+        raise HTTPException(status_code=400, detail="visibility must be 'private', 'team', or 'org'")
+    if visibility == "team" and not team_slug:
+        raise HTTPException(status_code=400, detail="team_slug is required when visibility is 'team'")
+    if visibility == "org" and not (user.is_org_admin or user.is_staff):
+        raise HTTPException(status_code=403, detail="Only admins can upload org-wide content")
+
+    # Resolve team if needed
+    resolved_team = None
+    if visibility == "team" and team_slug:
+        try:
+            resolved_team = await sync_to_async(Team.objects.get)(slug=team_slug)
+        except Team.DoesNotExist:
+            raise HTTPException(status_code=404, detail=f"Team '{team_slug}' not found")
+        # Verify user is member of the team (admins bypass)
+        is_member = await sync_to_async(TeamMembership.objects.filter(user=user, team=resolved_team).exists)()
+        if not is_member and not (user.is_org_admin or user.is_staff):
+            raise HTTPException(status_code=403, detail="You are not a member of this team")
+
     method = "regenerate" if regenerate else "sync"
     index_files: Dict[str, Dict[str, str]] = {
         "org": {},
@@ -589,6 +617,8 @@ async def indexer(
             indexer_input.model_dump(),
             regenerate,
             t,
+            visibility,
+            resolved_team,
         )
         if not success:
             raise RuntimeError(f"Failed to {method} {t} data sent by {client} client into content index")
@@ -625,6 +655,52 @@ async def indexer(
 
     indexed_filenames = ",".join(file for ctype in index_files for file in index_files[ctype]) or ""
     return Response(content=indexed_filenames, status_code=200)
+
+
+@api_content.post("/share")
+@requires(["authenticated"])
+async def share_content(request: Request):
+    """Promote personal content to team or org visibility."""
+    user = request.user.object
+    body = await request.json()
+    file_path = body.get("file_path")
+    target_visibility = body.get("visibility")  # "team" or "org"
+    target_team_slug = body.get("team_slug")  # Required for "team"
+
+    if not file_path or not target_visibility:
+        raise HTTPException(status_code=400, detail="file_path and visibility are required")
+
+    if target_visibility not in ("team", "org"):
+        raise HTTPException(status_code=400, detail="visibility must be 'team' or 'org'")
+
+    # Permission checks
+    if target_visibility == "org" and not (user.is_org_admin or user.is_staff):
+        raise HTTPException(status_code=403, detail="Only admins can share to organization")
+
+    target_team = None
+    if target_visibility == "team":
+        if not target_team_slug:
+            raise HTTPException(status_code=400, detail="team_slug required for team sharing")
+        try:
+            target_team = await sync_to_async(Team.objects.get)(slug=target_team_slug)
+        except Team.DoesNotExist:
+            raise HTTPException(status_code=404, detail="Team not found")
+        # Verify user is member of this team
+        is_member = await sync_to_async(TeamMembership.objects.filter(user=user, team=target_team).exists)()
+        if not is_member and not (user.is_org_admin or user.is_staff):
+            raise HTTPException(status_code=403, detail="You are not a member of this team")
+
+    # Update entry visibility
+    update_kwargs = {"visibility": target_visibility, "shared_by": user}
+    if target_team:
+        update_kwargs["team"] = target_team
+
+    count = await sync_to_async(DbEntry.objects.filter(user=user, file_path=file_path).update)(**update_kwargs)
+
+    if count == 0:
+        raise HTTPException(status_code=404, detail="No entries found for this file")
+
+    return {"status": "shared", "count": count, "visibility": target_visibility}
 
 
 def map_config_to_object(content_source: str):

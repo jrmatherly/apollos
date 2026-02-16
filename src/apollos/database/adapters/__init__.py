@@ -60,6 +60,8 @@ from apollos.database.models import (
     ServerChatSettings,
     SpeechToTextModelOptions,
     Subscription,
+    Team,
+    TeamMembership,
     TextToImageModelConfig,
     UserConversationConfig,
     UserMemory,
@@ -89,6 +91,41 @@ logger = logging.getLogger(__name__)
 
 
 LENGTH_OF_FREE_TRIAL = 7  #
+
+
+def get_user_team_ids(user: ApollosUser) -> list[int]:
+    """Get IDs of all teams the user belongs to."""
+    if user is None:
+        return []
+    return list(Team.objects.filter(memberships__user=user).values_list("id", flat=True))
+
+
+def build_entry_access_filter(user: ApollosUser, agent: Agent = None) -> Q:
+    """Build Q filter for entries accessible to this user across all KB tiers.
+
+    Returns a Q object combining:
+    - Private entries owned by this user
+    - Team-visible entries in user's teams
+    - Organization-visible entries
+    - Agent-owned entries (if agent provided)
+    """
+    if user is None and agent is None:
+        return Q(pk__in=[])  # Empty result
+
+    filters = Q()
+
+    if user is not None:
+        user_teams = get_user_team_ids(user)
+        filters = Q(user=user, visibility=Entry.Visibility.PRIVATE) | Q(  # Personal
+            visibility=Entry.Visibility.ORGANIZATION
+        )  # Org-wide
+        if user_teams:
+            filters |= Q(team_id__in=user_teams, visibility=Entry.Visibility.TEAM)  # Team
+
+    if agent is not None:
+        filters |= Q(agent=agent)  # Agent-owned entries (no visibility check)
+
+    return filters
 
 
 class SubscriptionState(Enum):
@@ -723,15 +760,18 @@ class AgentAdapters:
 
     @staticmethod
     async def aget_readonly_agent_by_slug(agent_slug: str, user: ApollosUser):
-        return (
-            await Agent.objects.filter(
-                (Q(slug__iexact=agent_slug.lower()))
-                & (
-                    Q(privacy_level=Agent.PrivacyLevel.PUBLIC)
-                    | Q(privacy_level=Agent.PrivacyLevel.PROTECTED)
-                    | Q(creator=user)
-                )
+        user_teams = await sync_to_async(get_user_team_ids)(user) if user else []
+        slug_filter = Q(slug__iexact=agent_slug.lower())
+        access_filter = Q(privacy_level__in=[Agent.PrivacyLevel.PUBLIC, Agent.PrivacyLevel.ORGANIZATION]) | Q(
+            creator=user
+        )
+        if user_teams:
+            access_filter |= Q(
+                privacy_level__in=[Agent.PrivacyLevel.TEAM, Agent.PrivacyLevel.PROTECTED],
+                team_id__in=user_teams,
             )
+        return (
+            await Agent.objects.filter(slug_filter & access_filter)
             .prefetch_related("creator", "chat_model", "fileobject_set")
             .afirst()
         )
@@ -752,20 +792,36 @@ class AgentAdapters:
 
     @staticmethod
     async def aget_agent_by_slug(agent_slug: str, user: ApollosUser):
-        return (
-            await Agent.objects.filter(
-                (Q(slug__iexact=agent_slug.lower())) & (Q(privacy_level=Agent.PrivacyLevel.PUBLIC) | Q(creator=user))
+        user_teams = await sync_to_async(get_user_team_ids)(user) if user else []
+        slug_filter = Q(slug__iexact=agent_slug.lower())
+        access_filter = Q(privacy_level__in=[Agent.PrivacyLevel.PUBLIC, Agent.PrivacyLevel.ORGANIZATION]) | Q(
+            creator=user
+        )
+        if user_teams:
+            access_filter |= Q(
+                privacy_level__in=[Agent.PrivacyLevel.TEAM, Agent.PrivacyLevel.PROTECTED],
+                team_id__in=user_teams,
             )
+        return (
+            await Agent.objects.filter(slug_filter & access_filter)
             .prefetch_related("creator", "chat_model", "fileobject_set")
             .afirst()
         )
 
     @staticmethod
     async def aget_agent_by_name(agent_name: str, user: ApollosUser):
-        return (
-            await Agent.objects.filter(
-                (Q(name__iexact=agent_name.lower())) & (Q(privacy_level=Agent.PrivacyLevel.PUBLIC) | Q(creator=user))
+        user_teams = await sync_to_async(get_user_team_ids)(user) if user else []
+        name_filter = Q(name__iexact=agent_name.lower())
+        access_filter = Q(privacy_level__in=[Agent.PrivacyLevel.PUBLIC, Agent.PrivacyLevel.ORGANIZATION]) | Q(
+            creator=user
+        )
+        if user_teams:
+            access_filter |= Q(
+                privacy_level__in=[Agent.PrivacyLevel.TEAM, Agent.PrivacyLevel.PROTECTED],
+                team_id__in=user_teams,
             )
+        return (
+            await Agent.objects.filter(name_filter & access_filter)
             .prefetch_related("creator", "chat_model", "fileobject_set")
             .afirst()
         )
@@ -773,28 +829,54 @@ class AgentAdapters:
     @staticmethod
     def get_agent_by_slug(slug: str, user: ApollosUser = None):
         if user:
-            return Agent.objects.filter(
-                (Q(slug__iexact=slug.lower())) & (Q(privacy_level=Agent.PrivacyLevel.PUBLIC) | Q(creator=user))
-            ).first()
-        return Agent.objects.filter(slug__iexact=slug.lower(), privacy_level=Agent.PrivacyLevel.PUBLIC).first()
+            user_teams = get_user_team_ids(user)
+            slug_filter = Q(slug__iexact=slug.lower())
+            access_filter = Q(privacy_level__in=[Agent.PrivacyLevel.PUBLIC, Agent.PrivacyLevel.ORGANIZATION]) | Q(
+                creator=user
+            )
+            if user_teams:
+                access_filter |= Q(
+                    privacy_level__in=[Agent.PrivacyLevel.TEAM, Agent.PrivacyLevel.PROTECTED],
+                    team_id__in=user_teams,
+                )
+            return Agent.objects.filter(slug_filter & access_filter).first()
+        return Agent.objects.filter(
+            slug__iexact=slug.lower(),
+            privacy_level__in=[Agent.PrivacyLevel.PUBLIC, Agent.PrivacyLevel.ORGANIZATION],
+        ).first()
 
     @staticmethod
     def get_all_accessible_agents(user: ApollosUser = None):
-        public_query = Q(privacy_level=Agent.PrivacyLevel.PUBLIC)
-        # TODO Update this to allow any public agent that's officially approved once that experience is launched
-        public_query &= Q(managed_by_admin=True)
-
-        user_query = Q(creator=user)
-        user_query &= Q(is_hidden=False)
-        if user:
+        if user is None:
+            # Unauthenticated: only org-wide agents
             return (
-                Agent.objects.filter(public_query | user_query)
-                .distinct()
+                Agent.objects.filter(
+                    privacy_level__in=[Agent.PrivacyLevel.ORGANIZATION, Agent.PrivacyLevel.PUBLIC],
+                    managed_by_admin=True,
+                )
                 .order_by("created_at")
                 .prefetch_related("creator", "chat_model", "fileobject_set")
             )
+
+        user_teams = get_user_team_ids(user)
+
+        # User's own agents (private)
+        user_query = Q(creator=user, is_hidden=False)
+
+        # Org-wide agents (admin-managed or privacy_level=org)
+        org_query = Q(privacy_level__in=[Agent.PrivacyLevel.ORGANIZATION, Agent.PrivacyLevel.PUBLIC])
+
+        # Team agents (user's teams)
+        team_query = Q()
+        if user_teams:
+            team_query = Q(
+                privacy_level__in=[Agent.PrivacyLevel.TEAM, Agent.PrivacyLevel.PROTECTED],
+                team_id__in=user_teams,
+            )
+
         return (
-            Agent.objects.filter(public_query)
+            Agent.objects.filter(user_query | org_query | team_query)
+            .distinct()
             .order_by("created_at")
             .prefetch_related("creator", "chat_model", "fileobject_set")
         )
@@ -808,12 +890,23 @@ class AgentAdapters:
     async def ais_agent_accessible(agent: Agent, user: ApollosUser) -> bool:
         agent = await Agent.objects.select_related("creator").aget(pk=agent.pk)
 
-        if agent.privacy_level == Agent.PrivacyLevel.PUBLIC:
+        # Org-wide agents: accessible to all authenticated users
+        if agent.privacy_level in [Agent.PrivacyLevel.PUBLIC, Agent.PrivacyLevel.ORGANIZATION]:
             return True
+
+        # Creator can always access their own agents
         if agent.creator == user:
             return True
-        if agent.privacy_level == Agent.PrivacyLevel.PROTECTED:
-            return True
+
+        # Team agents: check team membership
+        if agent.privacy_level in [Agent.PrivacyLevel.TEAM, Agent.PrivacyLevel.PROTECTED]:
+            if agent.team_id:
+                is_member = await sync_to_async(
+                    TeamMembership.objects.filter(user=user, team_id=agent.team_id).exists
+                )()
+                return is_member
+            return False  # No team assigned — not accessible
+
         return False
 
     @staticmethod
@@ -843,16 +936,16 @@ class AgentAdapters:
             agent.chat_model = default_chat_model
             agent.slug = AgentAdapters.DEFAULT_AGENT_SLUG
             agent.name = AgentAdapters.DEFAULT_AGENT_NAME
-            agent.privacy_level = Agent.PrivacyLevel.PUBLIC
+            agent.privacy_level = Agent.PrivacyLevel.ORGANIZATION
             agent.managed_by_admin = True
             agent.input_tools = []
             agent.output_modes = []
             agent.save()
         else:
-            # The default agent is public and managed by the admin. It's handled a little differently than other agents.
+            # The default agent is org-wide and managed by the admin. It's handled a little differently than other agents.
             agent = Agent.objects.create(
                 name=AgentAdapters.DEFAULT_AGENT_NAME,
-                privacy_level=Agent.PrivacyLevel.PUBLIC,
+                privacy_level=Agent.PrivacyLevel.ORGANIZATION,
                 managed_by_admin=True,
                 chat_model=default_chat_model,
                 personality=default_personality,
@@ -2193,18 +2286,13 @@ class EntryAdapters:
         file_filters = EntryAdapters.file_filter.get_filter_terms(query)
         date_filters = EntryAdapters.date_filter.get_query_date_range(query)
 
-        owner_filter = Q()
-
-        if user is not None:
-            owner_filter = Q(user=user)
-        if agent is not None:
-            owner_filter |= Q(agent=agent)
-
-        if owner_filter == Q():
+        # Use multi-tier access filter instead of simple owner_filter
+        access_filter = build_entry_access_filter(user, agent)
+        if access_filter == Q(pk__in=[]):
             return Entry.objects.none()
 
         if len(word_filters) == 0 and len(file_filters) == 0 and len(date_filters) == 0:
-            return Entry.objects.filter(owner_filter)
+            return Entry.objects.filter(access_filter)
 
         for term in word_filters:
             if term.startswith("+"):
@@ -2240,7 +2328,7 @@ class EntryAdapters:
                 formatted_max_date = date.fromtimestamp(max_date).strftime("%Y-%m-%d")
                 q_filter_terms &= Q(embeddings_dates__date__lte=formatted_max_date)
 
-        relevant_entries = Entry.objects.filter(owner_filter).filter(q_filter_terms)
+        relevant_entries = Entry.objects.filter(access_filter).filter(q_filter_terms)
         if file_type_filter:
             relevant_entries = relevant_entries.filter(file_type=file_type_filter)
         return relevant_entries
@@ -2255,20 +2343,13 @@ class EntryAdapters:
         max_distance: float = math.inf,
         agent: Agent = None,
     ):
-        owner_filter = Q()
-
-        if user is not None:
-            owner_filter = Q(user=user)
-        if agent is not None:
-            owner_filter |= Q(agent=agent)
-
-        if owner_filter == Q():
+        # Use multi-tier access filter instead of simple owner_filter
+        access_filter = build_entry_access_filter(user, agent)
+        if access_filter == Q(pk__in=[]):
             return Entry.objects.none()
 
         relevant_entries = EntryAdapters.apply_filters(user, raw_query, file_type_filter, agent)
-        relevant_entries = relevant_entries.filter(owner_filter).annotate(
-            distance=CosineDistance("embeddings", embeddings)
-        )
+        relevant_entries = relevant_entries.annotate(distance=CosineDistance("embeddings", embeddings))
         relevant_entries = relevant_entries.filter(distance__lte=max_distance)
 
         if file_type_filter:
@@ -2388,6 +2469,7 @@ class McpServerAdapters:
         return servers
 
 
+# NOTE: UserMemory is always private by design — never shared across users or teams
 class UserMemoryAdapters:
     @staticmethod
     @require_valid_user

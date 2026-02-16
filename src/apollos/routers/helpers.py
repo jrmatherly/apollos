@@ -3006,6 +3006,8 @@ def configure_content(
     files: Optional[dict[str, dict[str, str]]],
     regenerate: bool = False,
     t: Optional[state.SearchType] = state.SearchType.All,
+    visibility: str = "private",
+    team=None,
 ) -> bool:
     success = True
     if t is None:
@@ -3039,6 +3041,8 @@ def configure_content(
                 files.get("org"),
                 regenerate=regenerate,
                 user=user,
+                visibility=visibility,
+                team=team,
             )
     except Exception as e:
         logger.error(f"🚨 Failed to setup org: {e}", exc_info=True)
@@ -3056,6 +3060,8 @@ def configure_content(
                 files.get("markdown"),
                 regenerate=regenerate,
                 user=user,
+                visibility=visibility,
+                team=team,
             )
 
     except Exception as e:
@@ -3074,6 +3080,8 @@ def configure_content(
                 files.get("pdf"),
                 regenerate=regenerate,
                 user=user,
+                visibility=visibility,
+                team=team,
             )
 
     except Exception as e:
@@ -3092,6 +3100,8 @@ def configure_content(
                 files.get("plaintext"),
                 regenerate=regenerate,
                 user=user,
+                visibility=visibility,
+                team=team,
             )
 
     except Exception as e:
@@ -3113,6 +3123,8 @@ def configure_content(
                     regenerate=regenerate,
                     user=user,
                     config=github_config,
+                    visibility=visibility,
+                    team=team,
                 )
 
     except Exception as e:
@@ -3134,6 +3146,8 @@ def configure_content(
                     regenerate=regenerate,
                     user=user,
                     config=notion_config,
+                    visibility=visibility,
+                    team=team,
                 )
 
     except Exception as e:
@@ -3152,6 +3166,8 @@ def configure_content(
                 files.get("image"),
                 regenerate=regenerate,
                 user=user,
+                visibility=visibility,
+                team=team,
             )
     except Exception as e:
         logger.error(f"🚨 Failed to setup images: {e}", exc_info=True)
@@ -3164,6 +3180,8 @@ def configure_content(
                 files.get("docx"),
                 regenerate=regenerate,
                 user=user,
+                visibility=visibility,
+                team=team,
             )
     except Exception as e:
         logger.error(f"🚨 Failed to setup docx: {e}", exc_info=True)

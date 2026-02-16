@@ -19,7 +19,7 @@ def test_create_default_agent(default_user: ApollosUser):
     assert agent is not None
     assert agent.input_tools == []
     assert agent.output_modes == []
-    assert agent.privacy_level == Agent.PrivacyLevel.PUBLIC
+    assert agent.privacy_level == Agent.PrivacyLevel.ORGANIZATION
     assert agent.managed_by_admin
 
 
